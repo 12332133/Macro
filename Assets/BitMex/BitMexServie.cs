@@ -8,16 +8,8 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex
 {
-    public enum DriverStatus
-    {
-        Driver_Status_Ready,
-        Driver_Status_Open,
-        Driver_Status_Login_Complete,
-    }
-
     public class BitMexService
     {
-        private DriverStatus status = DriverStatus.Driver_Status_Ready;
         private IWebDriver driver;
         private string url;
 
@@ -40,6 +32,9 @@ namespace Assets.BitMex
         private const string XPathOderTargetMarketButton = "//*[@id=\"content\"]/div/span/div[1]/div/div/li[1]/ul/div/div/ul/li[2]/span/span";
         private const string XPathOderTargetSpecifedButton = "//*[@id=\"content\"]/div/span/div[1]/div/div/li[1]/ul/div/div/ul/li[1]/span/span";
         private const string XPathViewTable = "//*[@id=\"content\"]/div/span/div[2]/div/div/div[2]/div[1]/div[5]/section/div/div/div[2]/table/tbody";
+        private const string XPatchSumCashedXBT = "//*[@id=\"header\"]/div[2]/a[1]/span/table/tbody/tr[1]/td[2]";
+
+        private const string XPathLoginAccount = "//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]";
 
         public BitMexService(IWebDriver driver)
         {
@@ -55,7 +50,7 @@ namespace Assets.BitMex
             this.url = url;
             this.driver = driver;
         }
-        
+
         public void OpenService(IWebDriver driver, string url)
         {
             CloseDriver();
@@ -66,11 +61,11 @@ namespace Assets.BitMex
 
         public bool IsDriverOpen()
         {
-            if (this.driver != null)
+            if (this.driver == null)
             {
                 try
                 {
-                    return true;
+                    return false;
                 }
                 catch (System.Exception)
                 {
@@ -82,17 +77,10 @@ namespace Assets.BitMex
             return true;
         }
 
-        public DriverStatus GetDriverStatus()
-        {
-            return this.status;
-        }
-
         public void CloseDriver()
         {
             try
             {
-                this.status = DriverStatus.Driver_Status_Ready;
-
                 if (this.driver == null)
                     return;
 
@@ -383,16 +371,55 @@ namespace Assets.BitMex
             return decimal.Parse(marketPrice.Text);
         }
 
-        public bool IsLogin()
+        //public bool IsLoginBitMexAccount()
+        //{
+        //    try
+        //    {
+        //        this.driver.FindElement(By.XPath(BitMexService.XPathLoginAccount));
+        //        return true;
+        //    }
+        //    catch (System.Exception ex)
+        //    {
+        //        return false;
+        //    }
+        //}
+
+        public bool IsInvaildEmail(string email)
         {
             try
             {
-                this.driver.FindElement(By.XPath("//*[@id=\"header\"]/div[2]/a[1]/span/table/tbody/tr[1]/td[2]"));
-                this.status = DriverStatus.Driver_Status_Login_Complete;
+                var elementEmail = this.driver.FindElement(By.XPath("//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]"));
+                return elementEmail.Text.Equals(email);
+            }
+            catch (System.Exception)
+            {
+                return false;
+            }
+        }
+
+        public string GetLoginBitMexAccountEmail()
+        {
+            try
+            {
+                var elementEmail = this.driver.FindElement(By.XPath("//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]"));
+                return elementEmail.Text;
+            }
+            catch (System.Exception)
+            {
+                return string.Empty;
+            }
+        }
+
+        public bool IsLoginBitMex()
+        {
+            try
+            {
+                var element = this.driver.FindElement(By.XPath(BitMexService.XPatchSumCashedXBT));
+                var text = element.Text;
                 return true;
             }
-            catch (System.Exception ex)
-            {   
+            catch (System.Exception)
+            {
                 return false;
             }
         }

@@ -95,12 +95,14 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
 
     private void OnKeyDown(RawKey key)
     {
-        Debug.Log("ContentsMacroHotKeyItem.OnKeyDown()");
-
         if (this.txtHotKey.text.Equals("입력") == true)
+        {
             this.txtHotKey.text = key.ToString();
+        }
         else
+        {
             this.txtHotKey.text += "+" + key.ToString();
+        }
     }
 
     private void OnKeyUp(RawKey key)
@@ -109,7 +111,6 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         {
             KeyboardHooker.OnKeyUp -= OnKeyUp;
             KeyboardHooker.OnKeyDown -= OnKeyDown;
-            Debug.Log("ContentsMacroHotKeyItem.KeyboardHooker unresister callback");
         }
     }
 

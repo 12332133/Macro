@@ -21,11 +21,10 @@ namespace Assets.KeyBoardHook
             return hookHandle != IntPtr.Zero;
         }
 
-        public static bool Start(bool background = true)
+        public static bool Start()
         {
             if (hookHandle != IntPtr.Zero) 
                 return false;
-
             return SetHook();
         }
 
