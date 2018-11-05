@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.BitMex;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class ContentsAlarm : ContentsBase
@@ -7,8 +8,8 @@ public class ContentsAlarm : ContentsBase
     {
     }
 
-    public override void Initialize()
+    public override void Initialize(IBitMexMainAdapter bitmexMain)
     {
-        base.Initialize();
+        base.Initialize(bitmexMain);
     }
 }

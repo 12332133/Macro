@@ -60,9 +60,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\BitMex\BitMexActionCommand.cs" />
     <Compile Include="Assets\BitMex\BitMexApiHelper.cs" />
-    <Compile Include="Assets\BitMex\BitMexServie.cs" />
+    <Compile Include="Assets\BitMex\BitMexCommandExecutor.cs" />
+    <Compile Include="Assets\BitMex\BitMexCommandRepository.cs" />
+    <Compile Include="Assets\BitMex\BitMexDriverService.cs" />
     <Compile Include="Assets\BitMex\BitMexSession.cs" />
+    <Compile Include="Assets\BitMex\IBitMexMainAdapter.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverBuilder.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverFactory.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverProxy.cs" />

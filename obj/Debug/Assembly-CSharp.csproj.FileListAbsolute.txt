@@ -547,4 +547,3 @@ C:\Users\Codemonkey\Desktop\Develop\Macro\obj\Debug\Assembly-CSharp.dll
 C:\Users\Codemonkey\Desktop\Develop\Macro\obj\Debug\Assembly-CSharp.pdb
 C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.csproj.CoreCompileInputs.cache
 C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.csproj.CopyComplete
-C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.csprojAssemblyReference.cache

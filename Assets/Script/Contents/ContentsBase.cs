@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using Assets.BitMex;
+using UnityEngine;
 
 public class ContentsBase : MonoBehaviour
 {
-    public virtual void Initialize()
+    public virtual void Initialize(IBitMexMainAdapter bitmexMain)
     {
     }
 }

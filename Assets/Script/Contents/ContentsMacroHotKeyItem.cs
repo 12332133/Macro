@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Assets.KeyBoardHook;
 using System.Collections.Generic;
+using Assets.BitMex;
 
 public class ContentsMacroHotKeyItem : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     private Action<int, eType, string> actionEnablePopup;
     private float fixValue = 0f;
     private float fastValue = 12.5f;
+    private IBitMexMainAdapter bitmexMain;
 
     private void Reset()
     {
@@ -28,8 +30,10 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.dropdown = transform.Find("Dropdown").GetComponent<Dropdown>();
     }
 
-    public ContentsMacroHotKeyItem Initialized(int index, Action<int, eType, string> callBack)
+    public ContentsMacroHotKeyItem Initialized(int index, Action<int, eType, string> callBack, IBitMexMainAdapter bitmexMain)
     {
+        this.bitmexMain = bitmexMain;
+
         this.index = index;
         this.actionEnablePopup = callBack;
 
@@ -37,33 +41,38 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.txtHotKey.text = "입력";
 
         this.dropdown.options.Clear();
-        this.dropdown.options.Add(new Dropdown.OptionData(""));
-        this.dropdown.options.Add(new Dropdown.OptionData("사용가능 xbt 고정"));
-        this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 설정"));
-        this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
-        this.dropdown.options.Add(new Dropdown.OptionData("시장가 100% 매수"));
-        this.dropdown.options.Add(new Dropdown.OptionData("시장가 50% 매수"));
-        this.dropdown.options.Add(new Dropdown.OptionData("시장가 25% 매수"));
-        this.dropdown.options.Add(new Dropdown.OptionData("시장가 10% 매수"));
-        this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
-        this.dropdown.options.Add(new Dropdown.OptionData("시장가 100% 매도"));
-        this.dropdown.options.Add(new Dropdown.OptionData("시장가 50% 매도"));
-        this.dropdown.options.Add(new Dropdown.OptionData("시장가 25% 매도"));
-        this.dropdown.options.Add(new Dropdown.OptionData("시장가 10% 매도"));
-        this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
-        this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 100% 매수"));
-        this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 50% 매수"));
-        this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 25% 매수"));
-        this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 10% 매수"));
-        this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
-        this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 100% 매도"));
-        this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 50% 매도"));
-        this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 25% 매도"));
-        this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 10% 매도"));
-        this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
-        this.dropdown.options.Add(new Dropdown.OptionData("최상위 포지션 취소"));
-        this.dropdown.options.Add(new Dropdown.OptionData("최상위 주문 취소"));
-        this.dropdown.options.Add(new Dropdown.OptionData("전체 주문 취소"));
+        foreach (var command in bitmexMain.BitMexCommandList)
+        {
+            this.dropdown.options.Add(new Dropdown.OptionData(command.Value.DropBoxText));
+        }
+
+        //this.dropdown.options.Add(new Dropdown.OptionData(""));
+        //this.dropdown.options.Add(new Dropdown.OptionData("사용가능 xbt 고정"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 설정"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("시장가 100% 매수"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("시장가 50% 매수"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("시장가 25% 매수"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("시장가 10% 매수"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("시장가 100% 매도"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("시장가 50% 매도"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("시장가 25% 매도"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("시장가 10% 매도"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 100% 매수"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 50% 매수"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 25% 매수"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 10% 매수"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 100% 매도"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 50% 매도"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 25% 매도"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("빠른 지정가 10% 매도"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("---------------"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("최상위 포지션 취소"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("최상위 주문 취소"));
+        //this.dropdown.options.Add(new Dropdown.OptionData("전체 주문 취소"));
 
         this.dropdown.onValueChanged.AddListener(OnValueChanged);
 
@@ -120,8 +129,12 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
 
         switch ((eType)index)
         {
-            case eType.Fix  : actionEnablePopup(this.index, eType.Fix, this.fixValue.ToString()); break;
-            case eType.Fast : actionEnablePopup(this.index, eType.Fast, this.fastValue.ToString()); break;
+            case eType.Fix  :
+                actionEnablePopup(this.index, eType.Fix, this.fixValue.ToString());
+                break;
+            case eType.Fast :
+                actionEnablePopup(this.index, eType.Fast, this.fastValue.ToString());
+                break;
         }
     }
 }

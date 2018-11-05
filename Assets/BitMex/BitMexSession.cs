@@ -14,5 +14,7 @@ namespace Assets.BitMex
         public string ReferrerAccount;
         public string ReferrerEmail;
         public DateTime UpdateDateTime;
+        public decimal FixedAvailableXbt { get; set; }
+        public decimal SpecifiedAditional { get; set; }
     }
 }

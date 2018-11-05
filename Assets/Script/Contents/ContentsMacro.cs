@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Assets.BitMex;
+using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +23,7 @@ public class ContentsMacro : ContentsBase
     private List<ContentsMacroHotKeyItem> listHotKeys = new List<ContentsMacroHotKeyItem>();
     private int currHotKeyIndex;
     private ContentsMacroHotKeyItem.eType currHotKeyType;
+    private IBitMexMainAdapter bitmexMain;
 
     private void Reset()
     {
@@ -40,14 +42,14 @@ public class ContentsMacro : ContentsBase
         this.btnSave = transform.Find("Panel/btnSave").GetComponent<Button>();
     }
 
-    public override void Initialize()
+    public override void Initialize(IBitMexMainAdapter bitmexMain)
     {
-        base.Initialize();
+        this.bitmexMain = bitmexMain;
 
         for (int i = 0; i < 10; ++i)
         {
             var go = Instantiate(this.goHotKeyItem);
-            this.listHotKeys.Add(go.GetComponent<ContentsMacroHotKeyItem>().Initialized(i, EnablePopup));
+            this.listHotKeys.Add(go.GetComponent<ContentsMacroHotKeyItem>().Initialized(i, EnablePopup, bitmexMain));
             go.transform.SetParent(this.svHotKey.content.transform);
         }
 

@@ -151,12 +151,12 @@ namespace Assets.BitMex
 
         public static string GetAccount(BitMexSession session, string domain)
         {
-            return Query(domain, session.ApiSecret, session.ApiKey, "GET", "/user", null, true);
+            return BitMexApiHelper.Query(domain, session.ApiSecret, session.ApiKey, "GET", "/user", null, true);
         }
 
         public static string GetReferral(BitMexSession session, string domain)
         {
-            return Query(domain, session.ApiSecret, session.ApiKey, "GET", "/user/affiliateStatus", null, true);
+            return BitMexApiHelper.Query(domain, session.ApiSecret, session.ApiKey, "GET", "/user/affiliateStatus", null, true);
         }
     }
 }
