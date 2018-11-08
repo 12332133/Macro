@@ -78,17 +78,7 @@ public class ContentsMacro : ContentsBase
 
     private bool OnCombinationMacro(int index, List<RawKey> rawKeys, BitMexCommandType commandType)
     {
-        switch (commandType)
-        {
-            case BitMexCommandType.FixedAvailableXbt:
-            case BitMexCommandType.SpecifiedAditional:
-                this.goPopup.SetActive(true);
-                break;
-            default:
-                return this.bitmexMain.ResisterMacro(rawKeys, commandType);
-        }
-
-        return true;
+        return this.bitmexMain.ResisterMacro(rawKeys, commandType);
     }
 
     private void OnClickPopupOK()

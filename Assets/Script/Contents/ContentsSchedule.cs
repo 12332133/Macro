@@ -1,6 +1,7 @@
 ﻿using Assets.BitMex;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -8,31 +9,32 @@ using UnityEngine.UI;
 
 public class ContentsSchedule : ContentsBase
 {
-    public enum AlramType
+    public enum TradeType
     {
         Over,
         Under,
     }
 
-    public class BitMexMarketPriceAlram
+    public class BreakThroughTrade
     {
-        public AlramType Type { get; private set; }
         public decimal Price { get; private set; }
-        public int AlramCount { get; private set; }
+        public IBitMexActionCommand Command { get; private set; }
+        public TradeType Type { get; private set; }
 
-        public BitMexMarketPriceAlram(AlramType type, decimal price, int alramCount)
+        public BreakThroughTrade(TradeType type, decimal price, IBitMexActionCommand command)
         {
             Type = type;
             Price = price;
-            AlramCount = alramCount;
+            Command = command;
         }
     }
 
     private Thread thread;
-    private ConcurrentQueue<BitMexMarketPriceAlram> alrams;
-
+    private ConcurrentQueue<BreakThroughTrade> trades;
+    private List<BitMexCommandType> overCommandTypes;
+    private List<BitMexCommandType> underCommandTypes;
     private decimal marketPrice;
-    private decimal tempPrice;
+    private decimal inputPrice;
 
     private void Reset()
     {
@@ -40,9 +42,7 @@ public class ContentsSchedule : ContentsBase
 
     private void Awake()
     {
-        Application.runInBackground = true;
-
-        this.alrams = new ConcurrentQueue<BitMexMarketPriceAlram>();
+        this.trades = new ConcurrentQueue<BreakThroughTrade>();
 
         this.thread = new Thread(DoWork);
         this.thread.IsBackground = true;
@@ -52,6 +52,29 @@ public class ContentsSchedule : ContentsBase
     public override void Initialize(IBitMexMainAdapter bitmexMain)
     {
         base.Initialize(bitmexMain);
+
+        this.overCommandTypes = new List<BitMexCommandType>();
+        this.underCommandTypes = new List<BitMexCommandType>();
+
+        foreach (var command in bitmexMain.CommandRepository.GetCommands())
+        {
+            switch (command.Key)
+            {
+                case BitMexCommandType.MarketSpecified10PriceBuy:
+                case BitMexCommandType.MarketSpecified25PriceBuy:
+                case BitMexCommandType.MarketSpecified50PriceBuy:
+                case BitMexCommandType.MarketSpecified100PriceBuy:
+                    this.overCommandTypes.Add(command.Key);
+                    break;
+                case BitMexCommandType.MarketSpecified10PriceSell:
+                case BitMexCommandType.MarketSpecified25PriceSell:
+                case BitMexCommandType.MarketSpecified50PriceSell:
+                case BitMexCommandType.MarketSpecified100PriceSell:
+                    this.underCommandTypes.Add(command.Key);
+                    break;
+            }
+        }
+
         StartCoroutine(UpdateMarketPrice());
     }
 
@@ -62,50 +85,42 @@ public class ContentsSchedule : ContentsBase
             if (this.bitmexMain.DriverService.IsLoginBitMex() == true)
             {
                 this.marketPrice = this.bitmexMain.DriverService.OperationGetMarketPrice();
-
-                if (this.marketPrice != this.tempPrice)
-                {
-                    this.tempPrice = this.marketPrice;
-                    Debug.Log(string.Format("change price {0} => {1}", this.marketPrice, this.tempPrice));
-                }
             }
             yield return new WaitForSeconds(0.1f);
         }
     }
 
-    private bool IsCompletePriceConditions(BitMexMarketPriceAlram alram)
+    private bool IsCompletePriceConditions(BreakThroughTrade trade)
     {
-        switch (alram.Type)
+        switch (trade.Type)
         {
-            case AlramType.Over:
-                return this.marketPrice < alram.Price;
-            case AlramType.Under:
-                return this.marketPrice > alram.Price;
+            case TradeType.Over:
+                return this.marketPrice < trade.Price;
+            case TradeType.Under:
+                return this.marketPrice > trade.Price;
         }
+
         return false;
     }
 
     private void DoWork()
     {
-        BitMexMarketPriceAlram alram;
+        BreakThroughTrade trade = null;
 
         while (true)
         {
-            if (this.alrams.TryDequeue(out alram) == true)
+            if (this.trades.TryDequeue(out trade) == true)
             {
-                if (IsCompletePriceConditions(alram) == true)
+                if (IsCompletePriceConditions(trade) == true)
                 {
-                    Task.Run(() =>
+                    if (this.bitmexMain.CommandExecutor.AddCommand(trade.Command) == false)
                     {
-                        for (int i = 0; i < alram.AlramCount; i++)
-                        {
-                            Debug.Log(string.Format("run alram {0}", alram.Price));
-                        }
-                    });
+                        //log
+                    }
                 }
                 else
                 {
-                    this.alrams.Enqueue(alram);
+                    this.trades.Enqueue(trade);
                 }
             }
 
@@ -113,9 +128,35 @@ public class ContentsSchedule : ContentsBase
         }
     }
 
-    public void AddSchedule(AlramType type, decimal price, int alramCount)
+    public void AddTrade(TradeType type, decimal inputPrice, BitMexCommandType commandType)
     {
-        this.alrams.Enqueue(new BitMexMarketPriceAlram(type, price, alramCount));
+        if (commandType == BitMexCommandType.None)
+        {
+            return;
+        }
+
+        var command = this.bitmexMain.CommandRepository.CreateCommand(commandType);
+        var trade = new BreakThroughTrade(type, inputPrice, command);
+        this.trades.Enqueue(trade);
     }
 
+    public void Test()
+    {
+        if (this.marketPrice == this.inputPrice)
+        {
+            return;
+        }
+
+        if (this.marketPrice > this.inputPrice)
+        {
+            var commandType = this.underCommandTypes[0];
+            AddTrade(TradeType.Under, this.inputPrice, commandType);
+        }
+        else
+        {
+            var commandType = this.overCommandTypes[0];
+            AddTrade(TradeType.Over, this.inputPrice, commandType);
+        }
+
+    }
 }
