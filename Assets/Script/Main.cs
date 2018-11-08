@@ -32,7 +32,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     private bool isCombination = false;
     private bool isEnableMacro = false;
     private List<RawKey> inputRawKeys;
-    private List<KeyValuePair<List<RawKey>, IBitMexActionCommand>> macros;
     private Dictionary<RawKey, int> allowSpecialKeys;
 
     private void Reset()
@@ -57,10 +56,9 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void Awake()
     {
+        SetTemplateCommand();
         SetBitMexService();
         SetAllowSpecialKey();
-        SetTemplateCommand();
-        LoadMacro();
         SetInputKey();
 
         this.toggleTabs[0].onValueChanged.AddListener(OnToggleTab);
@@ -70,7 +68,10 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.btnBitMex.onClick.AddListener(OnOpenBitMex);
         this.btnMacro.onClick.AddListener(OnEnableMacro);
 
-        this.contents[0].Initialize(this);
+        foreach (var content in this.contents)
+        {
+            content.Initialize(this);
+        }
     }
 
     private void SetBitMexService()
@@ -86,9 +87,12 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             Email = "condemonkey@gmail.com",
             ReferrerAccount = "462226",
             ReferrerEmail = "",
-            FixedAvailableXbt = 0,
-            SpecifiedAditional = 12.5M,
         };
+
+        //load macro
+        //this.session.ResisterMacro(
+        //    new List<RawKey>() { (RawKey)1, (RawKey)2, (RawKey)3, (RawKey)4 }, 
+        //    this.repository.CreateCommand((BitMexCommandType)1));
     }
 
     private void SetAllowSpecialKey()
@@ -109,50 +113,25 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         this.repository = new BitMexCommandRepository();
 
-        this.repository.Resister(BitMexCommandType.FixedAvailableXbt,
-            new FixedAvailableXbtCommand() { Main = this, DropBoxText = "사용가능 xbt 고정" });
+        this.repository.Resister(BitMexCommandType.Test, new DefaultSampleCommand(this, "테스트"));
 
-        this.repository.Resister(BitMexCommandType.SpecifiedAditional,
-            new FixedAvailableXbtCommand() { Main = this, DropBoxText = "빠른 지정가 설정" });
+        this.repository.Resister(BitMexCommandType.FixedAvailableXbt, new FixedAvailableXbtCommand(this, "사용가능 xbt 고정"));
+        this.repository.Resister(BitMexCommandType.SpecifiedAditional, new FixedAvailableXbtCommand(this, "빠른 지정가 설정"));
 
-        this.repository.Resister(BitMexCommandType.MarketPriceBuy10Magnification,
-            new MarketPriceBuyCommand() { Main = this, Magnification = 10, DropBoxText = "시장가 10% 매수" });
-        this.repository.Resister(BitMexCommandType.MarketPriceBuy25Magnification,
-            new MarketPriceBuyCommand() { Main = this, Magnification = 25, DropBoxText = "시장가 25% 매수" });
-        this.repository.Resister(BitMexCommandType.MarketPriceBuy50Magnification,
-            new MarketPriceBuyCommand() { Main = this, Magnification = 50, DropBoxText = "시장가 50% 매수" });
-        this.repository.Resister(BitMexCommandType.MarketPriceBuy100Magnification,
-            new MarketPriceBuyCommand() { Main = this, Magnification = 100, DropBoxText = "시장가 100% 매수" });
+        this.repository.Resister(BitMexCommandType.MarketPriceBuy10Magnification, new MarketPriceBuyCommand(this, "시장가 10% 매수"));
+        this.repository.Resister(BitMexCommandType.MarketPriceBuy25Magnification, new MarketPriceBuyCommand(this, "시장가 25% 매수"));
+        this.repository.Resister(BitMexCommandType.MarketPriceBuy50Magnification, new MarketPriceBuyCommand(this, "시장가 50% 매수"));
+        this.repository.Resister(BitMexCommandType.MarketPriceBuy100Magnification, new MarketPriceBuyCommand(this, "시장가 100% 매수"));
 
-        this.repository.Resister(BitMexCommandType.MarketPriceSell10Magnification,
-            new MarketPriceSellCommand() { Main = this, Magnification = 10, DropBoxText = "시장가 10% 매도" });
-        this.repository.Resister(BitMexCommandType.MarketPriceSell25Magnification,
-            new MarketPriceSellCommand() { Main = this, Magnification = 25, DropBoxText = "시장가 25% 매도" });
-        this.repository.Resister(BitMexCommandType.MarketPriceSell50Magnification,
-            new MarketPriceSellCommand() { Main = this, Magnification = 50, DropBoxText = "시장가 50% 매도" });
-        this.repository.Resister(BitMexCommandType.MarketPriceSell100Magnification,
-            new MarketPriceSellCommand() { Main = this, Magnification = 100, DropBoxText = "시장가 100% 매도" });
-    }
-
-    private void LoadMacro()
-    {
-        this.macros = new List<KeyValuePair<List<RawKey>, IBitMexActionCommand>>();
-        this.macros.Add(
-            new KeyValuePair<List<RawKey>, IBitMexActionCommand>(
-                new List<RawKey>() { RawKey.LeftShift, RawKey.A, },
-                this.repository.CreateCommand(BitMexCommandType.MarketPriceBuy10Magnification)
-              ));
-        this.macros.Add(
-           new KeyValuePair<List<RawKey>, IBitMexActionCommand>(
-               new List<RawKey>() { RawKey.LeftShift, RawKey.S, },
-               this.repository.CreateCommand(BitMexCommandType.MarketPriceSell50Magnification)
-             ));
+        this.repository.Resister(BitMexCommandType.MarketPriceSell10Magnification, new MarketPriceSellCommand(this, "시장가 10% 매도"));
+        this.repository.Resister(BitMexCommandType.MarketPriceSell25Magnification, new MarketPriceSellCommand(this, "시장가 25% 매도"));
+        this.repository.Resister(BitMexCommandType.MarketPriceSell50Magnification, new MarketPriceSellCommand(this, "시장가 50% 매도"));
+        this.repository.Resister(BitMexCommandType.MarketPriceSell100Magnification, new MarketPriceSellCommand(this, "시장가 100% 매도"));
     }
 
     private void SetInputKey()
     {
         this.inputRawKeys = new List<RawKey>();
-        this.inputRawKeys.Clear();
     }
 
     private void OnToggleTab(bool state)
@@ -243,7 +222,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             return;
         }
 
-        foreach (var macro in this.macros)
+        foreach (var macro in this.session.Macros)
         {
             if (this.inputRawKeys.SequenceEqual(macro.Key) == true)
             {
@@ -251,6 +230,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                 {
                     Debug.Log("executor add command timeout");
                 }
+                Debug.Log("executor add command complete");
                 break;
             }
         }
@@ -261,7 +241,15 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     // bitmexmainadapter impl
 
-    public BitMexSession BitMexSession
+    public BitMexCommandExecutor CommandExecutor
+    {
+        get
+        {
+            return this.executor;
+        }
+    }
+
+    public BitMexSession Session
     {
         get
         {
@@ -269,7 +257,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         }
     }
 
-    public BitMexDriverService DriverService
+    public BitMexDriverService DriverService    
     {
         get
         {
@@ -277,22 +265,23 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         }
     }
 
-    public void ResisterMacro(List<RawKey> keys, BitMexCommandType type)
+    public bool ResisterMacro(List<RawKey> keys, BitMexCommandType type)
     {
-        var command = this.repository.CreateCommand(type);
-
-        this.macros.Add(
-           new KeyValuePair<List<RawKey>, IBitMexActionCommand>(
-               keys,
-               command
-             ));
+        Debug.Log("resister macro complete");
+        return this.session.ResisterMacro(keys, this.repository.CreateCommand(type));
     }
 
-    public Dictionary<BitMexCommandType, IBitMexActionCommand> BitMexCommandList
+    public BitMexCommandRepository CommandRepository
     {
         get
         {
-            return this.repository.GetCommands();
+            return this.repository;
         }
+    }
+
+    public void WriteMacroLog(string log)
+    {
+        var content = this.contents[0] as ContentsMacro;
+        content.WriteMacroLog(log);
     }
 }

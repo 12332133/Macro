@@ -7,43 +7,31 @@ using Assets.BitMex;
 
 public class ContentsMacroHotKeyItem : MonoBehaviour
 {
-    public enum eType
-    {
-        Fix = 1,
-        Fast,
-    }
-
-    [SerializeField] private Button btnHotKey;
-    [SerializeField] private Text txtHotKey;
+    [SerializeField] private MacroInputField inputHotkey;
     [SerializeField] private Dropdown dropdown;
 
     private int index;
-    private Action<int, eType, string> actionEnablePopup;
-    private float fixValue = 0f;
-    private float fastValue = 12.5f;
-    private IBitMexMainAdapter bitmexMain;
+    private Func<int, List<RawKey>, BitMexCommandType, bool> completeCombinationMacro;
+    private List<BitMexCommandType> commandTypes;
 
     private void Reset()
     {
-        this.btnHotKey = transform.Find("Button").GetComponent<Button>();
-        this.txtHotKey = transform.Find("Button/Text").GetComponent<Text>();
+        this.inputHotkey = transform.Find("InputField").GetComponent<MacroInputField>();
         this.dropdown = transform.Find("Dropdown").GetComponent<Dropdown>();
     }
 
-    public ContentsMacroHotKeyItem Initialized(int index, Action<int, eType, string> callBack, IBitMexMainAdapter bitmexMain)
+    public ContentsMacroHotKeyItem Initialized(int index, Func<int, List<RawKey>, BitMexCommandType, bool> completeCombinationMacro, Dictionary<BitMexCommandType, IBitMexActionCommand> commands)
     {
-        this.bitmexMain = bitmexMain;
+        this.commandTypes = new List<BitMexCommandType>();
 
         this.index = index;
-        this.actionEnablePopup = callBack;
-
-        this.btnHotKey.onClick.AddListener(OnClickHotKey);
-        this.txtHotKey.text = "입력";
+        this.completeCombinationMacro = completeCombinationMacro;
 
         this.dropdown.options.Clear();
-        foreach (var command in bitmexMain.BitMexCommandList)
+        foreach (var command in commands)
         {
             this.dropdown.options.Add(new Dropdown.OptionData(command.Value.DropBoxText));
+            this.commandTypes.Add(command.Key);
         }
 
         //this.dropdown.options.Add(new Dropdown.OptionData(""));
@@ -79,61 +67,21 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         return this;
     }
 
-    public void SetInputValue(eType type, string value)
-    {
-        this.dropdown.options[(int)type].text = value;
-        this.dropdown.RefreshShownValue();
-    }
-
-    private void OnClickHotKey()
-    {
-        Debug.Log("ContentsMacroHotKeyItem.OnClickHotKey()");
-
-        this.txtHotKey.text = "입력";
-
-        if (KeyboardHooker.IsRunning() == false && KeyboardHooker.Start() == false)
-        {
-            return;
-        }
-
-        Debug.Log("ContentsMacroHotKeyItem.KeyboardHooker resister callback");
-
-        KeyboardHooker.OnKeyUp += OnKeyUp;
-        KeyboardHooker.OnKeyDown += OnKeyDown;
-    }
-
-    private void OnKeyDown(RawKey key)
-    {
-        if (this.txtHotKey.text.Equals("입력") == true)
-        {
-            this.txtHotKey.text = key.ToString();
-        }
-        else
-        {
-            this.txtHotKey.text += "+" + key.ToString();
-        }
-    }
-
-    private void OnKeyUp(RawKey key)
-    {
-        if (KeyboardHooker.IsRunning() == true)
-        {
-            KeyboardHooker.OnKeyUp -= OnKeyUp;
-            KeyboardHooker.OnKeyDown -= OnKeyDown;
-        }
-    }
-
     private void OnValueChanged(int index)
     {
-        Debug.Log("ContentsMacroItem.OnValueChanged(" + this.index + ")");
+        var commandType = this.commandTypes[index];
 
-        switch ((eType)index)
+        Debug.Log(commandType);
+
+        switch (commandType)
         {
-            case eType.Fix  :
-                actionEnablePopup(this.index, eType.Fix, this.fixValue.ToString());
+            case BitMexCommandType.FixedAvailableXbt:
+            case BitMexCommandType.SpecifiedAditional:
+                completeCombinationMacro(this.index, this.inputHotkey.CombinationKey, commandType);
+                this.inputHotkey.ResetCombinationKey();
                 break;
-            case eType.Fast :
-                actionEnablePopup(this.index, eType.Fast, this.fastValue.ToString());
+            default:
+                completeCombinationMacro(this.index, this.inputHotkey.CombinationKey, commandType);
                 break;
         }
     }

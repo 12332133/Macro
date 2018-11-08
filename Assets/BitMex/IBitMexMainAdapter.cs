@@ -9,9 +9,11 @@ namespace Assets.BitMex
 {
     public interface IBitMexMainAdapter
     {
-        BitMexSession BitMexSession { get; }
+        BitMexSession Session { get; }
         BitMexDriverService DriverService { get; }
-        void ResisterMacro(List<RawKey> keys, BitMexCommandType type);
-        Dictionary<BitMexCommandType, IBitMexActionCommand> BitMexCommandList { get; }
+        BitMexCommandRepository CommandRepository { get; }
+        BitMexCommandExecutor CommandExecutor { get; }
+        bool ResisterMacro(List<RawKey> keys, BitMexCommandType type);
+        void WriteMacroLog(string log);
     }
 }

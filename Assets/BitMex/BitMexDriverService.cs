@@ -360,27 +360,21 @@ namespace Assets.BitMex
 
         public decimal OperationGetMarketPrice(string symbol = SymbolXbtUsd)
         {
-            var marketPrice = this.driver.FindElement(By.XPath("//*[@id=\"content\"]/div/div[1]/div/span[2]/span[1]/span[1]"));
-            return decimal.Parse(marketPrice.Text);
+            try
+            {
+                var marketPrice = this.driver.FindElement(By.XPath("//*[@id=\"content\"]/div/div[1]/div/span[2]/span[1]/span[1]"));
+                return decimal.Parse(marketPrice.Text);
+            }
+            catch (System.Exception)
+            {
+                return 0;
+            }
         }
-
-        //public bool IsLoginBitMexAccount()
-        //{
-        //    try
-        //    {
-        //        this.driver.FindElement(By.XPath(BitMexService.XPathLoginAccount));
-        //        return true;
-        //    }
-        //    catch (System.Exception ex)
-        //    {
-        //        return false;
-        //    }
-        //}
 
         public bool IsInvaildEmail(string email)
         {
             try
-            {
+            {                                               
                 var elementEmail = this.driver.FindElement(By.XPath("//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]"));
                 return elementEmail.Text.Equals(email);
             }
@@ -403,17 +397,30 @@ namespace Assets.BitMex
             }
         }
 
-        //public bool IsLoginBitMex()
+        //public bool IsLoginBitMexAccount()
         //{
         //    try
         //    {
-        //        this.driver.FindElement(By.XPath(BitMexService.XPatchSumCashedXBT));
+        //        this.driver.FindElement(By.XPath(BitMexService.XPathLoginAccount));
         //        return true;
         //    }
-        //    catch (System.Exception)
+        //    catch (System.Exception ex)
         //    {
         //        return false;
         //    }
         //}
+
+        public bool IsLoginBitMex()
+        {
+            try
+            {
+                this.driver.FindElement(By.XPath(BitMexDriverService.XPatchSumCashedXBT));
+                return true;
+            }
+            catch (System.Exception)
+            {
+                return false;
+            }
+        }
     }
 }

@@ -8,7 +8,8 @@ namespace Assets.BitMex
 {
     public enum BitMexCommandType
     {
-        None,
+        Empty,
+        Test,
         FixedAvailableXbt,
         SpecifiedAditional,
         MarketPriceBuy10Magnification,
@@ -30,69 +31,105 @@ namespace Assets.BitMex
 
     public interface IBitMexActionCommand
     {
-        IBitMexMainAdapter Main { get; }
+        IBitMexMainAdapter BitMexMain { get; }
         string DropBoxText { get; set; }
         void Execute();
     }
 
-    public class FixedAvailableXbtCommand : IBitMexActionCommand
+    public abstract class BitMexActionCommand : IBitMexActionCommand
     {
-        public IBitMexMainAdapter Main { get; set; }
+        public IBitMexMainAdapter BitMexMain { get; set; }
         public string DropBoxText { get; set; }
+        public abstract void Execute();
+
+        public BitMexActionCommand(IBitMexMainAdapter bitmexMain, string dropboxString)
+        {
+        }
+    }
+
+    public class DefaultSampleCommand : BitMexActionCommand
+    {
+        public DefaultSampleCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
+        {
+        }
+
+        public override void Execute()
+        {
+            BitMexMain.WriteMacroLog("DefaultSampleCommand");
+        }
+    }
+
+    public class FixedAvailableXbtCommand : BitMexActionCommand
+    {
         public decimal FixedAvailableXbt { get; set; }
 
-        public void Execute()
+        public FixedAvailableXbtCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
         {
-            this.Main.BitMexSession.FixedAvailableXbt = FixedAvailableXbt;
+        }
+
+        public override void Execute()
+        {
+            BitMexMain.Session.FixedAvailableXbt = FixedAvailableXbt;
+            BitMexMain.WriteMacroLog("FixedAvailableXbtCommand " + FixedAvailableXbt.ToString());
         }
     }
 
-    public class SpecifiedAditionalCommand : IBitMexActionCommand
+    public class SpecifiedAditionalCommand : BitMexActionCommand
     {
-        public IBitMexMainAdapter Main { get; set; }
-        public string DropBoxText { get; set; }
         public decimal SpecifiedAditional { get; set; }
 
-        public void Execute()
+        public SpecifiedAditionalCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
         {
-            this.Main.BitMexSession.SpecifiedAditional = SpecifiedAditional;
+        }
+
+        public override void Execute()
+        {
+            BitMexMain.Session.SpecifiedAditional = SpecifiedAditional;
         }
     }
 
-    public class MarketPriceBuyCommand : IBitMexActionCommand
+    public class MarketPriceBuyCommand : BitMexActionCommand
     {
-        public IBitMexMainAdapter Main { get; set; }
-        public string DropBoxText { get; set; }
         public int Magnification { get; set; }
 
-        public void Execute()
+        public MarketPriceBuyCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
         {
-            if (Main.DriverService.IsInvaildEmail(this.Main.BitMexSession.Email) == false)
-                return;
+        }
 
-            if (Main.DriverService.OperationOrderMarketQty(0, Magnification, Main.BitMexSession.FixedAvailableXbt, 
-                Main.DriverService.OperationGetCurrentSymbol()) == true)
+        public override void Execute()
+        {
+            if (BitMexMain.DriverService.IsInvaildEmail(BitMexMain.Session.Email) == false)
             {
-                Main.DriverService.OperationBuy();
+                return;
+            }
+
+            if (BitMexMain.DriverService.OperationOrderMarketQty(0, Magnification, BitMexMain.Session.FixedAvailableXbt,
+                BitMexMain.DriverService.OperationGetCurrentSymbol()) == true)
+            {
+                BitMexMain.DriverService.OperationBuy();
             }
         }
     }
 
-    public class MarketPriceSellCommand : IBitMexActionCommand
+    public class MarketPriceSellCommand : BitMexActionCommand
     {
-        public IBitMexMainAdapter Main { get; set; }
-        public string DropBoxText { get; set; }
         public int Magnification { get; set; }
 
-        public void Execute()
+        public MarketPriceSellCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
         {
-            if (this.Main.DriverService.IsInvaildEmail(this.Main.BitMexSession.Email) == false)
-                return;
+        }
 
-            if (this.Main.DriverService.OperationOrderMarketQty(0, Magnification, this.Main.BitMexSession.FixedAvailableXbt,
-                this.Main.DriverService.OperationGetCurrentSymbol()) == true)
+        public override void Execute()
+        {
+            if (BitMexMain.DriverService.IsInvaildEmail(BitMexMain.Session.Email) == false)
             {
-                this.Main.DriverService.OperationSell();
+                return;
+            }
+
+            if (BitMexMain.DriverService.OperationOrderMarketQty(0, Magnification, BitMexMain.Session.FixedAvailableXbt,
+                BitMexMain.DriverService.OperationGetCurrentSymbol()) == true)
+            {
+                BitMexMain.DriverService.OperationSell();
             }
         }
     }

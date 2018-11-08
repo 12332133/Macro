@@ -1,4 +1,5 @@
 ﻿using Assets.BitMex;
+using Assets.KeyBoardHook;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -21,9 +22,6 @@ public class ContentsMacro : ContentsBase
     [SerializeField] private Button btnSave;
 
     private List<ContentsMacroHotKeyItem> listHotKeys = new List<ContentsMacroHotKeyItem>();
-    private int currHotKeyIndex;
-    private ContentsMacroHotKeyItem.eType currHotKeyType;
-    private IBitMexMainAdapter bitmexMain;
 
     private void Reset()
     {
@@ -44,24 +42,24 @@ public class ContentsMacro : ContentsBase
 
     public override void Initialize(IBitMexMainAdapter bitmexMain)
     {
-        this.bitmexMain = bitmexMain;
+        base.Initialize(bitmexMain);
 
         for (int i = 0; i < 10; ++i)
         {
             var go = Instantiate(this.goHotKeyItem);
-            this.listHotKeys.Add(go.GetComponent<ContentsMacroHotKeyItem>().Initialized(i, EnablePopup, bitmexMain));
+            this.listHotKeys.Add(go.GetComponent<ContentsMacroHotKeyItem>().Initialized(i, OnCombinationMacro, bitmexMain.CommandRepository.GetCommands()));
             go.transform.SetParent(this.svHotKey.content.transform);
         }
 
-        btnPopup.onClick.AddListener(OnClickPopupOK);
+        this.btnPopup.onClick.AddListener(OnClickPopupOK);
 
-        for (int i = 0; i < 10; ++i)
-        {
-            var go = Instantiate(goLogItem);
-            go.GetComponent<ContentsMacroLogItem>().Initialized();
-            go.GetComponent<ContentsMacroLogItem>().SetLogText("aaaa\nbbbb");
-            go.transform.SetParent(this.svLog.content.transform);
-        }
+        //for (int i = 0; i < 10; ++i)
+        //{
+        //    var go = Instantiate(goLogItem);
+        //    go.GetComponent<ContentsMacroLogItem>().Initialized();
+        //    go.GetComponent<ContentsMacroLogItem>().SetLogText("aaaa\nbbbb");
+        //    go.transform.SetParent(this.svLog.content.transform);
+        //}
 
         this.btnAdd.onClick.AddListener(OnClickAdd);
         this.btnDel.onClick.AddListener(OnClickDel);
@@ -70,19 +68,32 @@ public class ContentsMacro : ContentsBase
         this.btnSave.interactable = false;
     }
 
-    private void EnablePopup(int index, ContentsMacroHotKeyItem.eType type, string value)
+    public void WriteMacroLog(string log)
     {
-        this.currHotKeyIndex = index;
-        this.currHotKeyType = type;
-        this.inputPopup.text = value;
-        this.goPopup.SetActive(true);
+        var go = Instantiate(goLogItem);
+        go.GetComponent<ContentsMacroLogItem>().Initialized();
+        go.GetComponent<ContentsMacroLogItem>().SetLogText(log);
+        go.transform.SetParent(this.svLog.content.transform);
+    }
+
+    private bool OnCombinationMacro(int index, List<RawKey> rawKeys, BitMexCommandType commandType)
+    {
+        switch (commandType)
+        {
+            case BitMexCommandType.FixedAvailableXbt:
+            case BitMexCommandType.SpecifiedAditional:
+                this.goPopup.SetActive(true);
+                break;
+            default:
+                return this.bitmexMain.ResisterMacro(rawKeys, commandType);
+        }
+
+        return true;
     }
 
     private void OnClickPopupOK()
     {
         this.goPopup.SetActive(false);
-
-        this.listHotKeys[currHotKeyIndex].SetInputValue(this.currHotKeyType, this.inputPopup.text);
     }
 
     private void OnClickAdd()
