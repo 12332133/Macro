@@ -8,28 +8,28 @@ namespace Assets.BitMex
 {
     public class BitMexCommandRepository
     {
-        private Dictionary<BitMexCommandType, IBitMexActionCommand> templateCommands;
+        private Dictionary<BitMexCommandType, IBitMexActionCommand> commands;
 
         public BitMexCommandRepository()
         {
-            this.templateCommands = new Dictionary<BitMexCommandType, IBitMexActionCommand>();
+            this.commands = new Dictionary<BitMexCommandType, IBitMexActionCommand>();
         }
 
         public void Resister(BitMexCommandType type, IBitMexActionCommand command)
         {
-            this.templateCommands.Add(type, command);
+            this.commands.Add(type, command);
         }
 
         public IBitMexActionCommand CreateCommand(BitMexCommandType type)
         {
-            var command = this.templateCommands[type];
-            //copy
+            var command = this.commands[type];
+            //copy?
             return command;
         }
 
         public Dictionary<BitMexCommandType, IBitMexActionCommand> GetCommands()
         {
-            return this.templateCommands;
+            return this.commands;
         }
     }
 }

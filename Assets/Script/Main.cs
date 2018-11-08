@@ -24,8 +24,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private BitMexSession session;
     private BitMexDriverService service;
-    private BitMexCommandExecutor executor;
-    private BitMexCommandRepository repository;
     //private const string BitMexDomain = "https://testnet.bitmex.com/";
     private const string BitMexDomain = "https://www.bitmex.com/";
 
@@ -56,8 +54,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void Awake()
     {
-        SetDefault();
-        SetTemplateCommand();
         SetBitMexService();
         SetAllowSpecialKey();
         SetInputKey();
@@ -77,15 +73,45 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void SetDefault()
     {
-        Application.runInBackground = true;
     }
 
     private void SetBitMexService()
     {
+        Application.runInBackground = true;
+
         this.service = new BitMexDriverService();
 
-        this.executor = new BitMexCommandExecutor();
+        //command 
+        this.service.Repository.Resister(BitMexCommandType.Test, new DefaultSampleCommand(this, "Test"));
 
+        //this.repository.Resister(BitMexCommandType.FixedAvailableXbt, new FixedAvailableXbtCommand(this, "사용가능 xbt 고정"));
+        //this.repository.Resister(BitMexCommandType.SpecifiedAditional, new FixedAvailableXbtCommand(this, "빠른 지정가 설정"));
+
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy10Magnification, new MarketPriceBuyCommand(this, "시장가 10% 매수", 10));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy25Magnification, new MarketPriceBuyCommand(this, "시장가 25% 매수", 25));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy50Magnification, new MarketPriceBuyCommand(this, "시장가 50% 매수", 50));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy100Magnification, new MarketPriceBuyCommand(this, "시장가 100% 매수", 100));
+
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell10Magnification, new MarketPriceSellCommand(this, "시장가 10% 매도", 10));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell25Magnification, new MarketPriceSellCommand(this, "시장가 25% 매도", 25));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell50Magnification, new MarketPriceSellCommand(this, "시장가 50% 매도", 50));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell100Magnification, new MarketPriceSellCommand(this, "시장가 100% 매도", 100));
+
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified10PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 10% 매수", 10));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified25PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 25% 매수", 25));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified50PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 50% 매수", 50));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified100PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 100% 매수", 100));
+
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified10PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 10% 매도", 10));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified25PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 25% 매도", 25));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified50PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 50% 매도", 50));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified100PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 100% 매도", 100));
+
+        this.service.Repository.Resister(BitMexCommandType.ClearPosition, new ClearPositionCommand(this, "해당 포지션 청산"));
+        this.service.Repository.Resister(BitMexCommandType.CancleTopActivateOrder, new CancleTopActivateOrderCommand(this, "최상위 주문 취소"));
+        this.service.Repository.Resister(BitMexCommandType.CancleAllActivateOrder, new CancleAllActivateOrderCommand(this, "전체 주문 취소"));
+
+        //session
         this.session = new BitMexSession()
         {
             ApiKey = "TE3O0NLo8pmwAkzsv66UamVr",
@@ -113,40 +139,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.allowSpecialKeys.Add(RawKey.Menu, 1);
         this.allowSpecialKeys.Add(RawKey.LeftMenu, 1);
         this.allowSpecialKeys.Add(RawKey.RightMenu, 1);
-    }
-
-    private void SetTemplateCommand()
-    {
-        this.repository = new BitMexCommandRepository();
-
-        this.repository.Resister(BitMexCommandType.Test, new DefaultSampleCommand(this, "Test"));
-
-        //this.repository.Resister(BitMexCommandType.FixedAvailableXbt, new FixedAvailableXbtCommand(this, "사용가능 xbt 고정"));
-        //this.repository.Resister(BitMexCommandType.SpecifiedAditional, new FixedAvailableXbtCommand(this, "빠른 지정가 설정"));
-
-        this.repository.Resister(BitMexCommandType.MarketPriceBuy10Magnification, new MarketPriceBuyCommand(this, "시장가 10% 매수", 10));
-        this.repository.Resister(BitMexCommandType.MarketPriceBuy25Magnification, new MarketPriceBuyCommand(this, "시장가 25% 매수", 25));
-        this.repository.Resister(BitMexCommandType.MarketPriceBuy50Magnification, new MarketPriceBuyCommand(this, "시장가 50% 매수", 50));
-        this.repository.Resister(BitMexCommandType.MarketPriceBuy100Magnification, new MarketPriceBuyCommand(this, "시장가 100% 매수", 100));
-
-        this.repository.Resister(BitMexCommandType.MarketPriceSell10Magnification, new MarketPriceSellCommand(this, "시장가 10% 매도", 10));
-        this.repository.Resister(BitMexCommandType.MarketPriceSell25Magnification, new MarketPriceSellCommand(this, "시장가 25% 매도", 25));
-        this.repository.Resister(BitMexCommandType.MarketPriceSell50Magnification, new MarketPriceSellCommand(this, "시장가 50% 매도", 50));
-        this.repository.Resister(BitMexCommandType.MarketPriceSell100Magnification, new MarketPriceSellCommand(this, "시장가 100% 매도", 100));
-
-        this.repository.Resister(BitMexCommandType.MarketSpecified10PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 10% 매수", 10));
-        this.repository.Resister(BitMexCommandType.MarketSpecified25PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 25% 매수", 25));
-        this.repository.Resister(BitMexCommandType.MarketSpecified50PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 50% 매수", 50));
-        this.repository.Resister(BitMexCommandType.MarketSpecified100PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 100% 매수", 100));
-
-        this.repository.Resister(BitMexCommandType.MarketSpecified10PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 10% 매도", 10));
-        this.repository.Resister(BitMexCommandType.MarketSpecified25PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 25% 매도", 25));
-        this.repository.Resister(BitMexCommandType.MarketSpecified50PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 50% 매도", 50));
-        this.repository.Resister(BitMexCommandType.MarketSpecified100PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 100% 매도", 100));
-
-        this.repository.Resister(BitMexCommandType.ClearPosition, new ClearPositionCommand(this, "해당 포지션 청산"));
-        this.repository.Resister(BitMexCommandType.CancleTopActivateOrder, new CancleTopActivateOrderCommand(this, "최상위 주문 취소"));
-        this.repository.Resister(BitMexCommandType.CancleAllActivateOrder, new CancleAllActivateOrderCommand(this, "전체 주문 취소"));
     }
 
     private void SetInputKey()
@@ -246,7 +238,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             if (this.inputRawKeys.SequenceEqual(macro.Key) == true)
             {
-                if (this.executor.AddCommand(macro.Value) == false)
+                if (this.service.Executor.AddCommand(macro.Value) == false)
                 {
                     Debug.Log("executor add command timeout");
                 }
@@ -265,7 +257,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         get
         {
-            return this.executor;
+            return this.service.Executor;
         }
     }
 
@@ -288,14 +280,14 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     public bool ResisterMacro(List<RawKey> keys, BitMexCommandType type)
     {
         Debug.Log("resister macro complete");
-        return this.session.ResisterMacro(keys, this.repository.CreateCommand(type));
+        return this.session.ResisterMacro(keys, this.service.Repository.CreateCommand(type));
     }
 
     public BitMexCommandRepository CommandRepository
     {
         get
         {
-            return this.repository;
+            return this.service.Repository;
         }
     }
 

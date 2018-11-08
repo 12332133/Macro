@@ -34,6 +34,7 @@ public class ContentsSchedule : ContentsBase
     private List<BitMexCommandType> overCommandTypes;
     private List<BitMexCommandType> underCommandTypes;
     private decimal marketPrice;
+    private decimal beforePrice;
     private decimal inputPrice;
 
     private void Reset()

@@ -12,9 +12,6 @@ namespace Assets.BitMex
 {
     public class BitMexDriverService
     {
-        private IWebDriver driver;
-        private string url;
-
         private const string SymbolXbtUsd = "XBTUSD";
         private const string SymbolXBTJPY = "XBTJPY";
         private const string SymbolADAM18 = "ADAM18";
@@ -37,6 +34,33 @@ namespace Assets.BitMex
         private const string XPatchSumCashedXBT = "//*[@id=\"header\"]/div[2]/a[1]/span/table/tbody/tr[1]/td[2]";
 
         private const string XPathLoginAccount = "//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]";
+
+        private IWebDriver driver;
+        private string url;
+        private BitMexCommandExecutor executor;
+        private BitMexCommandRepository repository;
+
+        public BitMexCommandRepository Repository
+        {
+            get
+            {
+                return this.repository;
+            }
+        }
+
+        public BitMexCommandExecutor Executor
+        {
+            get
+            {
+                return this.executor;
+            }
+        }
+
+        public BitMexDriverService()
+        {
+            this.executor = new BitMexCommandExecutor();
+            this.repository = new BitMexCommandRepository();
+        }
 
         public void SetDriver(IWebDriver driver, string url)
         {
