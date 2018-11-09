@@ -42,24 +42,30 @@ namespace Assets.BitMex
     public interface IBitMexActionCommand
     {
         IBitMexMainAdapter BitMexMain { get; }
-        string DropBoxText { get; set; }
+        string ContentString { get; }
+        bool IsExpose { get; }
         void Execute();
     }
 
     public abstract class BitMexActionCommand : IBitMexActionCommand
     {
-        public IBitMexMainAdapter BitMexMain { get; set; }
-        public string DropBoxText { get; set; }
+        public IBitMexMainAdapter BitMexMain { get; private set; }
+        public string ContentString { get; private set; }
+        public bool IsExpose { get; private set; }
         public abstract void Execute();
 
-        public BitMexActionCommand(IBitMexMainAdapter bitmexMain, string dropboxString)
+        public BitMexActionCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
         {
+            BitMexMain = bitmexMain;
+            ContentString = contentString;
+            IsExpose = isExpose;
         }
     }
 
     public class DefaultSampleCommand : BitMexActionCommand
     {
-        public DefaultSampleCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
+        public DefaultSampleCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose) 
+            : base(bitmexMain, contentString, isExpose)
         {
         }
 
@@ -72,7 +78,8 @@ namespace Assets.BitMex
     {
         public decimal FixedAvailableXbt { get; set; }
 
-        public FixedAvailableXbtCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
+        public FixedAvailableXbtCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose) 
+            : base(bitmexMain, contentString, isExpose)
         {
         }
 
@@ -86,7 +93,8 @@ namespace Assets.BitMex
     {
         public decimal SpecifiedAditional { get; set; }
 
-        public SpecifiedAditionalCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
+        public SpecifiedAditionalCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose) 
+            : base(bitmexMain, contentString, isExpose)
         {
         }
 
@@ -100,7 +108,8 @@ namespace Assets.BitMex
     {
         public int Magnification { get; set; }
 
-        public MarketPriceBuyCommand(IBitMexMainAdapter bitmexMain, string dropboxString, int magnification) : base(bitmexMain, dropboxString)
+        public MarketPriceBuyCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose, int magnification) 
+            : base(bitmexMain, contentString, isExpose)
         {
             Magnification = magnification;
         }
@@ -112,14 +121,14 @@ namespace Assets.BitMex
                 return;
             }
 
-            if (BitMexMain.DriverService.OperationOrderMarketQty(
+            if (BitMexMain.DriverService.HandleOrderMarketQty(
                 0, 
                 Magnification, 
                 BitMexMain.Session.FixedAvailableXbt,
-                BitMexMain.DriverService.OperationGetCurrentSymbol()
+                BitMexMain.DriverService.HandleGetCurrentSymbol()
                 ) == true)
             {
-                BitMexMain.DriverService.OperationBuy();
+                BitMexMain.DriverService.HandleBuy();
             }
         }
     }
@@ -128,7 +137,8 @@ namespace Assets.BitMex
     {
         public int Magnification { get; set; }
 
-        public MarketPriceSellCommand(IBitMexMainAdapter bitmexMain, string dropboxString, int magnification) : base(bitmexMain, dropboxString)
+        public MarketPriceSellCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose, int magnification) 
+            : base(bitmexMain, contentString, isExpose)
         {
             Magnification = magnification;
         }
@@ -140,14 +150,14 @@ namespace Assets.BitMex
                 return;
             }
 
-            if (BitMexMain.DriverService.OperationOrderMarketQty(
+            if (BitMexMain.DriverService.HandleOrderMarketQty(
                 0, 
                 Magnification, 
                 BitMexMain.Session.FixedAvailableXbt,
-                BitMexMain.DriverService.OperationGetCurrentSymbol()
+                BitMexMain.DriverService.HandleGetCurrentSymbol()
                 ) == true)
             {
-                BitMexMain.DriverService.OperationSell();
+                BitMexMain.DriverService.HandleSell();
             }
         }
     }
@@ -156,7 +166,8 @@ namespace Assets.BitMex
     {
         public int Magnification { get; set; }
 
-        public MarketSpecifiedBuyCommand(IBitMexMainAdapter bitmexMain, string dropboxString, int magnification) : base(bitmexMain, dropboxString)
+        public MarketSpecifiedBuyCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose, int magnification) 
+            : base(bitmexMain, contentString, isExpose)
         {
             Magnification = magnification;
         }
@@ -168,15 +179,15 @@ namespace Assets.BitMex
                 return;
             }
 
-            if (BitMexMain.DriverService.OperationOrderSpecifiedQty(
+            if (BitMexMain.DriverService.HandleOrderSpecifiedQty(
                 0, 
                 Magnification, 
                 - BitMexMain.Session.SpecifiedAditional, 
                 BitMexMain.Session.FixedAvailableXbt,
-                BitMexMain.DriverService.OperationGetCurrentSymbol()
+                BitMexMain.DriverService.HandleGetCurrentSymbol()
                 ) == true)
             {
-                BitMexMain.DriverService.OperationBuy();
+                BitMexMain.DriverService.HandleBuy();
             }
         }
     }
@@ -185,7 +196,8 @@ namespace Assets.BitMex
     {
         public int Magnification { get; set; }
 
-        public MarketSpecifiedSellCommand(IBitMexMainAdapter bitmexMain, string dropboxString, int magnification) : base(bitmexMain, dropboxString)
+        public MarketSpecifiedSellCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose, int magnification) 
+            : base(bitmexMain, contentString, isExpose)
         {
             Magnification = magnification;
         }
@@ -197,21 +209,22 @@ namespace Assets.BitMex
                 return;
             }
 
-            if (BitMexMain.DriverService.OperationOrderSpecifiedQty(
+            if (BitMexMain.DriverService.HandleOrderSpecifiedQty(
                 0, 
                 Magnification, 
                 BitMexMain.Session.SpecifiedAditional,
                 BitMexMain.Session.FixedAvailableXbt,
-                BitMexMain.DriverService.OperationGetCurrentSymbol()) == true)
+                BitMexMain.DriverService.HandleGetCurrentSymbol()) == true)
             {
-                BitMexMain.DriverService.OperationSell();
+                BitMexMain.DriverService.HandleSell();
             }
         }
     }
 
     public class ClearPositionCommand : BitMexActionCommand
     {
-        public ClearPositionCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
+        public ClearPositionCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose) 
+            : base(bitmexMain, contentString, isExpose)
         {
         }
 
@@ -222,14 +235,15 @@ namespace Assets.BitMex
                 return;
             }
 
-            BitMexMain.DriverService.OperationClearPosition(
-                BitMexMain.DriverService.OperationGetCurrentSymbol());
+            BitMexMain.DriverService.HandleClearPosition(
+                BitMexMain.DriverService.HandleGetCurrentSymbol());
         }
     }
 
     public class CancleTopActivateOrderCommand : BitMexActionCommand
     {
-        public CancleTopActivateOrderCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
+        public CancleTopActivateOrderCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose) 
+            : base(bitmexMain, contentString, isExpose)
         {
         }
 
@@ -240,14 +254,15 @@ namespace Assets.BitMex
                 return;
             }
 
-            BitMexMain.DriverService.OperationCancleActivatedOrders(
-                BitMexMain.DriverService.OperationGetCurrentSymbol(), false);
+            BitMexMain.DriverService.HandleCancleActivatedOrders(
+                BitMexMain.DriverService.HandleGetCurrentSymbol(), false);
         }
     }
 
     public class CancleAllActivateOrderCommand : BitMexActionCommand
     {
-        public CancleAllActivateOrderCommand(IBitMexMainAdapter bitmexMain, string dropboxString) : base(bitmexMain, dropboxString)
+        public CancleAllActivateOrderCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose) 
+            : base(bitmexMain, contentString, isExpose)
         {
         }
 
@@ -258,8 +273,8 @@ namespace Assets.BitMex
                 return;
             }
 
-            BitMexMain.DriverService.OperationCancleActivatedOrders(
-                BitMexMain.DriverService.OperationGetCurrentSymbol(), true);
+            BitMexMain.DriverService.HandleCancleActivatedOrders(
+                BitMexMain.DriverService.HandleGetCurrentSymbol(), true);
         }
     }
 }

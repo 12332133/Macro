@@ -1,12 +1,7 @@
 ﻿using OpenQA.Selenium;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+using Assets.BitMex.WebDriver;
 
 namespace Assets.BitMex
 {
@@ -24,7 +19,7 @@ namespace Assets.BitMex
         private const string XPathOrderMarkerQtyTextBox = "//*[@id=\"orderQty\"]";
         private const string XPathOrderSpecifiedQtyTextBox = "//*[@id=\"orderQty\"]";
         private const string XPathOrderSpecifiedPriceTextBox = "//*[@id=\"price\"]";
-        private const string XPathSymbol = "//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/h4";
+        private const string XPathSymbol = "//*[@id=\"content\"]/div/span/div[1]/div/div/li[3]/h4";
         private const string XPathMarketPrice = "//*[@id=\"content\"]/div/span/div[1]/div/div/li[3]/ul/div/div/div[1]/span";
         private const string XPathPositionViewButton = "//*[@id=\"content\"]/div/span/div[2]/div/div/div[2]/div[1]/div[5]/section/header/span/div/ul/li[1]/span/span";
         private const string XPathActivatedOrderViewButton = "//*[@id=\"content\"]/div/span/div[2]/div/div/div[2]/div[1]/div[5]/section/header/span/div/ul/li[3]/span/span";
@@ -39,6 +34,7 @@ namespace Assets.BitMex
         private string url;
         private BitMexCommandExecutor executor;
         private BitMexCommandRepository repository;
+
 
         public BitMexCommandRepository Repository
         {
@@ -101,6 +97,7 @@ namespace Assets.BitMex
                 if (this.driver == null)
                     return;
 
+                this.executor.Stop();
                 this.driver.Quit();
                 this.driver.Dispose();
                 this.driver = null;
@@ -110,83 +107,102 @@ namespace Assets.BitMex
             }
         }
 
-        public bool OperationBuy()
+        public bool HandleBuy()
         {
-            var element = this.driver.FindElement(By.CssSelector(CssBuyButton));
-
-            if (element.Enabled == false)
+            var elementBuy = this.driver.SafeFindElement(By.CssSelector(CssBuyButton));
+            if (elementBuy.Enabled == false)
                 return false;
 
-            element.Click();
+            elementBuy.Click();
+
+            HandleClearOrderConfirmationWindow();
             return true;
         }
 
-        public bool OperationSell()
+        public bool HandleSell()
         {
-            var element = this.driver.FindElement(By.CssSelector(CssSellButton));
-
-            if (element.Enabled == false)
+            var elementSell = this.driver.SafeFindElement(By.CssSelector(CssSellButton));
+            if (elementSell.Enabled == false)
                 return false;
 
-            element.Click();
+            elementSell.Click();
+
+            HandleClearOrderConfirmationWindow();
             return true;
         }
 
-        public string OperationGetCurrentSymbol()
+        public string HandleGetCurrentSymbol()
         {
-            var element = driver.FindElement(By.XPath(XPathSymbol));
-            return element.Text.Split(':')[1].Trim();
-        }
-
-        public int OperationCurrentPositionCount(string symbol)
-        {
-            driver.FindElement(By.XPath(XPathPositionViewButton)).Click();
-
-            var elements = driver.FindElement(By.XPath(XPathViewTable)).FindElements(By.TagName("tr"));
-
-            if (elements.Count > 0)
+            var elementSymbol = driver.FindElement(By.XPath(XPathSymbol));
+            if (elementSymbol == null)
             {
-                foreach (var element in elements)
+                throw new BitMexDriverServiceException();
+            }
+
+            return elementSymbol.Text.Split(':')[1].Trim();
+        }
+
+        public int HandleGetCurrentPositionCount(string symbol)
+        {
+            var elementPositionView = driver.SafeFindElement(By.XPath(XPathPositionViewButton));
+            elementPositionView.Click();
+
+            var elementViewTable = driver.SafeFindElement(By.XPath(XPathViewTable));
+
+            var elements = elementViewTable.SafeFindElements(By.TagName("tr"));
+
+            foreach (var element in elements)
+            {
+                var elementSymbol = element.SafeFindElement(By.ClassName("symbol"), false);
+                if (elementSymbol == null)
                 {
-                    IWebElement elementSymbol = null;
+                    return 0;
+                }
 
-                    try
-                    {
-                        elementSymbol = element.FindElement(By.ClassName("symbol"));
-                    }
-                    catch (System.Exception)
-                    {
-                        return 0;
-                    }
-
-                    if (elementSymbol.Text.Equals(symbol) == true)
-                    {
-                        return Int32.Parse(element.FindElement(By.ClassName("currentQty")).Text);
-                    }
+                if (elementSymbol.Text.Equals(symbol) == true)
+                {
+                    var elementCurrentQty = element.SafeFindElement(By.ClassName("currentQty"));
+                    return Int32.Parse(elementCurrentQty.Text);
                 }
             }
 
             return 0;
         }
 
-        private decimal GetCrossSelectionMaxLeverage()
-        {
-            var element = driver.FindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[3]/div/div/div/div[4]"));
+        private decimal HandleGetCrossSelectionMaxLeverage()
+        {                     
+            var element = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[3]/div/div/div/div[4]"));
             var crossSelections = Regex.Split(element.Text, "\r\n");
             var maxValue = crossSelections[crossSelections.Length - 1].Split('x')[0];
             return decimal.Parse(maxValue);
         }
 
-        public bool OperationOrderMarketQty(decimal qty, int magnification, decimal fixedAvailableXbt, string symbol)
+        public void HandleForceChangeFocus(string xPath)
         {
-            driver.FindElement(By.XPath(XPathOderTargetMarketButton)).Click();
+            // 실시간 매크로 매수/매도 시 현재 보고있는 주문타입이 다를경우 강재로 이동시켜줌 
+            // 스퀘줄 구매 동일 동작 
+            var elementOrderTarget = driver.SafeFindElement(By.XPath(xPath));
+            elementOrderTarget.Click();
+        }
+
+        public bool HandleIsSameOrderTap(string xPath)
+        {
+            return true;
+        }
+
+        public bool HandleOrderMarketQty(decimal qty, int magnification, decimal fixedAvailableXbt, string symbol)
+        {
+            // 강제로 주문 탭 전환 
+            HandleForceChangeFocus(XPathOderTargetMarketButton);
+            // 실시간 매크로 시 주문 탭이 다를경우 무시하려면 수정 필요 
+            //HandleIsSameOrderTap(XPathOderTargetMarketButton);
 
             decimal seletedQty = qty;
 
             // 수량 미지정시 자동계산 
             if (seletedQty == 0)
             {
-                var position = OperationCurrentPositionCount(symbol);
+                var position = HandleGetCurrentPositionCount(symbol);
 
                 if (position == 0)
                 {
@@ -202,16 +218,20 @@ namespace Assets.BitMex
                     //교차 선택
                     decimal leverage = 0;
                     try
-                    {
-                        var slider = driver.FindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[3]/div/div/div/div[3]"));
-                        var index = slider.GetAttribute("aria-valuenow");
+                    {                                             
+                        var slider = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[3]/div/div/div/div[3]"), false);
+                        if (slider == null)
+                        {
+                            return false;
+                        }
 
+                        var index = slider.GetAttribute("aria-valuenow");
                         if (Int32.Parse(index) == 0)
                         {
-                            leverage = GetCrossSelectionMaxLeverage();
+                            leverage = HandleGetCrossSelectionMaxLeverage();
                         }
                         else
-                        {
+                        {                                                              
                             var elementSelectedLeverage = driver.FindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[2]/div/div/span"));
                             leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0]);
                         }
@@ -250,11 +270,14 @@ namespace Assets.BitMex
             return true;
         }
 
-        public bool OperationOrderSpecifiedQty(decimal qty, int magnification, decimal specifiedAditional, decimal fixedAvailableXbt, string symbol)
+        public bool HandleOrderSpecifiedQty(decimal qty, int magnification, decimal specifiedAditional, decimal fixedAvailableXbt, string symbol)
         {
-            driver.FindElement(By.XPath(XPathOderTargetSpecifedButton)).Click();
+            // 강제로 주문 탭 전환
+            HandleForceChangeFocus(XPathOderTargetSpecifedButton);
+            // 실시간 매크로 시 주문 탭이 다를경우 무시하려면 수정 필요 
+            //HandleIsSameOrderTap(XPathOderTargetSpecifedButton);
 
-            var elementMarketPrice = driver.FindElement(By.XPath(XPathMarketPrice));
+            var elementMarketPrice = driver.SafeFindElement(By.XPath(XPathMarketPrice));
             var price = decimal.Parse(elementMarketPrice.Text) + specifiedAditional;
 
             decimal seletedQty = qty;
@@ -262,7 +285,7 @@ namespace Assets.BitMex
             //수량 미지정시 자동계산
             if (seletedQty == 0)
             {
-                var position = OperationCurrentPositionCount(symbol);
+                var position = HandleGetCurrentPositionCount(symbol);
 
                 if (position == 0)
                 {
@@ -271,7 +294,7 @@ namespace Assets.BitMex
 
                     if (xbt == 0)
                     {
-                        var elementRemainXBT = driver.FindElement(By.XPath("//*[@id=\"header\"]/div[2]/a[1]/span/table/tbody/tr[2]/td[2]"));
+                        var elementRemainXBT = driver.SafeFindElement(By.XPath("//*[@id=\"header\"]/div[2]/a[1]/span/table/tbody/tr[2]/td[2]"));
                         xbt = decimal.Parse(elementRemainXBT.Text.Split(' ')[0]);
                     }
 
@@ -284,7 +307,7 @@ namespace Assets.BitMex
 
                         if (Int32.Parse(index) == 0)
                         {
-                            leverage = GetCrossSelectionMaxLeverage();
+                            leverage = HandleGetCrossSelectionMaxLeverage();
                         }
                         else
                         {
@@ -327,30 +350,44 @@ namespace Assets.BitMex
             return true;
         }
 
-        public void OperationClearPosition(string symbol, bool isClear = false)
+        public void HandleClearPosition(string symbol, bool isClear = false)
         {
-            driver.FindElement(By.XPath(XPathPositionViewButton)).Click();
+            // 포지션 창 클릭
+            var elementOrderTarget = driver.SafeFindElement(By.XPath(XPathPositionViewButton));
+            elementOrderTarget.Click();
 
-            var table = driver.FindElement(By.XPath(XPathViewTable));
+            // 포지션 정보
+            var elementTable = driver.SafeFindElement(By.XPath(XPathViewTable));
+            var elementPositions = elementTable.SafeFindElements(By.TagName("tr"));
 
-            var elements = table.FindElements(By.TagName("tr"));
-
-            if (elements.Count > 0)
+            if (elementPositions.Count > 0)
             {
-                foreach (var element in elements)
+                foreach (var elementPosition in elementPositions)
                 {
-                    if (element.FindElement(By.ClassName("symbol")).Text.Equals(symbol) == true)
+                    var elementSymbol = elementPosition.SafeFindElement(By.ClassName("symbol"));
+
+                    if (elementSymbol.Text.Equals(symbol) == true)
                     {
-                        element.FindElement(By.ClassName("actions")).FindElement(By.CssSelector("div.btn.btn-danger.btn-sm")).Click();
+                        var elementActions = elementPosition.SafeFindElement(By.ClassName("actions"));
+                        var elementCancle = elementActions.SafeFindElement(By.CssSelector("div.btn.btn-danger.btn-sm"));
+                        elementCancle.Click();
+                        
+                        var elementClearConfirmation = this.driver.SafeFindElement(By.CssSelector("button.btn-lg.btn.btn-primary"), false);
+                        if (elementClearConfirmation == null)
+                        {
+                            return;
+                        }
+                        elementClearConfirmation.Click();
                         break;
                     }
                 }
             }
         }
 
-        public void OperationCancleActivatedOrders(string symbol, bool isClear = false)
+        public void HandleCancleActivatedOrders(string symbol, bool isClear = false)
         {
-            driver.FindElement(By.XPath(XPathActivatedOrderViewButton)).Click();
+            // 주문 창 클릭
+            HandleForceChangeFocus(XPathActivatedOrderViewButton);
 
             var table = driver.FindElement(By.XPath(XPathViewTable));
 
@@ -384,67 +421,29 @@ namespace Assets.BitMex
 
         public decimal OperationGetMarketPrice(string symbol = SymbolXbtUsd)
         {
-            try
+            var marketPrice = this.driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/div[1]/div/span[2]/span[1]/span[1]"));
+            return decimal.Parse(marketPrice.Text);
+        }
+
+        public void HandleClearOrderConfirmationWindow()
+        {
+            var elementOrderConfirmation = this.driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span[2]/div/section/div/div[4]/button[2]"), false);
+            if (elementOrderConfirmation == null)
             {
-                var marketPrice = this.driver.FindElement(By.XPath("//*[@id=\"content\"]/div/div[1]/div/span[2]/span[1]/span[1]"));
-                return decimal.Parse(marketPrice.Text);
+                return;
             }
-            catch (System.Exception)
-            {
-                return 0;
-            }
+            elementOrderConfirmation.Click();
         }
 
         public bool IsInvaildEmail(string email)
         {
-            try
-            {                                               
-                var elementEmail = this.driver.FindElement(By.XPath("//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]"));
-                return elementEmail.Text.Equals(email);
-            }
-            catch (System.Exception)
-            {
-                return false;
-            }
-        }
-
-        public string GetLoginBitMexAccountEmail()
-        {
-            try
-            {
-                var elementEmail = this.driver.FindElement(By.XPath("//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]"));
-                return elementEmail.Text;
-            }
-            catch (System.Exception)
-            {
-                return string.Empty;
-            }
-        }
-
-        //public bool IsLoginBitMexAccount()
-        //{
-        //    try
-        //    {
-        //        this.driver.FindElement(By.XPath(BitMexService.XPathLoginAccount));
-        //        return true;
-        //    }
-        //    catch (System.Exception ex)
-        //    {
-        //        return false;
-        //    }
-        //}
-
-        public bool IsLoginBitMex()
-        {
-            try
-            {
-                this.driver.FindElement(By.XPath(BitMexDriverService.XPatchSumCashedXBT));
-                return true;
-            }
-            catch (System.Exception)
-            {
-                return false;
-            }
+            //var elementEmail = this.driver.SafeFindElement(By.XPath("//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]"), false);
+            //if (elementEmail == null)
+            //{
+            //    return false;
+            //}
+            //return elementEmail.Text.Equals(email);
+            return true;
         }
     }
 }

@@ -24,8 +24,8 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private BitMexSession session;
     private BitMexDriverService service;
-    //private const string BitMexDomain = "https://testnet.bitmex.com/";
-    private const string BitMexDomain = "https://www.bitmex.com/";
+    private const string BitMexDomain = "https://testnet.bitmex.com/";
+    //private const string BitMexDomain = "https://www.bitmex.com/";
 
     private bool isCombination = false;
     private bool isEnableMacro = false;
@@ -73,45 +73,36 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         }
     }
 
-    private void SetDefault()
-    {
-    }
-
     private void SetBitMexService()
     {
-        Application.runInBackground = true;
-
         this.service = new BitMexDriverService();
 
         //command 
-        this.service.Repository.Resister(BitMexCommandType.Test, new DefaultSampleCommand(this, "Test"));
+        this.service.Repository.Resister(BitMexCommandType.Test, new DefaultSampleCommand(this, "Test", true));
 
-        //this.repository.Resister(BitMexCommandType.FixedAvailableXbt, new FixedAvailableXbtCommand(this, "사용가능 xbt 고정"));
-        //this.repository.Resister(BitMexCommandType.SpecifiedAditional, new FixedAvailableXbtCommand(this, "빠른 지정가 설정"));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy10Magnification, new MarketPriceBuyCommand(this, "시장가 10% 매수", true, 10));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy25Magnification, new MarketPriceBuyCommand(this, "시장가 25% 매수", true, 25));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy50Magnification, new MarketPriceBuyCommand(this, "시장가 50% 매수", true, 50));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy100Magnification, new MarketPriceBuyCommand(this, "시장가 100% 매수", true, 100));
 
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy10Magnification, new MarketPriceBuyCommand(this, "시장가 10% 매수", 10));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy25Magnification, new MarketPriceBuyCommand(this, "시장가 25% 매수", 25));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy50Magnification, new MarketPriceBuyCommand(this, "시장가 50% 매수", 50));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy100Magnification, new MarketPriceBuyCommand(this, "시장가 100% 매수", 100));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell10Magnification, new MarketPriceSellCommand(this, "시장가 10% 매도", true, 10));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell25Magnification, new MarketPriceSellCommand(this, "시장가 25% 매도", true, 25));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell50Magnification, new MarketPriceSellCommand(this, "시장가 50% 매도", true, 50));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell100Magnification, new MarketPriceSellCommand(this, "시장가 100% 매도", true, 100));
 
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell10Magnification, new MarketPriceSellCommand(this, "시장가 10% 매도", 10));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell25Magnification, new MarketPriceSellCommand(this, "시장가 25% 매도", 25));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell50Magnification, new MarketPriceSellCommand(this, "시장가 50% 매도", 50));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSell100Magnification, new MarketPriceSellCommand(this, "시장가 100% 매도", 100));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified10PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 10% 매수", true, 10));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified25PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 25% 매수", true, 25));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified50PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 50% 매수", true, 50));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified100PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 100% 매수", true, 100));
 
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecified10PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 10% 매수", 10));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecified25PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 25% 매수", 25));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecified50PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 50% 매수", 50));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecified100PriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 100% 매수", 100));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified10PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 10% 매도", true, 10));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified25PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 25% 매도", true, 25));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified50PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 50% 매도", true, 50));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecified100PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 100% 매도", true, 100));
 
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecified10PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 10% 매도", 10));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecified25PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 25% 매도", 25));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecified50PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 50% 매도", 50));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecified100PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 100% 매도", 100));
-
-        this.service.Repository.Resister(BitMexCommandType.ClearPosition, new ClearPositionCommand(this, "해당 포지션 청산"));
-        this.service.Repository.Resister(BitMexCommandType.CancleTopActivateOrder, new CancleTopActivateOrderCommand(this, "최상위 주문 취소"));
-        this.service.Repository.Resister(BitMexCommandType.CancleAllActivateOrder, new CancleAllActivateOrderCommand(this, "전체 주문 취소"));
+        this.service.Repository.Resister(BitMexCommandType.ClearPosition, new ClearPositionCommand(this, "해당 포지션 청산", true));
+        this.service.Repository.Resister(BitMexCommandType.CancleTopActivateOrder, new CancleTopActivateOrderCommand(this, "최상위 주문 취소", true));
+        this.service.Repository.Resister(BitMexCommandType.CancleAllActivateOrder, new CancleAllActivateOrderCommand(this, "전체 주문 취소", true));
 
         //session
         this.session = new BitMexSession()
@@ -160,12 +151,35 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void OnOpenBitMex()
     {
-        var driver = DriverFactory.CreateDriver(
-                            DriverType.Chrome,
-                            Application.streamingAssetsPath,
-                            false);
+        
+        if (this.service.IsDriverOpen() == false)
+        {
+            var driver = DriverFactory.CreateDriver(
+                    DriverType.Chrome,
+                    Application.streamingAssetsPath,
+                    false);
 
-        this.service.OpenService(driver, BitMexDomain);
+            this.service.OpenService(driver, BitMexDomain);
+        }
+        else
+        {
+            try
+            {
+                var command = this.service.Repository.CreateCommand(BitMexCommandType.ClearPosition);
+                command.Execute();
+            }
+            catch(BitMexDriverServiceException exception)
+            {
+                Debug.Log(exception.ToString());
+            }
+        }
+
+        //var driver = DriverFactory.CreateDriver(
+        //    DriverType.Chrome,
+        //    Application.streamingAssetsPath,
+        //    false);
+
+        //this.service.OpenService(driver, BitMexDomain);
     }
 
     void OnEnableMacro()
@@ -178,25 +192,39 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         }
         else
         {
-            //if (this.service.IsDriverOpen() == false)
+            /* real service
+            if (this.service.IsDriverOpen() == false)
+            {
+                Debug.Log("not found chrome driver");
+                return;
+            }
+
+            //var response = BitMexApiHelper.GetReferral(session, BitMexDomain); //json deserialize
+
+            //if (this.session.ReferrerAccount.Equals(response) == false)
             //{
-            //    Debug.Log("not found chrome driver");
+            //    Debug.Log("invaild referral account");
             //    return;
             //}
 
-            ////var response = BitMexApiHelper.GetReferral(session, BitMexDomain); //json deserialize
+            if (this.service.IsInvaildEmail(session.Email) == false)
+            {
+                Debug.Log("invaild login account");
+                return;
+            }
+            */
 
-            ////if (this.session.ReferrerAccount.Equals(response) == false)
-            ////{
-            ////    Debug.Log("invaild referral account");
-            ////    return;
-            ////}
+            if (this.service.IsDriverOpen() == false)
+            {
+                Debug.Log("not found chrome driver");
+                return;
+            }
 
-            //if (this.service.IsInvaildEmail(session.Email) == false)
-            //{
-            //    Debug.Log("invaild login account");
-            //    return;
-            //}
+            if (this.service.IsInvaildEmail(session.Email) == false)
+            {
+                Debug.Log("invaild login account");
+                return;
+            }
 
             if (KeyboardHooker.IsRunning() == false)
             {

@@ -30,7 +30,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
 
         foreach (var command in commands)
         {
-            this.dropdown.options.Add(new Dropdown.OptionData(command.Value.DropBoxText));
+            this.dropdown.options.Add(new Dropdown.OptionData(command.Value.ContentString));
             this.commandTypes.Add(command.Key);
         }
 

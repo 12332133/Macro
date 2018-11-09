@@ -45,9 +45,9 @@ public class ContentsBreakThrough : ContentsBase
     {
         this.trades = new ConcurrentQueue<BreakThroughTrade>();
 
-        this.thread = new Thread(DoWork);
-        this.thread.IsBackground = true;
-        this.thread.Start();
+        //this.thread = new Thread(DoWork);
+        //this.thread.IsBackground = true;
+        //this.thread.Start();
     }
 
     public override void Initialize(IBitMexMainAdapter bitmexMain)
@@ -76,14 +76,14 @@ public class ContentsBreakThrough : ContentsBase
             }
         }
 
-        StartCoroutine(UpdateMarketPrice());
+        //StartCoroutine(UpdateMarketPrice());
     }
 
     IEnumerator UpdateMarketPrice() // main으로 이동 ?
     {
         while (true)
         {
-            if (this.bitmexMain.DriverService.IsLoginBitMex() == true)
+            if (this.bitmexMain.DriverService.IsInvaildEmail(this.bitmexMain.Session.Email) == true)
             {
                 this.marketPrice = this.bitmexMain.DriverService.OperationGetMarketPrice();
             }

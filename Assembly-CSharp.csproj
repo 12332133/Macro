@@ -65,9 +65,12 @@
     <Compile Include="Assets\BitMex\BitMexCommandExecutor.cs" />
     <Compile Include="Assets\BitMex\BitMexCommandRepository.cs" />
     <Compile Include="Assets\BitMex\BitMexDriverService.cs" />
+    <Compile Include="Assets\BitMex\BitMexDriverServiceException.cs" />
+    <Compile Include="Assets\BitMex\BitMexDriverServiceHandler.cs" />
     <Compile Include="Assets\BitMex\BitMexSession.cs" />
     <Compile Include="Assets\BitMex\IBitMexMainAdapter.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverBuilder.cs" />
+    <Compile Include="Assets\BitMex\WebDriver\DriverExetentions.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverFactory.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverProxy.cs" />
     <Compile Include="Assets\KeyboardHook\HookType.cs" />
@@ -78,10 +81,10 @@
     <Compile Include="Assets\KeyboardHook\Win32API.cs" />
     <Compile Include="Assets\Script\Contents\ContentsAlarm.cs" />
     <Compile Include="Assets\Script\Contents\ContentsBase.cs" />
+    <Compile Include="Assets\Script\Contents\ContentsBreakThrough.cs" />
     <Compile Include="Assets\Script\Contents\ContentsMacro.cs" />
     <Compile Include="Assets\Script\Contents\ContentsMacroHotKeyItem.cs" />
     <Compile Include="Assets\Script\Contents\ContentsMacroLogItem.cs" />
-    <Compile Include="Assets\Script\Contents\ContentsSchedule.cs" />
     <Compile Include="Assets\Script\Contents\MacroInputField.cs" />
     <Compile Include="Assets\Script\Main.cs" />
     <Compile Include="Assets\Script\Title.cs" />

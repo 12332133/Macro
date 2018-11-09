@@ -5,17 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Assets.BitMex
 {
     public class BitMexCommandExecutor
     {
         private Thread thread;
-        private BlockingCollection<IBitMexActionCommand> commands;
+        //private BlockingCollection<IBitMexActionCommand> commands;
+        private ConcurrentQueue<IBitMexActionCommand> commands;
 
         public BitMexCommandExecutor()
         {
-            this.commands = new BlockingCollection<IBitMexActionCommand>();
+            this.commands = new ConcurrentQueue<IBitMexActionCommand>();
 
             this.thread = new Thread(DoWork);
             this.thread.IsBackground = true;
@@ -24,16 +26,38 @@ namespace Assets.BitMex
 
         private void DoWork()
         {
+            IBitMexActionCommand command = null;
+
             while (true)
             {
-                var command = this.commands.Take();
-                command.Execute();
+                try
+                {
+                    if (this.commands.TryDequeue(out command) == true)
+                    {
+                        command.Execute();
+                    }
+                    Thread.Sleep(5);
+                }
+                catch (BitMexDriverServiceException exception)
+                {
+                    Debug.Log(exception.ToString());
+                }
             }
         }
 
         public bool AddCommand(IBitMexActionCommand command)
         {
-            return this.commands.TryAdd(command, 100);
+            this.commands.Enqueue(command);
+            return true;
+            //return this.commands.TryAdd(command, 100);
+        }
+
+        public void Stop()
+        {
+            if (this.thread != null)
+            {
+                this.thread.Abort();
+            }
         }
     }
 }
