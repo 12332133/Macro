@@ -61,6 +61,8 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.toggleTabs[0].onValueChanged.AddListener(OnToggleTab);
         this.toggleTabs[1].onValueChanged.AddListener(OnToggleTab);
         this.toggleTabs[2].onValueChanged.AddListener(OnToggleTab);
+        this.toggleTabs[3].onValueChanged.AddListener(OnToggleTab);
+        this.toggleTabs[4].onValueChanged.AddListener(OnToggleTab);
 
         this.btnBitMex.onClick.AddListener(OnOpenBitMex);
         this.btnMacro.onClick.AddListener(OnEnableMacro);

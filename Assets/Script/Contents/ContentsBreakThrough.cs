@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ContentsSchedule : ContentsBase
+public class ContentsBreakThrough : ContentsBase
 {
     public enum TradeType
     {
