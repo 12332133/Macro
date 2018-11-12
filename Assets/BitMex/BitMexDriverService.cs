@@ -133,12 +133,7 @@ namespace Assets.BitMex
 
         public string HandleGetCurrentSymbol()
         {
-            var elementSymbol = driver.FindElement(By.XPath(XPathSymbol));
-            if (elementSymbol == null)
-            {
-                throw new BitMexDriverServiceException();
-            }
-
+            var elementSymbol = driver.SafeFindElement(By.XPath(XPathSymbol));
             return elementSymbol.Text.Split(':')[1].Trim();
         }
 
@@ -148,7 +143,6 @@ namespace Assets.BitMex
             elementPositionView.Click();
 
             var elementViewTable = driver.SafeFindElement(By.XPath(XPathViewTable));
-
             var elements = elementViewTable.SafeFindElements(By.TagName("tr"));
 
             foreach (var element in elements)
@@ -358,26 +352,23 @@ namespace Assets.BitMex
 
             // 포지션 정보
             var elementTable = driver.SafeFindElement(By.XPath(XPathViewTable));
-            var elementPositions = elementTable.SafeFindElements(By.TagName("tr"));
+            var elementPositions = elementTable.FindElements(By.TagName("tr"));
 
             if (elementPositions.Count > 0)
             {
                 foreach (var elementPosition in elementPositions)
                 {
-                    var elementSymbol = elementPosition.SafeFindElement(By.ClassName("symbol"));
-
-                    if (elementSymbol.Text.Equals(symbol) == true)
+                    if (elementPosition.SafeFindElement(By.ClassName("symbol")).Text.Equals(symbol) == true)
                     {
                         var elementActions = elementPosition.SafeFindElement(By.ClassName("actions"));
-                        var elementCancle = elementActions.SafeFindElement(By.CssSelector("div.btn.btn-danger.btn-sm"));
+                        var elementCancle = elementActions.SafeFindElement(By.CssSelector("div.btn.btn-primary.btn-sm"));
                         elementCancle.Click();
                         
-                        var elementClearConfirmation = this.driver.SafeFindElement(By.CssSelector("button.btn-lg.btn.btn-primary"), false);
-                        if (elementClearConfirmation == null)
-                        {
-                            return;
-                        }
-                        elementClearConfirmation.Click();
+                        //var elementClearConfirmation = this.driver.SafeFindElement(By.CssSelector("button.btn-lg.btn.btn-primary"), false);
+                        //if (elementClearConfirmation != null)
+                        //{
+                        //    elementClearConfirmation.Click();
+                        //}
                         break;
                     }
                 }

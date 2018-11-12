@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.BitMex.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,26 +9,26 @@ namespace Assets.BitMex
 {
     public class BitMexCommandRepository
     {
-        private Dictionary<BitMexCommandType, IBitMexActionCommand> commands;
+        private Dictionary<BitMexCommandType, IBitMexCommand> commands;
 
         public BitMexCommandRepository()
         {
-            this.commands = new Dictionary<BitMexCommandType, IBitMexActionCommand>();
+            this.commands = new Dictionary<BitMexCommandType, IBitMexCommand>();
         }
 
-        public void Resister(BitMexCommandType type, IBitMexActionCommand command)
+        public void Resister(BitMexCommandType type, IBitMexCommand command)
         {
             this.commands.Add(type, command);
         }
 
-        public IBitMexActionCommand CreateCommand(BitMexCommandType type)
+        public IBitMexCommand CreateCommand(BitMexCommandType type)
         {
             var command = this.commands[type];
             //copy?
             return command;
         }
 
-        public Dictionary<BitMexCommandType, IBitMexActionCommand> GetCommands()
+        public Dictionary<BitMexCommandType, IBitMexCommand> GetCommands()
         {
             return this.commands;
         }

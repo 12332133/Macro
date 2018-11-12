@@ -1,4 +1,5 @@
 ﻿using Assets.BitMex;
+using Assets.BitMex.Commands;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,10 +19,10 @@ public class ContentsBreakThrough : ContentsBase
     public class BreakThroughTrade
     {
         public decimal Price { get; private set; }
-        public IBitMexActionCommand Command { get; private set; }
+        public IBitMexCommand Command { get; private set; }
         public TradeType Type { get; private set; }
 
-        public BreakThroughTrade(TradeType type, decimal price, IBitMexActionCommand command)
+        public BreakThroughTrade(TradeType type, decimal price, IBitMexCommand command)
         {
             Type = type;
             Price = price;

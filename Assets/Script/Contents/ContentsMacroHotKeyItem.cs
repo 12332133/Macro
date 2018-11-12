@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using Assets.KeyBoardHook;
 using System.Collections.Generic;
 using Assets.BitMex;
+using Assets.BitMex.Commands;
 
 public class ContentsMacroHotKeyItem : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.dropdown = transform.Find("Dropdown").GetComponent<Dropdown>();
     }
 
-    public ContentsMacroHotKeyItem Initialized(int index, Func<int, List<RawKey>, BitMexCommandType, bool> onCompleteCombinationMacro, Dictionary<BitMexCommandType, IBitMexActionCommand> commands)
+    public ContentsMacroHotKeyItem Initialized(int index, Func<int, List<RawKey>, BitMexCommandType, bool> onCompleteCombinationMacro, Dictionary<BitMexCommandType, IBitMexCommand> commands)
     {
         this.commandTypes = new List<BitMexCommandType>();
 

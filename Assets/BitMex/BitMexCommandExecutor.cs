@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.BitMex.Commands;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +13,12 @@ namespace Assets.BitMex
     public class BitMexCommandExecutor
     {
         private Thread thread;
-        //private BlockingCollection<IBitMexActionCommand> commands;
-        private ConcurrentQueue<IBitMexActionCommand> commands;
+        private BlockingCollection<IBitMexCommand> commands;
+        //private ConcurrentQueue<IBitMexCommand> commands;
 
         public BitMexCommandExecutor()
         {
-            this.commands = new ConcurrentQueue<IBitMexActionCommand>();
+            this.commands = new BlockingCollection<IBitMexCommand>();
 
             this.thread = new Thread(DoWork);
             this.thread.IsBackground = true;
@@ -26,30 +27,33 @@ namespace Assets.BitMex
 
         private void DoWork()
         {
-            IBitMexActionCommand command = null;
+            //IBitMexCommand command = null;
 
             while (true)
             {
                 try
                 {
-                    if (this.commands.TryDequeue(out command) == true)
-                    {
-                        command.Execute();
-                    }
-                    Thread.Sleep(5);
+                    //if (this.commands.TryDequeue(out command) == true)
+                    //{
+                    //    command.Execute();
+                    //}
+
+                    var command = this.commands.Take();
+                    command.Execute();
+
+                    //Thread.Sleep(5);
                 }
                 catch (BitMexDriverServiceException exception)
                 {
-                    Debug.Log(exception.ToString());
                 }
             }
         }
 
-        public bool AddCommand(IBitMexActionCommand command)
+        public bool AddCommand(IBitMexCommand command, int timeOut = 100)
         {
-            this.commands.Enqueue(command);
-            return true;
-            //return this.commands.TryAdd(command, 100);
+            //this.commands.Enqueue(command);
+            //return true;
+            return this.commands.TryAdd(command, timeOut);
         }
 
         public void Stop()

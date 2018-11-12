@@ -1,4 +1,5 @@
-﻿using Assets.KeyBoardHook;
+﻿using Assets.BitMex.Commands;
+using Assets.KeyBoardHook;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,16 +18,16 @@ namespace Assets.BitMex
         public DateTime UpdateDateTime;
         public decimal FixedAvailableXbt { get; set; }
         public decimal SpecifiedAditional { get; set; }
-        public List<KeyValuePair<List<RawKey>, IBitMexActionCommand>> Macros { get; set; }
+        public List<KeyValuePair<List<RawKey>, IBitMexCommand>> Macros { get; set; }
 
         public BitMexSession()
         {
-            Macros = new List<KeyValuePair<List<RawKey>, IBitMexActionCommand>>();
+            Macros = new List<KeyValuePair<List<RawKey>, IBitMexCommand>>();
             FixedAvailableXbt = 0;
             SpecifiedAditional = 12.5M;
         }
 
-        public bool ResisterMacro(List<RawKey> rawKeys, IBitMexActionCommand command)
+        public bool ResisterMacro(List<RawKey> rawKeys, IBitMexCommand command)
         {
             foreach (var macro in Macros)
             {
@@ -36,7 +37,7 @@ namespace Assets.BitMex
                 }
             }
 
-            Macros.Add(new KeyValuePair<List<RawKey>, IBitMexActionCommand>(rawKeys, command));
+            Macros.Add(new KeyValuePair<List<RawKey>, IBitMexCommand>(rawKeys, command));
 
             return true;
         }

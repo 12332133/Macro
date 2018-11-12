@@ -1,4 +1,5 @@
-﻿using Assets.KeyBoardHook;
+﻿using Assets.BitMex.Commands;
+using Assets.KeyBoardHook;
 using System;
 using System.Collections.Generic;
 using System.Linq;

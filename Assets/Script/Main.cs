@@ -8,6 +8,7 @@ using System.Threading;
 using System.Collections.Concurrent;
 using System;
 using System.Linq;
+using Assets.BitMex.Commands;
 
 public class Main : MonoBehaviour, IBitMexMainAdapter
 {
@@ -73,12 +74,16 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         }
     }
 
+    private void Update()
+    {
+    }
+
     private void SetBitMexService()
     {
         this.service = new BitMexDriverService();
 
         //command 
-        this.service.Repository.Resister(BitMexCommandType.Test, new DefaultSampleCommand(this, "Test", true));
+        this.service.Repository.Resister(BitMexCommandType.Test, new SampleCommand(this, "Test", true));
 
         this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy10Magnification, new MarketPriceBuyCommand(this, "시장가 10% 매수", true, 10));
         this.service.Repository.Resister(BitMexCommandType.MarketPriceBuy25Magnification, new MarketPriceBuyCommand(this, "시장가 25% 매수", true, 25));
@@ -100,9 +105,9 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.service.Repository.Resister(BitMexCommandType.MarketSpecified50PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 50% 매도", true, 50));
         this.service.Repository.Resister(BitMexCommandType.MarketSpecified100PriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 100% 매도", true, 100));
 
-        this.service.Repository.Resister(BitMexCommandType.ClearPosition, new ClearPositionCommand(this, "해당 포지션 청산", true));
-        this.service.Repository.Resister(BitMexCommandType.CancleTopActivateOrder, new CancleTopActivateOrderCommand(this, "최상위 주문 취소", true));
-        this.service.Repository.Resister(BitMexCommandType.CancleAllActivateOrder, new CancleAllActivateOrderCommand(this, "전체 주문 취소", true));
+        this.service.Repository.Resister(BitMexCommandType.ClearPosition, new PositionClearCommand(this, "해당 포지션 청산", true));
+        this.service.Repository.Resister(BitMexCommandType.CancleTopActivateOrder, new TopActivateOrderCancleCommand(this, "최상위 주문 취소", true));
+        this.service.Repository.Resister(BitMexCommandType.CancleAllActivateOrder, new ActivateOrderCancleCommand(this, "전체 주문 취소", true));
 
         //session
         this.session = new BitMexSession()
@@ -151,7 +156,28 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void OnOpenBitMex()
     {
-        
+        //if (this.service.IsDriverOpen() == false)
+        //{
+        //    var driver = DriverFactory.CreateDriver(
+        //            DriverType.Chrome,
+        //            Application.streamingAssetsPath,
+        //            false);
+
+        //    this.service.OpenService(driver, BitMexDomain);
+        //}
+        //else
+        //{
+        //    try
+        //    {
+        //        var command = this.service.Repository.CreateCommand(BitMexCommandType.ClearPosition);
+        //        command.Execute();
+        //    }
+        //    catch(BitMexDriverServiceException exception)
+        //    {
+        //        Debug.Log(exception.ToString());
+        //    }
+        //}
+
         if (this.service.IsDriverOpen() == false)
         {
             var driver = DriverFactory.CreateDriver(
@@ -161,25 +187,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
             this.service.OpenService(driver, BitMexDomain);
         }
-        else
-        {
-            try
-            {
-                var command = this.service.Repository.CreateCommand(BitMexCommandType.ClearPosition);
-                command.Execute();
-            }
-            catch(BitMexDriverServiceException exception)
-            {
-                Debug.Log(exception.ToString());
-            }
-        }
-
-        //var driver = DriverFactory.CreateDriver(
-        //    DriverType.Chrome,
-        //    Application.streamingAssetsPath,
-        //    false);
-
-        //this.service.OpenService(driver, BitMexDomain);
     }
 
     void OnEnableMacro()
@@ -310,7 +317,8 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     public bool ResisterMacro(List<RawKey> keys, BitMexCommandType type)
     {
         Debug.Log("resister macro complete");
-        return this.session.ResisterMacro(keys, this.service.Repository.CreateCommand(type));
+        var command = this.service.Repository.CreateCommand(type);
+        return this.session.ResisterMacro(keys, command);
     }
 
     public BitMexCommandRepository CommandRepository

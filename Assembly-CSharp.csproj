@@ -60,14 +60,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\BitMex\BitMexActionCommand.cs" />
     <Compile Include="Assets\BitMex\BitMexApiHelper.cs" />
     <Compile Include="Assets\BitMex\BitMexCommandExecutor.cs" />
     <Compile Include="Assets\BitMex\BitMexCommandRepository.cs" />
     <Compile Include="Assets\BitMex\BitMexDriverService.cs" />
     <Compile Include="Assets\BitMex\BitMexDriverServiceException.cs" />
-    <Compile Include="Assets\BitMex\BitMexDriverServiceHandler.cs" />
     <Compile Include="Assets\BitMex\BitMexSession.cs" />
+    <Compile Include="Assets\BitMex\Commands\BitMexCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\BitMexCommandType.cs" />
+    <Compile Include="Assets\BitMex\Commands\CancleAllActivateOrderCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\FixedAvailableXbtCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\MarketPriceBuyCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\MarketPriceSellCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\MarketSpecifiedBuyCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\MarketSpecifiedSellCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\PositionClearCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\SampleCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\SpecifiedAditionalCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\TopActivateOrderCancleCommand.cs" />
     <Compile Include="Assets\BitMex\IBitMexMainAdapter.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverBuilder.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverExetentions.cs" />
