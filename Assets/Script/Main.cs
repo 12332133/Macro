@@ -72,6 +72,8 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             content.Initialize(this);
         }
+
+        OnToggleTab(true);
     }
 
     private void Update()
