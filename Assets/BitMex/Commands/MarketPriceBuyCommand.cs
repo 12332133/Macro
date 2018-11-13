@@ -18,20 +18,15 @@ namespace Assets.BitMex.Commands
 
         public override void Execute()
         {
-            if (BitMexMain.DriverService.IsInvaildEmail(BitMexMain.Session.Email) == false)
-            {
-                return;
-            }
-
-            if (BitMexMain.DriverService.HandleOrderMarketQty(
-                0,
-                Magnification,
-                BitMexMain.Session.FixedAvailableXbt,
-                BitMexMain.DriverService.HandleGetCurrentSymbol()
-                ) == true)
-            {
-                BitMexMain.DriverService.HandleBuy();
-            }
+            //if (BitMexMain.DriverService.HandleOrderMarketQty(
+            //    0,
+            //    Magnification,
+            //    BitMexMain.Session.FixedAvailableXbt,
+            //    BitMexMain.DriverService.HandleGetCurrentSymbol()
+            //    ) == true)
+            //{
+            //    BitMexMain.DriverService.HandleBuy();
+            //}
         }
     }
 }

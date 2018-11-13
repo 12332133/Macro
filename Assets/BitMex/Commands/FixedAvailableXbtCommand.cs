@@ -17,7 +17,7 @@ namespace Assets.BitMex.Commands
 
         public override void Execute()
         {
-            BitMexMain.Session.FixedAvailableXbt = FixedAvailableXbt;
+            //BitMexMain.Session.FixedAvailableXbt = FixedAvailableXbt;
         }
     }
 }

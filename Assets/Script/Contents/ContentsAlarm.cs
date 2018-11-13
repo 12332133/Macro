@@ -56,7 +56,7 @@ public class ContentsAlarm : ContentsBase
     {
         while (true)
         {
-            if (this.bitmexMain.DriverService.IsInvaildEmail(this.bitmexMain.Session.Email) == true)
+            if (this.bitmexMain.DriverService.IsAuthenticatedAccount(this.bitmexMain.Session.Email) == true)
             {
                 this.marketPrice = this.bitmexMain.DriverService.OperationGetMarketPrice();
             }

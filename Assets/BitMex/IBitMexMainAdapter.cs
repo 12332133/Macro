@@ -12,8 +12,9 @@ namespace Assets.BitMex
     {
         BitMexSession Session { get; }
         BitMexDriverService DriverService { get; }
-        BitMexCommandRepository CommandRepository { get; }
         BitMexCommandExecutor CommandExecutor { get; }
+        BitMexCommandRepository CommandRepository { get; }
+        BitMexSpecificCoinVariable SpecificCoinVariable { get; }
         bool ResisterMacro(List<RawKey> keys, BitMexCommandType type);
         void WriteMacroLog(string log);
     }

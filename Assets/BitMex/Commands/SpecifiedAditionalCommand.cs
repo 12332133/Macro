@@ -17,7 +17,7 @@ namespace Assets.BitMex.Commands
 
         public override void Execute()
         {
-            BitMexMain.Session.SpecifiedAditional = SpecifiedAditional;
+            //BitMexMain.Session.SpecifiedAditional = SpecifiedAditional;
         }
     }
 }

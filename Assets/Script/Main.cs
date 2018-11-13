@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System;
 using System.Linq;
 using Assets.BitMex.Commands;
+using System.Collections;
 
 public class Main : MonoBehaviour, IBitMexMainAdapter
 {
@@ -74,8 +75,34 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         }
     }
 
-    private void Update()
+    IEnumerator SyncSpecificCoinVariable() // main으로 이동 ?
     {
+        while (true)
+        {
+            try
+            {
+                if (this.service.IsTradingPage() == true)
+                {
+                    var coins = this.service.HandleFindCoins();
+
+                    Debug.Log("------");
+                    foreach (var coin in coins)
+                    {
+                        if (string.Empty.Equals(coin.Key) == false)
+                        {
+                            Debug.Log(coin.Key);
+                        }
+                    }
+                    Debug.Log("------");
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.Log(e);
+            }
+   
+            yield return new WaitForSeconds(2.0f);
+        }
     }
 
     private void SetBitMexService()
@@ -186,6 +213,8 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                     false);
 
             this.service.OpenService(driver, BitMexDomain);
+
+            StartCoroutine(SyncSpecificCoinVariable());
         }
     }
 
@@ -227,7 +256,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                 return;
             }
 
-            if (this.service.IsInvaildEmail(session.Email) == false)
+            if (this.service.IsAuthenticatedAccount(session.Email) == false)
             {
                 Debug.Log("invaild login account");
                 return;
@@ -288,7 +317,15 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.isCombination = false;
     }
 
-    // bitmexmainadapter impl
+    //bitmexmainadapter impl
+
+    public BitMexSpecificCoinVariable SpecificCoinVariable
+    {
+        get
+        {
+            return this.service.SpecificCoinVariable;
+        }
+    }
 
     public BitMexCommandExecutor CommandExecutor
     {
@@ -314,19 +351,20 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         }
     }
 
-    public bool ResisterMacro(List<RawKey> keys, BitMexCommandType type)
-    {
-        Debug.Log("resister macro complete");
-        var command = this.service.Repository.CreateCommand(type);
-        return this.session.ResisterMacro(keys, command);
-    }
-
     public BitMexCommandRepository CommandRepository
     {
         get
         {
             return this.service.Repository;
         }
+    }
+
+
+    public bool ResisterMacro(List<RawKey> keys, BitMexCommandType type)
+    {
+        Debug.Log("resister macro complete");
+        var command = this.service.Repository.CreateCommand(type);
+        return this.session.ResisterMacro(keys, command);
     }
 
     public void WriteMacroLog(string log)
