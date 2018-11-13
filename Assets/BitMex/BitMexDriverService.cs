@@ -2,6 +2,7 @@
 using System;
 using System.Text.RegularExpressions;
 using Assets.BitMex.WebDriver;
+using System.Collections.Generic;
 
 namespace Assets.BitMex
 {
@@ -34,6 +35,7 @@ namespace Assets.BitMex
         private string url;
         private BitMexCommandExecutor executor;
         private BitMexCommandRepository repository;
+        private BitMexSpecificCoinVariable specificCoinVariable;
 
 
         public BitMexCommandRepository Repository
@@ -52,8 +54,17 @@ namespace Assets.BitMex
             }
         }
 
+        public BitMexSpecificCoinVariable SpecificCoinVariable
+        {
+            get
+            {
+                return this.specificCoinVariable;
+            }
+        }
+
         public BitMexDriverService()
         {
+            this.specificCoinVariable = new BitMexSpecificCoinVariable();
             this.executor = new BitMexCommandExecutor();
             this.repository = new BitMexCommandRepository();
         }
@@ -426,15 +437,74 @@ namespace Assets.BitMex
             elementOrderConfirmation.Click();
         }
 
-        public bool IsInvaildEmail(string email)
+        public bool IsAuthenticatedAccount(string email)
         {
-            //var elementEmail = this.driver.SafeFindElement(By.XPath("//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]"), false);
-            //if (elementEmail == null)
-            //{
-            //    return false;
-            //}
-            //return elementEmail.Text.Equals(email);
-            return true;
+            var elementEmail = this.driver.SafeFindElement(By.XPath("span.visible-lg-inline-block.visible-sm-inline-block"), false);
+            if (elementEmail == null)
+            {
+                return false;
+            }
+            return elementEmail.Text.Equals(email);
+        }
+
+        public bool IsTradingPage()
+        {
+            return this.driver.SafeFindElement(By.CssSelector("span.visible-lg-inline-block.visible-sm-inline-block"), false) != null;
+        }
+
+        public List<KeyValuePair<string, string>> HandleFindCoins()
+        {
+            var coins = new List<KeyValuePair<string, string>>();
+
+            var elementCoinPrice = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/div[1]/div/span[2]"), false);
+            if (elementCoinPrice != null)
+            {
+                var coinValues = new List<string>(); //0 = coin name, 1 = price, 2 = change per
+                var elementCoinPrices = elementCoinPrice.SafeFindElements(By.TagName("span"));
+                foreach (var elementCoin in elementCoinPrices)
+                {
+                    //0 = coinname + price + chageper 
+                    //1 = price
+                    //2 = change per
+                    coinValues.Add(elementCoin.Text);
+
+                    if (coinValues.Count == 3)
+                    {
+                        var original = coinValues[0];
+                        var range = original.Length - (coinValues[1].Length + coinValues[2].Length);
+
+                        coinValues[0] = original.Substring(0, range);
+
+                        coins.Add(new KeyValuePair<string, string>(coinValues[0], coinValues[1]));
+                        coinValues.Clear();
+                    }
+                }
+
+                //var elementCoinPrices = elementCoinPrice.SafeFindElements(By.ClassName("tickerBarItem"));
+                //foreach (var elementCoin in elementCoinPrices)
+                //{
+                //    var elementCoinName = elementCoin.SafeFindElement(By.TagName("a"), false);
+                //    if (elementCoinName == null)
+                //    {
+                //        continue;
+                //    }
+
+                //    var coinName = elementCoinName.Text;
+
+                //    var elementMarketPrice = elementCoin.SafeFindElement(By.ClassName("price"), false);
+                //    if (elementMarketPrice == null)
+                //    {
+                //        continue;
+                //    }
+
+                //    var marketPrice = elementMarketPrice.Text;
+
+                //    coins.Add(new KeyValuePair<string, string>(coinName, marketPrice));
+                //}
+            }
+
+            return coins;
+
         }
     }
 }

@@ -16,15 +16,11 @@ namespace Assets.BitMex
         public string ReferrerAccount;
         public string ReferrerEmail;
         public DateTime UpdateDateTime;
-        public decimal FixedAvailableXbt { get; set; }
-        public decimal SpecifiedAditional { get; set; }
-        public List<KeyValuePair<List<RawKey>, IBitMexCommand>> Macros { get; set; }
+        public List<KeyValuePair<List<RawKey>, IBitMexCommand>> Macros { get; private set; }
 
         public BitMexSession()
         {
             Macros = new List<KeyValuePair<List<RawKey>, IBitMexCommand>>();
-            FixedAvailableXbt = 0;
-            SpecifiedAditional = 12.5M;
         }
 
         public bool ResisterMacro(List<RawKey> rawKeys, IBitMexCommand command)

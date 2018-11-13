@@ -66,6 +66,7 @@
     <Compile Include="Assets\BitMex\BitMexDriverService.cs" />
     <Compile Include="Assets\BitMex\BitMexDriverServiceException.cs" />
     <Compile Include="Assets\BitMex\BitMexSession.cs" />
+    <Compile Include="Assets\BitMex\BitMexSpecificCoinVariable.cs" />
     <Compile Include="Assets\BitMex\Commands\BitMexCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\BitMexCommandType.cs" />
     <Compile Include="Assets\BitMex\Commands\CancleAllActivateOrderCommand.cs" />

@@ -543,8 +543,8 @@ C:\Users\Admin\Desktop\Dev\Macro\Temp\bin\Debug\UnityEngine.Networking.xml
 C:\Users\Admin\Desktop\Dev\Macro\Temp\bin\Debug\UnityEngine.GoogleAudioSpatializer.xml
 C:\Users\Admin\Desktop\Dev\Macro\Temp\bin\Debug\UnityEngine.HoloLens.xml
 C:\Users\Admin\Desktop\Dev\Macro\Temp\bin\Debug\UnityEngine.SpatialTracking.xml
-C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.dll
-C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.pdb
+C:\Users\Admin\Desktop\Dev\Macro\Temp\bin\Debug\WebDriver.xml
 C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.csproj.CoreCompileInputs.cache
 C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.csproj.CopyComplete
-C:\Users\Admin\Desktop\Dev\Macro\Temp\bin\Debug\WebDriver.xml
+C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.dll
+C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.pdb

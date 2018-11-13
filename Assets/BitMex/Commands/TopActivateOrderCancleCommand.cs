@@ -15,11 +15,6 @@ namespace Assets.BitMex.Commands
 
         public override void Execute()
         {
-            if (BitMexMain.DriverService.IsInvaildEmail(BitMexMain.Session.Email) == false)
-            {
-                return;
-            }
-
             BitMexMain.DriverService.HandleCancleActivatedOrders(
                 BitMexMain.DriverService.HandleGetCurrentSymbol(), false);
         }
