@@ -3,6 +3,7 @@ using System;
 using System.Text.RegularExpressions;
 using Assets.BitMex.WebDriver;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Assets.BitMex
 {
@@ -452,59 +453,145 @@ namespace Assets.BitMex
             return this.driver.SafeFindElement(By.CssSelector("span.visible-lg-inline-block.visible-sm-inline-block"), false) != null;
         }
 
+        public void HandleSyncCointPrices()
+        {
+            var elementCoinsSection = driver.SafeFindElement(By.CssSelector("span.instruments.tickerBarSection"));
+            var innerCoinText = elementCoinsSection.GetAttribute("innerText");
+            var splitTexts = new[] { "%", "-", "+" };
+
+            foreach (var variable in this.specificCoinVariable.Variables)
+            {
+                var length = innerCoinText.IndexOf(variable.Key);
+
+                if (length == -1)
+                {
+                    continue;
+                }
+
+                var remainText = innerCoinText.Substring(length + variable.Key.Length);
+                var elements = remainText.Split(splitTexts, StringSplitOptions.RemoveEmptyEntries);
+                var price = elements[0];
+                if (price.Equals(".") == true)
+                {
+                    price = "0";
+                }
+
+                if (variable.Value.MarketPrice.Equals(price) == false)
+                {
+                    if (variable.Value.MarketPrice.Equals("0") == false)
+                    {
+                        Debug.Log(string.Format("coin : {0}, price {1} => {2}", variable.Key, variable.Value.MarketPrice, price));
+                    }
+                    variable.Value.MarketPrice = price;
+                }
+            }
+        }
+
         public List<KeyValuePair<string, string>> HandleFindCoins()
         {
             var coins = new List<KeyValuePair<string, string>>();
-
-            var elementCoinPrice = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/div[1]/div/span[2]"), false);
-            if (elementCoinPrice != null)
+            var elementExpenedSelector = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/div[1]/div/i[2]"));
+            if (elementExpenedSelector.GetAttribute("class").Equals("expand fa fa-fw fa-angle-double-up") == true)
             {
-                var coinValues = new List<string>(); //0 = coin name, 1 = price, 2 = change per
-                var elementCoinPrices = elementCoinPrice.SafeFindElements(By.TagName("span"));
-                foreach (var elementCoin in elementCoinPrices)
+                var elementCoinPrice = driver.SafeFindElement(By.CssSelector("span.instruments.tickerBarSection"), false);
+                if (elementCoinPrice != null)
                 {
-                    //0 = coinname + price + chageper 
-                    //1 = price
-                    //2 = change per
-                    coinValues.Add(elementCoin.Text);
+                    int innerCount = 0;
+                    string innerText = string.Empty;
+                    string marketPrice = string.Empty;
 
-                    if (coinValues.Count == 3)
+                    var elementCoinPrices = elementCoinPrice.SafeFindElements(By.TagName("span"));
+                    foreach (var elementCoin in elementCoinPrices)
                     {
-                        var original = coinValues[0];
-                        var range = original.Length - (coinValues[1].Length + coinValues[2].Length);
-
-                        coinValues[0] = original.Substring(0, range);
-
-                        coins.Add(new KeyValuePair<string, string>(coinValues[0], coinValues[1]));
-                        coinValues.Clear();
+                        switch (innerCount)
+                        {
+                            case 0://0 = coinname + price + chageper 
+                                innerText = elementCoin.Text;
+                                innerCount++;
+                                break;
+                            case 1://1 = price
+                                marketPrice = elementCoin.Text;
+                                innerCount++;
+                                break;
+                            case 2://2 = change per
+                                var range = innerText.Length - (marketPrice.Length + elementCoin.Text.Length);
+                                var coinName = innerText.Substring(0, range);
+                                innerCount = 0;
+                                if (coinName.Equals(string.Empty) == false)
+                                {
+                                    coins.Add(new KeyValuePair<string, string>(innerText.Substring(0, range), marketPrice));
+                                }
+                                break;
+                        }
                     }
                 }
-
-                //var elementCoinPrices = elementCoinPrice.SafeFindElements(By.ClassName("tickerBarItem"));
-                //foreach (var elementCoin in elementCoinPrices)
-                //{
-                //    var elementCoinName = elementCoin.SafeFindElement(By.TagName("a"), false);
-                //    if (elementCoinName == null)
-                //    {
-                //        continue;
-                //    }
-
-                //    var coinName = elementCoinName.Text;
-
-                //    var elementMarketPrice = elementCoin.SafeFindElement(By.ClassName("price"), false);
-                //    if (elementMarketPrice == null)
-                //    {
-                //        continue;
-                //    }
-
-                //    var marketPrice = elementMarketPrice.Text;
-
-                //    coins.Add(new KeyValuePair<string, string>(coinName, marketPrice));
-                //}
+            }
+            else
+            {
+                elementExpenedSelector.Click();
             }
 
-            return coins;
+            //var elementCoinPrice = driver.SafeFindElement(By.CssSelector("span.instruments.tickerBarSection"), false);
+            //if (elementCoinPrice != null)
+            //{
+            //    int innerCount = 0;
+            //    string innerText = string.Empty;
+            //    string marketPrice = string.Empty;
 
+            //    var elementCoinPrices = elementCoinPrice.SafeFindElements(By.TagName("span"));
+            //    foreach (var elementCoin in elementCoinPrices)
+            //    {
+            //        switch (innerCount)
+            //        {
+            //            case 0://0 = coinname + price + chageper 
+            //                innerText = elementCoin.Text;
+            //                innerCount++;
+            //                break;
+            //            case 1://1 = price
+            //                marketPrice = elementCoin.Text;
+            //                innerCount++;
+            //                break;
+            //            case 2://2 = change per
+            //                var range = innerText.Length - (marketPrice.Length + elementCoin.Text.Length);
+            //                var coinName = innerText.Substring(0, range);
+            //                innerCount = 0;
+            //                if (coinName.Equals(string.Empty) == false)
+            //                {
+            //                    coins.Add(new KeyValuePair<string, string>(innerText.Substring(0, range), marketPrice));
+            //                }
+            //                break;
+            //        }
+            //    }
+
+            //    //var elementCoinPrices = elementCoinPrice.SafeFindElements(By.ClassName("tickerBarItem "));
+            //    //foreach (var elementCoin in elementCoinPrices)
+            //    //{
+            //    //    var elementCoinName = elementCoin.SafeFindElement(By.TagName("a"), false);
+            //    //    if (elementCoinName == null)
+            //    //    {
+            //    //        continue;
+            //    //    }
+
+            //    //    var coinName = elementCoinName.Text;
+
+            //    //    if (coinName.Equals(string.Empty) == true)
+            //    //    {
+            //    //        continue;
+            //    //    }
+
+            //    //    var elementMarketPrice = elementCoin.SafeFindElement(By.ClassName("price"), false);
+            //    //    if (elementMarketPrice == null)
+            //    //    {
+            //    //        continue;
+            //    //    }
+
+            //    //    var marketPrice = elementMarketPrice.Text;
+
+            //    //    coins.Add(new KeyValuePair<string, string>(coinName, marketPrice));
+            //    //}
+            //}
+
+            return coins;
         }
     }
 }

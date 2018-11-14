@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using Assets.BitMex.Commands;
 using System.Collections;
+using Newtonsoft.Json.Linq;
 
 public class Main : MonoBehaviour, IBitMexMainAdapter
 {
@@ -26,7 +27,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private BitMexSession session;
     private BitMexDriverService service;
-    private const string BitMexDomain = "https://testnet.bitmex.com/";
+    private const string BitMexDomain = "https://testnet.bitmex.com";
     //private const string BitMexDomain = "https://www.bitmex.com/";
 
     private bool isCombination = false;
@@ -56,9 +57,11 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void Awake()
     {
+        SetUnityOptions();
         SetBitMexService();
         SetAllowSpecialKey();
         SetInputKey();
+        SetActiveInstruments();
 
         this.toggleTabs[0].onValueChanged.AddListener(OnToggleTab);
         this.toggleTabs[1].onValueChanged.AddListener(OnToggleTab);
@@ -77,33 +80,26 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         OnToggleTab(true);
     }
 
-    IEnumerator SyncSpecificCoinVariable() // main으로 이동 ?
+    private void SetUnityOptions()
     {
-        while (true)
-        {
-            try
-            {
-                if (this.service.IsTradingPage() == true)
-                {
-                    var coins = this.service.HandleFindCoins();
+        Application.runInBackground = true;
+    }
 
-                    Debug.Log("------");
-                    foreach (var coin in coins)
-                    {
-                        if (string.Empty.Equals(coin.Key) == false)
-                        {
-                            Debug.Log(coin.Key);
-                        }
-                    }
-                    Debug.Log("------");
-                }
-            }
-            catch(Exception e)
+    private void SetActiveInstruments()
+    {
+        var response = BitMexApiHelper.GetActiveInstruments(this.session, BitMexDomain);
+
+        var jarray = JArray.Parse(response);
+
+        foreach (var item in jarray)
+        {
+            var jobject = JObject.Parse(item.ToString());
+
+            if (jobject["state"].ToString().Equals("Open") == true)
             {
-                Debug.Log(e);
+                var symbol = jobject["symbol"].ToString();
+                this.service.SpecificCoinVariable.ResisterCoin(symbol);
             }
-   
-            yield return new WaitForSeconds(2.0f);
         }
     }
 
@@ -217,6 +213,30 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             this.service.OpenService(driver, BitMexDomain);
 
             StartCoroutine(SyncSpecificCoinVariable());
+        }
+    }
+
+    private IEnumerator SyncSpecificCoinVariable() // main으로 이동 ?
+    {
+        while (true)
+        {
+            try
+            {
+                if (this.service.IsTradingPage() == true)
+                {
+                    //var wc = new System.Diagnostics.Stopwatch();
+                    //wc.Start();
+                    this.service.HandleSyncCointPrices();
+                    //wc.Stop();
+                    //Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+
+            yield return new WaitForSeconds(0.1f);
         }
     }
 

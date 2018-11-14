@@ -10,6 +10,7 @@ namespace Assets.BitMex
     {
         public const decimal DefaultFixedAvailableXbt = 0;
         public const decimal DefaultSpecifiedAditional = 12.5M;
+        private string[] activeCoins;
 
         private Dictionary<string, BitMexCoinVariable> variables;
 
@@ -30,7 +31,7 @@ namespace Assets.BitMex
             this.variables.Add(coinName, variable);
             return variable;
         }
-
+        
         public BitMexCoinVariable GetCoinVariable(string coinName)
         {
             if (this.variables.ContainsKey(coinName) == true)
@@ -40,6 +41,26 @@ namespace Assets.BitMex
 
             return ResisterCoin(coinName);
         }
+
+        public string[] ActivatedCoins
+        {
+            get
+            {
+                if (this.activeCoins == null)
+                {
+                    this.activeCoins = this.variables.Keys.ToArray();
+                }
+                return this.activeCoins;
+            }
+        }
+
+        public Dictionary<string, BitMexCoinVariable> Variables
+        {
+            get
+            {
+                return this.variables;
+            }
+        }
     }
 
     public class BitMexCoinVariable
@@ -47,6 +68,11 @@ namespace Assets.BitMex
         public string CoinName { get; set; }
         public decimal FixedAvailableXbt { get; set; }
         public decimal SpecifiedAditional { get; set; }
-        public decimal MarketPrice { get; set; }
+        public string MarketPrice { get; set; }
+
+        public BitMexCoinVariable()
+        {
+            MarketPrice = "0";
+        }
     }
 }

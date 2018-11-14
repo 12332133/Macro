@@ -548,3 +548,5 @@ C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.csproj.CoreCompileInp
 C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.csproj.CopyComplete
 C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.dll
 C:\Users\Admin\Desktop\Dev\Macro\obj\Debug\Assembly-CSharp.pdb
+C:\Users\Admin\Desktop\Dev\Macro\Temp\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Admin\Desktop\Dev\Macro\Temp\bin\Debug\Newtonsoft.Json.xml
