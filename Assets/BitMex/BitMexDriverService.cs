@@ -9,12 +9,9 @@ namespace Assets.BitMex
 {
     public class BitMexDriverService
     {
-        private const string SymbolXbtUsd = "XBTUSD";
-        private const string SymbolXBTJPY = "XBTJPY";
-        private const string SymbolADAM18 = "ADAM18";
-        private const string SymbolBCHM18 = "BCHM18";
-        private const string SymbolETHXBT = "ETHXBT";
-        private const string SymbolLTCM18 = "LTCM18";
+        public static decimal FixedAvailableXbt = 0; //사용 가능 고정 xbt
+
+        public const string MainSymbol = "XBTUSD";
 
         private const string CssBuyButton = "button.btn-lg.btn.btn-block.btn-success.buy";
         private const string CssSellButton = "button.btn-lg.btn.btn-block.btn-danger.sell";
@@ -32,12 +29,11 @@ namespace Assets.BitMex
 
         private const string XPathLoginAccount = "//*[@id=\"header\"]/div[2]/div[3]/a/span[1]/span[1]";
 
-        private IWebDriver driver;
         private string url;
+        private IWebDriver driver;
         private BitMexCommandExecutor executor;
         private BitMexCommandRepository repository;
-        private BitMexSpecificCoinVariable specificCoinVariable;
-
+        private BitMexCoinTable coinTable;
 
         public BitMexCommandRepository Repository
         {
@@ -55,18 +51,18 @@ namespace Assets.BitMex
             }
         }
 
-        public BitMexSpecificCoinVariable SpecificCoinVariable
+        public BitMexCoinTable CoinTable
         {
             get
             {
-                return this.specificCoinVariable;
+                return this.coinTable;
             }
         }
 
         public BitMexDriverService()
         {
-            this.specificCoinVariable = new BitMexSpecificCoinVariable();
             this.executor = new BitMexCommandExecutor();
+            this.coinTable = new BitMexCoinTable();
             this.repository = new BitMexCommandRepository();
         }
 
@@ -251,7 +247,7 @@ namespace Assets.BitMex
                     var elementMarketPrice = driver.FindElement(By.XPath(XPathMarketPrice));
                     var price = decimal.Parse(elementMarketPrice.Text);
 
-                    if (symbol.Equals(SymbolXbtUsd) == true) // bitcoin usd only differnt algo
+                    if (symbol.Equals(BitMexDriverService.MainSymbol) == true) // bitcoin usd only differnt algo
                     {
                         seletedQty = Math.Floor(xbt * leverage * price * ((decimal)magnification / 100));
                     }
@@ -327,7 +323,7 @@ namespace Assets.BitMex
                         leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0]);
                     }
 
-                    if (symbol.Equals(SymbolXbtUsd) == true) // bitcoin usd only differnt algo
+                    if (symbol.Equals(BitMexDriverService.MainSymbol) == true) // bitcoin usd only differnt algo
                     {
                         seletedQty = Math.Floor(xbt * leverage * price * ((decimal)magnification / 100));
                     }
@@ -364,7 +360,7 @@ namespace Assets.BitMex
 
             // 포지션 정보
             var elementTable = driver.SafeFindElement(By.XPath(XPathViewTable));
-            var elementPositions = elementTable.FindElements(By.TagName("tr"));
+            var elementPositions = elementTable.SafeFindElements(By.TagName("tr"));
 
             if (elementPositions.Count > 0)
             {
@@ -392,9 +388,9 @@ namespace Assets.BitMex
             // 주문 창 클릭
             HandleForceChangeFocus(XPathActivatedOrderViewButton);
 
-            var table = driver.FindElement(By.XPath(XPathViewTable));
+            var table = driver.SafeFindElement(By.XPath(XPathViewTable));
 
-            var elements = table.FindElements(By.TagName("tr"));
+            var elements = table.SafeFindElements(By.TagName("tr"));
 
             if (elements.Count > 0)
             {
@@ -422,7 +418,7 @@ namespace Assets.BitMex
             }
         }
 
-        public decimal OperationGetMarketPrice(string symbol = SymbolXbtUsd)
+        public decimal OperationGetMarketPrice(string symbol = BitMexDriverService.MainSymbol)
         {
             var marketPrice = this.driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/div[1]/div/span[2]/span[1]/span[1]"));
             return decimal.Parse(marketPrice.Text);
@@ -448,9 +444,46 @@ namespace Assets.BitMex
             return elementEmail.Text.Equals(email);
         }
 
-        public bool IsTradingPage()
+        public bool HandleIsTradingPage()
         {
             return this.driver.SafeFindElement(By.CssSelector("span.visible-lg-inline-block.visible-sm-inline-block"), false) != null;
+        }
+
+        //public void HandleChangeCoinTab(string targetSymbol)
+        //{
+        //    var targetUrl = this.url + "/app/trade/"+ targetSymbol;
+        //    if (this.driver.Url.Equals(targetUrl) == false)
+        //    {
+        //        this.driver.Navigate().GoToUrl(targetUrl);
+        //    }
+        //}
+
+        public bool HandleChangeCoinTab(string rootCoinName, string coinName)
+        {
+            var elementCoinTabs = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[2]/div/div/div[1]/div/section/header/span/div/ul"));
+            var elementRootCoins = elementCoinTabs.SafeFindElements(By.TagName("li"));
+            foreach (var elementRootCoin in elementRootCoins)
+            {
+                var rootSymbol = elementRootCoin.SafeFindElement(By.ClassName("instrumentRootSymbol")).Text;
+                if (rootCoinName.Equals(rootSymbol) == true)
+                {
+                    elementRootCoin.Click();
+
+                    var elementExpiries = elementCoinTabs.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[2]/div/div/div[1]/div/section/div/span"));
+                    var elementChildCoins = elementExpiries.SafeFindElements(By.TagName("div"));
+                    foreach (var elementChildCoin in elementChildCoins)
+                    {
+                        var childSymbol = elementChildCoin.GetAttribute("title");
+                        if (childSymbol.Equals(coinName) == true)
+                        {
+                            elementChildCoin.Click();
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         public void HandleSyncCointPrices()
@@ -459,16 +492,16 @@ namespace Assets.BitMex
             var innerCoinText = elementCoinsSection.GetAttribute("innerText");
             var splitTexts = new[] { "%", "-", "+" };
 
-            foreach (var variable in this.specificCoinVariable.Variables)
+            foreach (var coin in this.CoinTable.Coins)
             {
-                var length = innerCoinText.IndexOf(variable.Key);
+                var length = innerCoinText.IndexOf(coin.Key);
 
                 if (length == -1)
                 {
                     continue;
                 }
 
-                var remainText = innerCoinText.Substring(length + variable.Key.Length);
+                var remainText = innerCoinText.Substring(length + coin.Key.Length);
                 var elements = remainText.Split(splitTexts, StringSplitOptions.RemoveEmptyEntries);
                 var price = elements[0];
                 if (price.Equals(".") == true)
@@ -476,18 +509,18 @@ namespace Assets.BitMex
                     price = "0";
                 }
 
-                if (variable.Value.MarketPrice.Equals(price) == false)
+                if (coin.Value.MarketPrice.Equals(price) == false)
                 {
-                    if (variable.Value.MarketPrice.Equals("0") == false)
+                    if (coin.Value.MarketPrice.Equals("0") == false)
                     {
-                        Debug.Log(string.Format("coin : {0}, price {1} => {2}", variable.Key, variable.Value.MarketPrice, price));
+                        Debug.Log(string.Format("coin : {0}, price {1} => {2}", coin.Key, coin.Value.MarketPrice, price));
                     }
-                    variable.Value.MarketPrice = price;
+                    coin.Value.MarketPrice = price;
                 }
             }
         }
 
-        public List<KeyValuePair<string, string>> HandleFindCoins()
+        public List<KeyValuePair<string, string>> HandleGetCoinPrices()
         {
             var coins = new List<KeyValuePair<string, string>>();
             var elementExpenedSelector = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/div[1]/div/i[2]"));

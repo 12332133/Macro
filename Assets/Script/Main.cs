@@ -97,8 +97,9 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
             if (jobject["state"].ToString().Equals("Open") == true)
             {
+                var rootSymbol = jobject["rootSymbol"].ToString();
                 var symbol = jobject["symbol"].ToString();
-                this.service.SpecificCoinVariable.ResisterCoin(symbol);
+                this.service.CoinTable.ResisterCoin(rootSymbol, symbol);
             }
         }
     }
@@ -181,6 +182,42 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void OnOpenBitMex()
     {
+        if (this.service.IsDriverOpen() == false)
+        {
+            var driver = DriverFactory.CreateDriver(
+                  DriverType.Chrome,
+                  Application.streamingAssetsPath,
+                  false);
+
+            this.service.OpenService(driver, BitMexDomain);
+
+            //StartCoroutine(SyncSpecificCoinVariable());
+        }
+        else
+        {
+            try
+            {
+                foreach (var coin in this.CoinTable.Coins.Values.ToList())
+                {
+                    var wc = new System.Diagnostics.Stopwatch();
+                    wc.Start();
+                    if (this.service.HandleChangeCoinTab(coin.RootCoinName, coin.CoinName) == false)
+                    {
+                        Debug.Log("not found tab");
+                    }
+                    wc.Stop();
+                    Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
+                }
+
+                //var command = this.service.Repository.CreateCommand(BitMexCommandType.ClearPosition);
+                //command.Execute();
+            }
+            catch (BitMexDriverServiceException exception)
+            {
+                Debug.Log(exception.ToString());
+            }
+        }
+
         //if (this.service.IsDriverOpen() == false)
         //{
         //    var driver = DriverFactory.CreateDriver(
@@ -189,31 +226,9 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         //            false);
 
         //    this.service.OpenService(driver, BitMexDomain);
+
+        //    StartCoroutine(SyncSpecificCoinVariable());
         //}
-        //else
-        //{
-        //    try
-        //    {
-        //        var command = this.service.Repository.CreateCommand(BitMexCommandType.ClearPosition);
-        //        command.Execute();
-        //    }
-        //    catch(BitMexDriverServiceException exception)
-        //    {
-        //        Debug.Log(exception.ToString());
-        //    }
-        //}
-
-        if (this.service.IsDriverOpen() == false)
-        {
-            var driver = DriverFactory.CreateDriver(
-                    DriverType.Chrome,
-                    Application.streamingAssetsPath,
-                    false);
-
-            this.service.OpenService(driver, BitMexDomain);
-
-            StartCoroutine(SyncSpecificCoinVariable());
-        }
     }
 
     private IEnumerator SyncSpecificCoinVariable() // main으로 이동 ?
@@ -222,7 +237,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             try
             {
-                if (this.service.IsTradingPage() == true)
+                if (this.service.HandleIsTradingPage() == true)
                 {
                     //var wc = new System.Diagnostics.Stopwatch();
                     //wc.Start();
@@ -341,11 +356,11 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     //bitmexmainadapter impl
 
-    public BitMexSpecificCoinVariable SpecificCoinVariable
+    public BitMexCoinTable CoinTable
     {
         get
         {
-            return this.service.SpecificCoinVariable;
+            return this.service.CoinTable;
         }
     }
 
