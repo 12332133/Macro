@@ -80,6 +80,11 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         OnToggleTab(true);
     }
 
+    public void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
     private void SetUnityOptions()
     {
         Application.runInBackground = true;

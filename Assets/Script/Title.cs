@@ -18,6 +18,8 @@ public class Title : MonoBehaviour
     [SerializeField] private Button btnLogin;
     [SerializeField] private Text txtLogin;
 
+    [SerializeField] private Main main;
+
     private void Reset()
     {
         this.txtID = transform.Find("Canvas/ID/Text").GetComponent<Text>();
@@ -34,6 +36,8 @@ public class Title : MonoBehaviour
 
         this.btnLogin = transform.Find("Canvas/btnLogin").GetComponent<Button>();
         this.txtLogin = transform.Find("Canvas/btnLogin/Text").GetComponent<Text>();
+
+        this.main = GameObject.Find("Main").GetComponent<Main>();
     }
 
     private void Awake()
@@ -47,9 +51,9 @@ public class Title : MonoBehaviour
         this.toggleRemember.onValueChanged.AddListener(OnToggleRemember);
         this.btnLogin.onClick.AddListener(OnClickLogin);
 
-        int state = PlayerPrefs.GetInt("_toggleRemember", 0);
+        toggleRemember.isOn = PlayerPrefs.GetInt("_toggleRemember", 0) == 1 ? true : false;
 
-        if (state == 1)
+        if (toggleRemember.isOn)
         {
             this.inputID.text = PlayerPrefs.GetString("_inputID", string.Empty);
             this.inputPW.text = PlayerPrefs.GetString("_inputPW", string.Empty);
@@ -59,6 +63,8 @@ public class Title : MonoBehaviour
     private void OnToggleRemember(bool state)
     {
         Debug.Log("기억 : " + state);
+
+        toggleRemember.isOn = state;
 
         PlayerPrefs.SetInt("_toggleRemember", state ? 1 : 0);
         PlayerPrefs.Save();
@@ -73,8 +79,13 @@ public class Title : MonoBehaviour
 
     private void OnSuccessLogin()
     {
-        PlayerPrefs.SetString("_inputID", this.inputID.text);
-        PlayerPrefs.SetString("_inputPW", this.inputPW.text);
-        PlayerPrefs.Save();
+        if (toggleRemember.isOn)
+        {
+            PlayerPrefs.SetString("_inputID", this.inputID.text);
+            PlayerPrefs.SetString("_inputPW", this.inputPW.text);
+            PlayerPrefs.Save();
+        }
+        main.Show();
+        gameObject.SetActive(false);
     }
 }
