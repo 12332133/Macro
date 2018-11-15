@@ -57,7 +57,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void Awake()
     {
-        SetUnityOptions();
         SetBitMexService();
         SetAllowSpecialKey();
         SetInputKey();
@@ -76,23 +75,19 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             content.Initialize(this);
         }
-
+        
         OnToggleTab(true);
     }
 
-    public void Show()
+    public void Show(BitMexSession session)
     {
+        this.session = session;
         gameObject.SetActive(true);
-    }
-
-    private void SetUnityOptions()
-    {
-        Application.runInBackground = true;
     }
 
     private void SetActiveInstruments()
     {
-        var response = BitMexApiHelper.GetActiveInstruments(this.session, BitMexDomain);
+        var response = BitMexApiHelper.GetActiveInstruments(BitMexDomain);
 
         var jarray = JArray.Parse(response);
 
@@ -139,21 +134,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.service.Repository.Resister(BitMexCommandType.ClearPosition, new PositionClearCommand(this, "해당 포지션 청산", true));
         this.service.Repository.Resister(BitMexCommandType.CancleTopActivateOrder, new TopActivateOrderCancleCommand(this, "최상위 주문 취소", true));
         this.service.Repository.Resister(BitMexCommandType.CancleAllActivateOrder, new ActivateOrderCancleCommand(this, "전체 주문 취소", true));
-
-        //session
-        this.session = new BitMexSession()
-        {
-            ApiKey = "TE3O0NLo8pmwAkzsv66UamVr",
-            ApiSecret = "yVjWPBWEVmwWZ39bRJ23aLJu5h69Eq4cyQHM6utd-O7Z8qZx",
-            Email = "condemonkey@gmail.com",
-            ReferrerAccount = "462226",
-            ReferrerEmail = "",
-        };
-
-        //load macro
-        //this.session.ResisterMacro(
-        //    new List<RawKey>() { (RawKey)1, (RawKey)2, (RawKey)3, (RawKey)4 }, 
-        //    this.repository.CreateCommand((BitMexCommandType)1));
     }
 
     private void SetAllowSpecialKey()
@@ -196,23 +176,29 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
             this.service.OpenService(driver, BitMexDomain);
 
-            //StartCoroutine(SyncSpecificCoinVariable());
+            StartCoroutine(SyncSpecificCoinVariable());
         }
         else
         {
             try
             {
-                foreach (var coin in this.CoinTable.Coins.Values.ToList())
+
+                var wc = new System.Diagnostics.Stopwatch();
+                wc.Start();
+
+                var coin = this.CoinTable.GetCoin("XBTUSD");
+                if (this.service.HandleChangeCoinTab(coin.RootCoinName, coin.CoinName) == false)
                 {
-                    var wc = new System.Diagnostics.Stopwatch();
-                    wc.Start();
-                    if (this.service.HandleChangeCoinTab(coin.RootCoinName, coin.CoinName) == false)
-                    {
-                        Debug.Log("not found tab");
-                    }
-                    wc.Stop();
-                    Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
+                    Debug.Log("not found tab");
                 }
+
+                wc.Stop();
+                Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
+
+                //foreach (var coin in this.CoinTable.Coins.Values.ToList())
+                //{
+
+                //}
 
                 //var command = this.service.Repository.CreateCommand(BitMexCommandType.ClearPosition);
                 //command.Execute();
@@ -276,15 +262,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                 Debug.Log("not found chrome driver");
                 return;
             }
-
-            //var response = BitMexApiHelper.GetReferral(session, BitMexDomain); //json deserialize
-
-            //if (this.session.ReferrerAccount.Equals(response) == false)
-            //{
-            //    Debug.Log("invaild referral account");
-            //    return;
-            //}
-
+           
             if (this.service.IsInvaildEmail(session.Email) == false)
             {
                 Debug.Log("invaild login account");
@@ -360,6 +338,13 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     }
 
     //bitmexmainadapter impl
+    public IBitMexCommandHandler CommandHandler
+    {
+        get
+        {
+            return this.service;
+        }
+    }
 
     public BitMexCoinTable CoinTable
     {

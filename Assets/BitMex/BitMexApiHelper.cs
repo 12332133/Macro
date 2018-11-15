@@ -159,9 +159,9 @@ namespace Assets.BitMex
             return BitMexApiHelper.Query(domain, session.ApiSecret, session.ApiKey, "GET", "/user/affiliateStatus", null, true);
         }
 
-        public static string GetActiveInstruments(BitMexSession session, string domain)
+        public static string GetActiveInstruments(string domain)
         {
-            return BitMexApiHelper.Query(domain, session.ApiSecret, session.ApiKey, "GET", "/instrument/active", null, false);
+            return BitMexApiHelper.Query(domain, "", "", "GET", "/instrument/active", null, false);
         }
     }
 }

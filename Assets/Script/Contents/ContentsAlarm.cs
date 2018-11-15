@@ -58,7 +58,6 @@ public class ContentsAlarm : ContentsBase
         {
             if (this.bitmexMain.DriverService.IsAuthenticatedAccount(this.bitmexMain.Session.Email) == true)
             {
-                this.marketPrice = this.bitmexMain.DriverService.OperationGetMarketPrice();
             }
             yield return new WaitForSeconds(0.1f);
         }

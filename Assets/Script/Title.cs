@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.BitMex;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Title : MonoBehaviour
@@ -19,6 +20,9 @@ public class Title : MonoBehaviour
     [SerializeField] private Text txtLogin;
 
     [SerializeField] private Main main;
+
+    private const string BitMexDomain = "https://testnet.bitmex.com";
+    //private const string BitMexDomain = "https://www.bitmex.com/";
 
     private void Reset()
     {
@@ -42,6 +46,8 @@ public class Title : MonoBehaviour
 
     private void Awake()
     {
+        SetUnityOptions();
+
         this.txtID.text = "아이디";
         this.txtPW.text = "패스워드";
         this.txtCode.text = "코드";
@@ -60,6 +66,11 @@ public class Title : MonoBehaviour
         }
     }
 
+    private void SetUnityOptions()
+    {
+        Application.runInBackground = true;
+    }
+
     private void OnToggleRemember(bool state)
     {
         Debug.Log("기억 : " + state);
@@ -74,10 +85,23 @@ public class Title : MonoBehaviour
     {
         Debug.Log("아이디 : " + this.inputID.text + "\t패스워드 : " + this.inputPW.text);
 
-        OnSuccessLogin();
+        var session = new BitMexSession()
+        {
+            ApiKey = "TE3O0NLo8pmwAkzsv66UamVr",
+            ApiSecret = "yVjWPBWEVmwWZ39bRJ23aLJu5h69Eq4cyQHM6utd-O7Z8qZx",
+            Email = "condemonkey@gmail.com",
+            ReferrerAccount = "462226",
+            ReferrerEmail = "",
+        };
+
+        //session.ResisterMacro(
+        //    new List<RawKey>() { (RawKey)1, (RawKey)2 }, 
+        //    this.repository.CreateCommand((BitMexCommandType)1));
+
+        OnSuccessLogin(session);
     }
 
-    private void OnSuccessLogin()
+    private void OnSuccessLogin(BitMexSession session)
     {
         if (toggleRemember.isOn)
         {
@@ -85,7 +109,8 @@ public class Title : MonoBehaviour
             PlayerPrefs.SetString("_inputPW", this.inputPW.text);
             PlayerPrefs.Save();
         }
-        main.Show();
+
+        main.Show(session);
         gameObject.SetActive(false);
     }
 }

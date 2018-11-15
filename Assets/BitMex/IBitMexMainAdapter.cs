@@ -15,6 +15,7 @@ namespace Assets.BitMex
         BitMexCommandExecutor CommandExecutor { get; }
         BitMexCommandRepository CommandRepository { get; }
         BitMexCoinTable CoinTable { get; }
+        IBitMexCommandHandler CommandHandler { get; }
         bool ResisterMacro(List<RawKey> keys, BitMexCommandType type);
         void WriteMacroLog(string log);
     }
