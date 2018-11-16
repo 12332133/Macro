@@ -10,7 +10,7 @@ namespace Assets.BitMex
 {
     public class BitMexDriverService : IBitMexCommandHandler
     {
-        public static decimal FixedAvailableXbt = 0; //사용 가능 고정 xbt
+        public decimal FixedAvailableXbt = 0; //사용 가능 고정 xbt
 
         public const string MainSymbol = "XBTUSD";
 
@@ -193,10 +193,18 @@ namespace Assets.BitMex
             return true;
         }
 
+        /// <summary>
+        /// 시장가 주문
+        /// </summary>
+        /// <param name="qty">수량</param>
+        /// <param name="magnification">배수 0~100</param>
+        /// <param name="fixedAvailableXbt">고정xbt</param>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
         public bool HandleOrderMarketQty(decimal qty, int magnification, decimal fixedAvailableXbt, string symbol)
         {
             // 강제로 주문 탭 전환 
-            HandleForceChangeFocus(XPathOderTargetMarketButton);
+            //HandleForceChangeFocus(XPathOderTargetMarketButton);
             // 실시간 매크로 시 주문 탭이 다를경우 무시하려면 수정 필요 
             //HandleIsSameOrderTap(XPathOderTargetMarketButton);
 
@@ -276,7 +284,7 @@ namespace Assets.BitMex
         public bool HandleOrderSpecifiedQty(decimal qty, int magnification, decimal specifiedAditional, decimal fixedAvailableXbt, string symbol)
         {
             // 강제로 주문 탭 전환
-            HandleForceChangeFocus(XPathOderTargetSpecifedButton);
+            //HandleForceChangeFocus(XPathOderTargetSpecifedButton);
             // 실시간 매크로 시 주문 탭이 다를경우 무시하려면 수정 필요 
             //HandleIsSameOrderTap(XPathOderTargetSpecifedButton);
 
@@ -387,7 +395,8 @@ namespace Assets.BitMex
         public void HandleCancleActivatedOrders(string symbol, bool isClear = false)
         {
             // 주문 창 클릭
-            HandleForceChangeFocus(XPathActivatedOrderViewButton);
+            var elementOrderTarget = driver.SafeFindElement(By.XPath(XPathActivatedOrderViewButton));
+            elementOrderTarget.Click();
 
             var table = driver.SafeFindElement(By.XPath(XPathViewTable));
 
@@ -504,7 +513,7 @@ namespace Assets.BitMex
             return false;
         }
 
-        public void HandleSyncCointPrices()
+        public void HandleSyncCointPrices() //bench 0.07s
         {
             var elementCoinsSection = driver.SafeFindElement(By.CssSelector("span.instruments.tickerBarSection"));
             var innerCoinText = elementCoinsSection.SafeGetAttribute("innerText");
@@ -527,14 +536,7 @@ namespace Assets.BitMex
                     price = "0";
                 }
 
-                if (coin.Value.MarketPrice.Equals(price) == false)
-                {
-                    if (coin.Value.MarketPrice.Equals("0") == false)
-                    {
-                        Debug.Log(string.Format("coin : {0}, price {1} => {2}", coin.Key, coin.Value.MarketPrice, price));
-                    }
-                    coin.Value.MarketPrice = price;
-                }
+                coin.Value.MarketPrice = decimal.Parse(price);
             }
         }
 

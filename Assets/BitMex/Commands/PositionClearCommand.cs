@@ -13,6 +13,11 @@ namespace Assets.BitMex.Commands
         {
         }
 
+        public override object Clone()
+        {
+            return new PositionClearCommand(BitMexMain, ContentString, IsExpose);
+        }
+
         public override void Execute()
         {
             var symbol = BitMexMain.DriverService.HandleGetCurrentSymbol();

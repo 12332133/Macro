@@ -8,11 +8,16 @@ namespace Assets.BitMex.Commands
 {
     public class FixedAvailableXbtCommand : BitMexCommand
     {
-        public decimal FixedAvailableXbt { get; set; }
+        //public decimal FixedAvailableXbt { get; set; }
 
         public FixedAvailableXbtCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
             : base(bitmexMain, contentString, isExpose)
         {
+        }
+
+        public override object Clone()
+        {
+            return new FixedAvailableXbtCommand(BitMexMain, ContentString, IsExpose);
         }
 
         public override void Execute()

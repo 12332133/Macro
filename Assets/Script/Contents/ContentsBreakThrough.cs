@@ -17,12 +17,13 @@ public class ContentsBreakThrough : ContentsBase
         Under,
     }
 
-    public class BreakThroughTrade
+    public class BreakThroughTrade : IBitMexPriceSchedule
     {
         public decimal Price { get; set; }
-        public IBitMexCommand Command { get; set; }
         public TradeType Type { get; set; }
         public BitMexCoin Coin { get; set; }
+        public IBitMexCommand Command { get; set; }
+        public BitMexCommandExecutor Executor { get; set; }
 
         public bool IsCompletePriceConditions
         {
@@ -31,18 +32,26 @@ public class ContentsBreakThrough : ContentsBase
                 switch (this.Type)
                 {
                     case TradeType.Over:
-                        return decimal.Parse(this.Coin.MarketPrice) < this.Price;
+                        return this.Coin.MarketPrice < this.Price;
                     case TradeType.Under:
-                        return decimal.Parse(this.Coin.MarketPrice) > this.Price;
+                        return this.Coin.MarketPrice > this.Price;
                 }
                 return false;
             }
         }
+
+        public bool Execute()
+        {
+            if (IsCompletePriceConditions)
+            {
+                return Executor.AddCommand(Command);
+            }
+
+            return false;
+        }
     }
 
-    private Thread producer;
-    private Thread customer;
-    private ConcurrentQueue<BreakThroughTrade> trades;
+    private BlockingCollection<BreakThroughTrade> trades;
     private List<BitMexCommandType> overCommandTypes;
     private List<BitMexCommandType> underCommandTypes;
 
@@ -69,103 +78,62 @@ public class ContentsBreakThrough : ContentsBase
         {
             switch (command.Key)
             {
-                case BitMexCommandType.MarketSpecified10PriceBuy:
-                case BitMexCommandType.MarketSpecified25PriceBuy:
-                case BitMexCommandType.MarketSpecified50PriceBuy:
-                case BitMexCommandType.MarketSpecified100PriceBuy:
+                case BitMexCommandType.MarketSpecifiedPriceBuy:
                     this.overCommandTypes.Add(command.Key);
                     break;
-                case BitMexCommandType.MarketSpecified10PriceSell:
-                case BitMexCommandType.MarketSpecified25PriceSell:
-                case BitMexCommandType.MarketSpecified50PriceSell:
-                case BitMexCommandType.MarketSpecified100PriceSell:
+                case BitMexCommandType.MarketSpecifiedPriceSell:
                     this.underCommandTypes.Add(command.Key);
                     break;
             }
         }
 
-        this.trades = new ConcurrentQueue<BreakThroughTrade>();
-        this.producer = new Thread(CheckCoinPrice);
-        this.producer.IsBackground = true;
-        this.producer.Start();
+        this.trades = new BlockingCollection<BreakThroughTrade>();
 
-        this.customer = new Thread(SyncSpecificCoinVariable);
-        this.customer.IsBackground = true;
-        this.customer.Start();
+        //new Thread(Produce)
+        //{
+        //    IsBackground = true,
+        //}.Start();
     }
 
-    private void CheckCoinPrice() 
+    private void Produce() 
     {
-        while (true)
-        {
-            try
-            {
-                if (this.bitmexMain.DriverService.IsDriverOpen() == true)
-                {
-                    BreakThroughTrade trade = null;
-                    if (this.trades.TryDequeue(out trade) == true)
-                    {
-                        if (trade.IsCompletePriceConditions == true)
-                        {
-                            if (this.bitmexMain.CommandExecutor.AddCommand(trade.Command) == false)
-                            {
-                            }
-                        }
-                        else
-                        {
-                            this.trades.Enqueue(trade);
-                        }
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-            }
-
-            System.Threading.Thread.Sleep(50);
-        }
-    }
-
-    private void SyncSpecificCoinVariable() 
-    {
-        decimal price = decimal.Parse("5320.0");
+        decimal price = decimal.Parse("5493.5");
 
         while (true)
         {
             try
             {
-                if (this.bitmexMain.DriverService.IsDriverOpen() == true)
+                if (this.bitmexMain.DriverService.IsDriverOpen() == true &&
+                    this.bitmexMain.CommandHandler.HandleIsTradingPage() == true)
                 {
-                    if (this.bitmexMain.CommandHandler.HandleIsTradingPage() == true)
+                    //var wc = new System.Diagnostics.Stopwatch();
+                    //wc.Start();
+
+                    foreach (var coin in this.bitmexMain.CoinTable.Coins)
                     {
-                        //var wc = new System.Diagnostics.Stopwatch();
-                        //wc.Start();
-
-                        foreach (var coin in this.bitmexMain.CoinTable.Coins)
+                        if (coin.Key.Equals("XBTUSD") == true)
                         {
-                            if (coin.Key.Equals("XBTUSD") == true)
+                            if (coin.Value.MarketPrice == price)
                             {
-                                if (decimal.Parse(coin.Value.MarketPrice) == price)
-                                {
-                                    break;
-                                }
+                                break;
+                            }
 
-                                if (decimal.Parse(coin.Value.MarketPrice) > price)
-                                {
-                                    var commandType = this.underCommandTypes[0];
-                                    AddTrade(coin.Value, TradeType.Under, price, commandType);
-                                }
-                                else
-                                {
-                                    var commandType = this.overCommandTypes[0];
-                                    AddTrade(coin.Value, TradeType.Over, price, commandType);
-                                }
+                            if (coin.Value.MarketPrice > price)
+                            {
+                                var commandType = this.underCommandTypes[0];
+                                AddTrade(coin.Value, TradeType.Under, price, commandType);
+
+                            }
+                            else
+                            {
+                                var commandType = this.overCommandTypes[0];
+                                AddTrade(coin.Value, TradeType.Over, price, commandType);
                             }
                         }
-
-                        //wc.Stop();
-                        //Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
                     }
+
+                    //wc.Stop();
+                    //Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
                 }
             }
             catch (Exception e)
@@ -176,25 +144,6 @@ public class ContentsBreakThrough : ContentsBase
         }
     }
 
-    //private void DoWork()
-    //{
-    //    while (true)
-    //    {
-    //        var trade = this.trades.Take();
-
-    //        if (trade.IsCompletePriceConditions == true)
-    //        {
-    //            if (this.bitmexMain.CommandExecutor.AddCommand(trade.Command) == false)
-    //            {
-    //            }
-    //        }
-    //        else
-    //        {
-    //            this.trades.Add(trade);
-    //        }
-    //    }
-    //}
-
     public void AddTrade(BitMexCoin coin, TradeType tradeType, decimal price, BitMexCommandType commandType)
     {
         if (commandType == BitMexCommandType.None)
@@ -204,13 +153,23 @@ public class ContentsBreakThrough : ContentsBase
 
         var command = this.bitmexMain.CommandRepository.CreateCommand(commandType);
 
-        this.trades.Enqueue(new BreakThroughTrade()
+        this.bitmexMain.ResisterPriceSchedule(new BreakThroughTrade()
         {
             Coin = coin,
             Type = tradeType,
             Price = price,
             Command = command,
+            Executor = this.bitmexMain.CommandExecutor,
         });
+
+        //this.trades.Add(new BreakThroughTrade()
+        //{
+        //    Coin = coin,
+        //    Type = tradeType,
+        //    Price = price,
+        //    Command = command,
+        //    Executor = this.bitmexMain.CommandExecutor,
+        //});
     }
 
     //public void Test()
@@ -238,5 +197,4 @@ public class ContentsBreakThrough : ContentsBase
 
     //    AddTrade("XBTUSD", TradeType.Over, 2556.1M, BitMexCommandType.MarketSpecified10PriceSell);
     //}
-
 }

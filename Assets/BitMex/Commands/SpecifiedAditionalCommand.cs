@@ -8,11 +8,15 @@ namespace Assets.BitMex.Commands
 {
     public class SpecifiedAditionalCommand : BitMexCommand
     {
-        public decimal SpecifiedAditional { get; set; }
-
+        //public decimal SpecifiedAditional { get; set; }
         public SpecifiedAditionalCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
             : base(bitmexMain, contentString, isExpose)
         {
+        }
+
+        public override object Clone()
+        {
+            return new SpecifiedAditionalCommand(BitMexMain, ContentString, IsExpose);
         }
 
         public override void Execute()

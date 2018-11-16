@@ -13,6 +13,11 @@ namespace Assets.BitMex.Commands
         {
         }
 
+        public override object Clone()
+        {
+            return new ActivateOrderCancleCommand(BitMexMain, ContentString, IsExpose);
+        }
+
         public override void Execute()
         {
             BitMexMain.DriverService.HandleCancleActivatedOrders(BitMexMain.DriverService.HandleGetCurrentSymbol(), true);

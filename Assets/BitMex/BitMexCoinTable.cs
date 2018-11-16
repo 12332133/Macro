@@ -11,8 +11,8 @@ namespace Assets.BitMex
         public string RootCoinName { get; set; }
         public string CoinName { get; set; }
         public decimal SpecifiedAditional { get; set; }
-        //public decimal MarketPrice { get; set; }
-        public string MarketPrice { get; set; }
+        public decimal MarketPrice { get; set; }
+        //public string MarketPrice { get; set; }
     }
 
     public class BitMexCoinTable
@@ -32,7 +32,7 @@ namespace Assets.BitMex
                 RootCoinName = rootCoinName,
                 CoinName = coinName,
                 SpecifiedAditional = 0,
-                MarketPrice = "0",
+                MarketPrice = 0,
             };
 
             this.coins.Add(coinName, coin);

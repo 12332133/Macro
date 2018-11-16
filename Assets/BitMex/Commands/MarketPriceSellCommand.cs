@@ -8,12 +8,16 @@ namespace Assets.BitMex.Commands
 {
     public class MarketPriceSellCommand : BitMexCommand
     {
-        public int Magnification { get; set; }
+        //public int Magnification { get; set; }
 
-        public MarketPriceSellCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose, int magnification)
+        public MarketPriceSellCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
             : base(bitmexMain, contentString, isExpose)
         {
-            Magnification = magnification;
+        }
+
+        public override object Clone()
+        {
+            return new MarketPriceSellCommand(BitMexMain, ContentString, IsExpose);
         }
 
         public override void Execute()

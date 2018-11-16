@@ -13,6 +13,11 @@ namespace Assets.BitMex.Commands
         {
         }
 
+        public override object Clone()
+        {
+            return new SampleCommand(BitMexMain, ContentString, IsExpose);
+        }
+
         public override void Execute()
         {
         }

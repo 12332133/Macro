@@ -81,6 +81,7 @@
     <Compile Include="Assets\BitMex\Commands\TopActivateOrderCancleCommand.cs" />
     <Compile Include="Assets\BitMex\IBitMexCommandHandler.cs" />
     <Compile Include="Assets\BitMex\IBitMexMainAdapter.cs" />
+    <Compile Include="Assets\BitMex\IBitMexPriceSchedule.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverBuilder.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverExetentions.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverFactory.cs" />

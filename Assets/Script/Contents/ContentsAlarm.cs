@@ -1,4 +1,5 @@
 ﻿using Assets.BitMex;
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -14,11 +15,12 @@ public class ContentsAlarm : ContentsBase
         Under,
     }
 
-    public class MarketPriceAlram
+    public class MarketPriceAlram : IBitMexPriceSchedule
     {
         public AlramType Type { get; private set; }
         public decimal Price { get; private set; }
         public int AlramCount { get; private set; }
+        public BitMexCoin Coin { get; set; }
 
         public MarketPriceAlram(AlramType type, decimal price, int alramCount)
         {
@@ -26,12 +28,30 @@ public class ContentsAlarm : ContentsBase
             Price = price;
             AlramCount = alramCount;
         }
+
+        public bool IsCompletePriceConditions
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case AlramType.Over:
+                        return Coin.MarketPrice < Price;
+                    case AlramType.Under:
+                        return Coin.MarketPrice > Price;
+                }
+                return false;
+            }
+        }
+
+        public bool Execute()
+        {
+            return IsCompletePriceConditions;
+        }
     }
 
-    private Thread thread;
-    private ConcurrentQueue<MarketPriceAlram> alrams;
-
-    private decimal marketPrice;
+    private Thread updator;
+    private BlockingCollection<MarketPriceAlram> alrams;
 
     private void Reset()
     {
@@ -39,72 +59,48 @@ public class ContentsAlarm : ContentsBase
 
     private void Awake()
     {
-        this.alrams = new ConcurrentQueue<MarketPriceAlram>();
-
-        //this.thread = new Thread(DoWork);
-        //this.thread.IsBackground = true;
-        //this.thread.Start();
     }
 
     public override void Initialize(IBitMexMainAdapter bitmexMain)
     {
         base.Initialize(bitmexMain);
-        //StartCoroutine(UpdateMarketPrice());
-    }
 
-    IEnumerator UpdateMarketPrice() // main으로 이동 ?
-    {
-        while (true)
-        {
-            if (this.bitmexMain.DriverService.IsAuthenticatedAccount(this.bitmexMain.Session.Email) == true)
-            {
-            }
-            yield return new WaitForSeconds(0.1f);
-        }
-    }
+        this.alrams = new BlockingCollection<MarketPriceAlram>();
 
-    private bool IsCompletePriceConditions(MarketPriceAlram alram)
-    {
-        switch (alram.Type)
-        {
-            case AlramType.Over:
-                return this.marketPrice < alram.Price;
-            case AlramType.Under:
-                return this.marketPrice > alram.Price;
-        }
-        return false;
-    }
-
-    private void DoWork()
-    {
-        while (true)
-        {
-            MarketPriceAlram alram;
-
-            if (this.alrams.TryDequeue(out alram) == true)
-            {
-                if (IsCompletePriceConditions(alram) == true)
-                {
-                    Task.Run(() =>
-                    {
-                        for (int i = 0; i < alram.AlramCount; i++)
-                        {
-                            Debug.Log(string.Format("run alram {0}", alram.Price));
-                        }
-                    });
-                }
-                else
-                {
-                    this.alrams.Enqueue(alram);
-                }
-            }
-
-            Thread.Sleep(50);
-        }
+        //this.updator = new Thread(() =>
+        //{
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            var alram = this.alrams.Take();
+        //            if (alram.IsCompletePriceConditions == false)
+        //            {
+        //                Thread.Sleep(20);
+        //                this.alrams.Add(alram);
+        //            }
+        //            else
+        //            {
+        //                Task.Run(() =>
+        //                {
+        //                    for (int i = 0; i < alram.AlramCount; i++)
+        //                    {
+        //                        Debug.Log(string.Format("run alram {0}", alram.Price));
+        //                    }
+        //                });
+        //            }
+        //        }
+        //        catch (Exception e)
+        //        {
+        //        }
+        //    }
+        //});
+        //updator.IsBackground = true;
+        //updator.Start();
     }
 
     public void AddSchedule(AlramType type, decimal price, int alramCount)
     {
-        this.alrams.Enqueue(new MarketPriceAlram(type, price, alramCount));
+        this.alrams.Add(new MarketPriceAlram(type, price, alramCount));
     }
 }

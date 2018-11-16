@@ -79,7 +79,9 @@ public class ContentsMacro : ContentsBase
 
     private bool OnCombinationMacro(int index, List<RawKey> rawKeys, BitMexCommandType commandType)
     {
-        return this.bitmexMain.ResisterMacro(rawKeys, commandType);
+        var command = this.bitmexMain.CommandRepository.CreateCommand(commandType);
+        command.Parameters.Add(100); //< set percent, count
+        return this.bitmexMain.Session.ResisterMacro(rawKeys, command);
     }
 
     private void OnClickPopupOK()

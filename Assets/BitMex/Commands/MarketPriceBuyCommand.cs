@@ -8,25 +8,29 @@ namespace Assets.BitMex.Commands
 {
     public class MarketPriceBuyCommand : BitMexCommand
     {
-        public int Magnification { get; set; }
-
-        public MarketPriceBuyCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose, int magnification)
+        public MarketPriceBuyCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
             : base(bitmexMain, contentString, isExpose)
         {
-            Magnification = magnification;
+        }
+
+        public override object Clone()
+        {
+            return new MarketPriceBuyCommand(BitMexMain, ContentString, IsExpose);
         }
 
         public override void Execute()
         {
-            //if (BitMexMain.DriverService.HandleOrderMarketQty(
-            //    0,
-            //    Magnification,
-            //    BitMexMain.Session.FixedAvailableXbt,
-            //    BitMexMain.DriverService.HandleGetCurrentSymbol()
-            //    ) == true)
-            //{
-            //    BitMexMain.DriverService.HandleBuy();
-            //}
+            //수량 퍼센트 동시 가능??
+
+            if (BitMexMain.DriverService.HandleOrderMarketQty(
+                Parameters[0],
+                Parameters[1],
+                BitMexMain.DriverService.FixedAvailableXbt,
+                BitMexMain.DriverService.HandleGetCurrentSymbol()
+                ) == true)
+            {
+                BitMexMain.DriverService.HandleBuy();
+            }
         }
     }
 }

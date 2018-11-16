@@ -24,8 +24,7 @@ namespace Assets.BitMex
         public IBitMexCommand CreateCommand(BitMexCommandType type)
         {
             var command = this.commands[type];
-            //copy?
-            return command;
+            return command.Clone() as IBitMexCommand;
         }
 
         public Dictionary<BitMexCommandType, IBitMexCommand> GetCommands()
