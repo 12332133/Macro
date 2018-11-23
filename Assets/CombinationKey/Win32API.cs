@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Assets.KeyBoardHook
+namespace Assets.CombinationKey
 {
     public static class Win32API
     {

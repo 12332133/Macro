@@ -6,31 +6,44 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex.Commands
 {
-    public class MarketPriceBuyCommand : BitMexCommand
+    public class MarketPriceBuyCommand : BitMexCommand<MarketPriceBuyCommand>
     {
-        public MarketPriceBuyCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
-            : base(bitmexMain, contentString, isExpose)
+        public MarketPriceBuyCommand(IBitMexMainAdapter bitmexMain, Action<List<object>> initializer) 
+            : base(bitmexMain)
+        {
+            //parameter 0 => 퍼센트(100->)
+            initializer(this.Parameters);
+        }
+
+        public MarketPriceBuyCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> paramters)
+            : base(bitmexMain, commandType, paramters)
         {
         }
 
-        public override object Clone()
+        protected override MarketPriceBuyCommand Create()
         {
-            return new MarketPriceBuyCommand(BitMexMain, ContentString, IsExpose);
+            return new MarketPriceBuyCommand(BitMexMain, CommandType, Parameters);
         }
 
         public override void Execute()
         {
-            //수량 퍼센트 동시 가능??
+            var currentCoinName = BitMexMain.DriverService.HandleGetCurrentSymbol();
+            var coin = BitMexMain.DriverService.CoinTable.GetCoin(currentCoinName);
 
             if (BitMexMain.DriverService.HandleOrderMarketQty(
-                Parameters[0],
-                Parameters[1],
-                BitMexMain.DriverService.FixedAvailableXbt,
-                BitMexMain.DriverService.HandleGetCurrentSymbol()
+                0,
+                (int)Parameters[0],
+                coin.FixedAvailableXbt,
+                currentCoinName
                 ) == true)
             {
                 BitMexMain.DriverService.HandleBuy();
             }
+        }
+
+        public override string GetCommandText()
+        {
+            return string.Format("시장가 {0}% 매수", Parameters[0]);
         }
     }
 }

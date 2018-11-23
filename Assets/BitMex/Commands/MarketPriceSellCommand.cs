@@ -6,31 +6,44 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex.Commands
 {
-    public class MarketPriceSellCommand : BitMexCommand
+    public class MarketPriceSellCommand : BitMexCommand<MarketPriceSellCommand>
     {
-        //public int Magnification { get; set; }
-
-        public MarketPriceSellCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
-            : base(bitmexMain, contentString, isExpose)
+        public MarketPriceSellCommand(IBitMexMainAdapter bitmexMain, Action<List<object>> initializer) 
+            : base(bitmexMain)
         {
+            //parameter 0 => 퍼센트(100->)
+            initializer(this.Parameters);
         }
 
-        public override object Clone()
+        public MarketPriceSellCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> paramters)
+            : base(bitmexMain, commandType, paramters)
         {
-            return new MarketPriceSellCommand(BitMexMain, ContentString, IsExpose);
+        }
+      
+        protected override MarketPriceSellCommand Create()
+        {
+            return new MarketPriceSellCommand(BitMexMain, CommandType, Parameters);
         }
 
         public override void Execute()
         {
-            //if (BitMexMain.DriverService.HandleOrderMarketQty(
-            //    0,
-            //    Magnification,
-            //    BitMexMain.Session.FixedAvailableXbt,
-            //    BitMexMain.DriverService.HandleGetCurrentSymbol()
-            //    ) == true)
-            //{
-            //    BitMexMain.DriverService.HandleSell();
-            //}
+            var currentCoinName = BitMexMain.DriverService.HandleGetCurrentSymbol();
+            var coin = BitMexMain.DriverService.CoinTable.GetCoin(currentCoinName);
+
+            if (BitMexMain.DriverService.HandleOrderMarketQty(
+                0,
+                (int)Parameters[0],
+                coin.FixedAvailableXbt,
+                currentCoinName
+                ) == true)
+            {
+                BitMexMain.DriverService.HandleSell();
+            }
+        }
+
+        public override string GetCommandText()
+        {
+            return string.Format("시장가 {0}% 매도", Parameters[0]);
         }
     }
 }

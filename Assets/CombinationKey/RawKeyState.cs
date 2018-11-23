@@ -1,5 +1,5 @@
 ﻿
-namespace Assets.KeyBoardHook
+namespace Assets.CombinationKey
 {
     public enum RawKeyState
     {

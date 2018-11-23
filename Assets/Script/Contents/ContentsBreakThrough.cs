@@ -17,7 +17,7 @@ public class ContentsBreakThrough : ContentsBase
         Under,
     }
 
-    public class BreakThroughTrade : IBitMexPriceSchedule
+    public class BreakThroughTrade : IBitMexSchedule
     {
         public decimal Price { get; set; }
         public TradeType Type { get; set; }
@@ -78,10 +78,18 @@ public class ContentsBreakThrough : ContentsBase
         {
             switch (command.Key)
             {
-                case BitMexCommandType.MarketSpecifiedPriceBuy:
+                case BitMexCommandType.MarketSpecifiedPriceBuy1:
+                case BitMexCommandType.MarketSpecifiedPriceBuy2:
+                case BitMexCommandType.MarketSpecifiedPriceBuy3:
+                case BitMexCommandType.MarketSpecifiedPriceBuy4:
+                case BitMexCommandType.MarketSpecifiedPriceBuyCustom:
                     this.overCommandTypes.Add(command.Key);
                     break;
-                case BitMexCommandType.MarketSpecifiedPriceSell:
+                case BitMexCommandType.MarketSpecifiedPriceSell1:
+                case BitMexCommandType.MarketSpecifiedPriceSell2:
+                case BitMexCommandType.MarketSpecifiedPriceSell3:
+                case BitMexCommandType.MarketSpecifiedPriceSell4:
+                case BitMexCommandType.MarketSpecifiedPriceSellCustom:
                     this.underCommandTypes.Add(command.Key);
                     break;
             }
@@ -97,14 +105,14 @@ public class ContentsBreakThrough : ContentsBase
 
     private void Produce() 
     {
-        decimal price = decimal.Parse("5493.5");
+        decimal price = decimal.Parse("5493.5", System.Globalization.NumberStyles.Any);
 
         while (true)
         {
             try
             {
                 if (this.bitmexMain.DriverService.IsDriverOpen() == true &&
-                    this.bitmexMain.CommandHandler.HandleIsTradingPage() == true)
+                    this.bitmexMain.DriverService.HandleIsTradingPage() == true)
                 {
                     //var wc = new System.Diagnostics.Stopwatch();
                     //wc.Start();
@@ -153,7 +161,7 @@ public class ContentsBreakThrough : ContentsBase
 
         var command = this.bitmexMain.CommandRepository.CreateCommand(commandType);
 
-        this.bitmexMain.ResisterPriceSchedule(new BreakThroughTrade()
+        this.bitmexMain.ResisterSchedule(new BreakThroughTrade()
         {
             Coin = coin,
             Type = tradeType,

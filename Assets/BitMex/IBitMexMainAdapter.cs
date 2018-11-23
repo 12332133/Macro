@@ -1,5 +1,5 @@
 ﻿using Assets.BitMex.Commands;
-using Assets.KeyBoardHook;
+using Assets.CombinationKey;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +15,8 @@ namespace Assets.BitMex
         BitMexCommandExecutor CommandExecutor { get; }
         BitMexCommandRepository CommandRepository { get; }
         BitMexCoinTable CoinTable { get; }
-        IBitMexCommandHandler CommandHandler { get; }
-        bool ResisterMacro(List<RawKey> keys, BitMexCommandType type);
-        void ResisterPriceSchedule(IBitMexPriceSchedule schedule);
+        BitMexMacro Macro { get; }
+        void ResisterSchedule(IBitMexSchedule schedule);
         void WriteMacroLog(string log);
     }
 }

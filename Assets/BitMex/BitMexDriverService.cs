@@ -5,13 +5,12 @@ using Assets.BitMex.WebDriver;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections.ObjectModel;
+using Assets.BitMex.Commands;
 
 namespace Assets.BitMex
 {
     public class BitMexDriverService : IBitMexCommandHandler
     {
-        public decimal FixedAvailableXbt = 0; //사용 가능 고정 xbt
-
         public const string MainSymbol = "XBTUSD";
 
         private const string CssBuyButton = "button.btn-lg.btn.btn-block.btn-success.buy";
@@ -75,9 +74,7 @@ namespace Assets.BitMex
 
         public void OpenService(IWebDriver driver, string url)
         {
-            CloseDriver();
             SetDriver(driver, url);
-
             this.driver.Navigate().GoToUrl(this.url);
         }
 
@@ -103,10 +100,11 @@ namespace Assets.BitMex
         {
             try
             {
+                this.executor.Stop();
+
                 if (this.driver == null)
                     return;
 
-                this.executor.Stop();
                 this.driver.Quit();
                 this.driver.Dispose();
                 this.driver = null;
@@ -177,7 +175,7 @@ namespace Assets.BitMex
             var element = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[3]/div/div/div/div[4]"));
             var crossSelections = Regex.Split(element.Text, "\r\n");
             var maxValue = crossSelections[crossSelections.Length - 1].Split('x')[0];
-            return decimal.Parse(maxValue);
+            return decimal.Parse(maxValue, System.Globalization.NumberStyles.Any);
         }
 
         public void HandleForceChangeFocus(string xPath)
@@ -223,7 +221,7 @@ namespace Assets.BitMex
                     if (xbt == 0)
                     {
                         var elementRemainXBT = driver.FindElement(By.XPath("//*[@id=\"header\"]/div[2]/a[1]/span/table/tbody/tr[2]/td[2]"));
-                        xbt = decimal.Parse(elementRemainXBT.Text.Split(' ')[0]);
+                        xbt = decimal.Parse(elementRemainXBT.Text.Split(' ')[0], System.Globalization.NumberStyles.Any);
                     }
 
                     //교차 선택
@@ -244,17 +242,17 @@ namespace Assets.BitMex
                         else
                         {                                                              
                             var elementSelectedLeverage = driver.FindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[2]/div/div/span"));
-                            leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0]);
+                            leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0], System.Globalization.NumberStyles.Any);
                         }
                     }
                     catch
                     {
                         var elementSelectedLeverage = driver.FindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[2]/div/div/span"));
-                        leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0]);
+                        leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0], System.Globalization.NumberStyles.Any);
                     }
 
                     var elementMarketPrice = driver.FindElement(By.XPath(XPathMarketPrice));
-                    var price = decimal.Parse(elementMarketPrice.Text);
+                    var price = decimal.Parse(elementMarketPrice.Text, System.Globalization.NumberStyles.Any);
 
                     if (symbol.Equals(BitMexDriverService.MainSymbol) == true) // bitcoin usd only differnt algo
                     {
@@ -289,7 +287,7 @@ namespace Assets.BitMex
             //HandleIsSameOrderTap(XPathOderTargetSpecifedButton);
 
             var elementMarketPrice = driver.SafeFindElement(By.XPath(XPathMarketPrice));
-            var price = decimal.Parse(elementMarketPrice.Text) + specifiedAditional;
+            var price = decimal.Parse(elementMarketPrice.Text, System.Globalization.NumberStyles.Any) + specifiedAditional;
 
             decimal seletedQty = qty;
 
@@ -323,13 +321,13 @@ namespace Assets.BitMex
                         else
                         {
                             var elementSelectedLeverage = driver.FindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[2]/div/div/span"));
-                            leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0]);
+                            leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0], System.Globalization.NumberStyles.Any);
                         }
                     }
                     catch
                     {
                         var elementSelectedLeverage = driver.FindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[2]/div/div/span"));
-                        leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0]);
+                        leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0], System.Globalization.NumberStyles.Any);
                     }
 
                     if (symbol.Equals(BitMexDriverService.MainSymbol) == true) // bitcoin usd only differnt algo
@@ -380,12 +378,6 @@ namespace Assets.BitMex
                         var elementActions = elementPosition.SafeFindElement(By.ClassName("actions"));
                         var elementCancle = elementActions.SafeFindElement(By.CssSelector("div.btn.btn-primary.btn-sm"));
                         elementCancle.Click();
-                        
-                        //var elementClearConfirmation = this.driver.SafeFindElement(By.CssSelector("button.btn-lg.btn.btn-primary"), false);
-                        //if (elementClearConfirmation != null)
-                        //{
-                        //    elementClearConfirmation.Click();
-                        //}
                         break;
                     }
                 }
@@ -446,7 +438,7 @@ namespace Assets.BitMex
 
         public bool IsAuthenticatedAccount(string email)
         {
-            var elementEmail = this.driver.SafeFindElement(By.XPath("span.visible-lg-inline-block.visible-sm-inline-block"), false);
+            var elementEmail = this.driver.SafeFindElement(By.CssSelector("span.visible-lg-inline-block.visible-sm-inline-block"), false);
             if (elementEmail == null)
             {
                 return false;
@@ -536,7 +528,7 @@ namespace Assets.BitMex
                     price = "0";
                 }
 
-                coin.Value.MarketPrice = decimal.Parse(price);
+                coin.Value.MarketPrice = decimal.Parse(price, System.Globalization.NumberStyles.Any);
             }
         }
 

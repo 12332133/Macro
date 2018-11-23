@@ -6,18 +6,24 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex.Commands
 {
-    public class MarketSpecifiedBuyCommand : BitMexCommand
+    public class MarketSpecifiedBuyCommand : BitMexCommand<MarketSpecifiedBuyCommand>
     {
         //public int Magnification { get; set; }
 
-        public MarketSpecifiedBuyCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
-            : base(bitmexMain, contentString, isExpose)
+        public MarketSpecifiedBuyCommand(IBitMexMainAdapter bitmexMain, Action<List<object>> initializer) 
+            : base(bitmexMain)
+        {
+            initializer(this.Parameters);
+        }
+
+        public MarketSpecifiedBuyCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> paramters)
+            : base(bitmexMain, commandType, paramters)
         {
         }
 
-        public override object Clone()
+        protected override MarketSpecifiedBuyCommand Create()
         {
-            return new MarketSpecifiedBuyCommand(BitMexMain, ContentString, IsExpose);
+            return new MarketSpecifiedBuyCommand(BitMexMain, CommandType, Parameters);
         }
 
         public override void Execute()
@@ -32,6 +38,11 @@ namespace Assets.BitMex.Commands
             //{
             //    BitMexMain.DriverService.HandleBuy();
             //}
+        }
+
+        public override string GetCommandText()
+        {
+            return "빠른 지정가 매수";
         }
     }
 }

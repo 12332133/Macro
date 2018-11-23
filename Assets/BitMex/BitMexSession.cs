@@ -1,10 +1,12 @@
-﻿using Assets.BitMex.Commands;
-using Assets.KeyBoardHook;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Assets.BitMex.Commands;
+using Assets.CombinationKey;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 namespace Assets.BitMex
 {
@@ -16,30 +18,16 @@ namespace Assets.BitMex
         public string ReferrerAccount;
         public string ReferrerEmail;
         public DateTime UpdateDateTime;
-        public List<KeyValuePair<List<RawKey>, IBitMexCommand>> Macros { get; private set; }
+        public BitMexMacro Macro;
 
         public BitMexSession()
         {
-            Macros = new List<KeyValuePair<List<RawKey>, IBitMexCommand>>();
+            this.Macro = new BitMexMacro();
         }
 
-        public bool ResisterMacro(List<RawKey> rawKeys, IBitMexCommand command)
+        public void Save()
         {
-            foreach (var macro in Macros)
-            {
-                if (macro.Key.SequenceEqual(rawKeys) == true)
-                {
-                    return false;
-                }
-            }
-
-            Macros.Add(new KeyValuePair<List<RawKey>, IBitMexCommand>(rawKeys, command));
-
-            return true;
-        }
-
-        public void SaveMacros()
-        {
+            this.Macro.SaveLocalCache();
         }
     }
 }

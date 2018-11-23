@@ -15,7 +15,7 @@ public class ContentsAlarm : ContentsBase
         Under,
     }
 
-    public class MarketPriceAlram : IBitMexPriceSchedule
+    public class MarketPriceAlram : IBitMexSchedule
     {
         public AlramType Type { get; private set; }
         public decimal Price { get; private set; }

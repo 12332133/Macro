@@ -1,4 +1,5 @@
 ﻿using Assets.BitMex.Commands;
+using OpenQA.Selenium;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -27,23 +28,14 @@ namespace Assets.BitMex
 
         private void DoWork()
         {
-            //IBitMexCommand command = null;
-
             while (true)
             {
                 try
                 {
-                    //if (this.commands.TryDequeue(out command) == true)
-                    //{
-                    //    command.Execute();
-                    //}
-
                     var command = this.commands.Take();
                     command.Execute();
-
-                    //Thread.Sleep(5);
                 }
-                catch (BitMexDriverServiceException exception)
+                catch (Exception)
                 {
                 }
             }
@@ -51,8 +43,6 @@ namespace Assets.BitMex
 
         public bool AddCommand(IBitMexCommand command, int timeOut = 100)
         {
-            //this.commands.Enqueue(command);
-            //return true;
             return this.commands.TryAdd(command, timeOut);
         }
 

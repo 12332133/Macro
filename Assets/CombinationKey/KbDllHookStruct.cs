@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Assets.KeyBoardHook
+namespace Assets.CombinationKey
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct KBDLLHOOKSTRUCT

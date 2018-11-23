@@ -1,6 +1,6 @@
 ﻿using Assets.BitMex;
 using Assets.BitMex.Commands;
-using Assets.KeyBoardHook;
+using Assets.CombinationKey;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -45,22 +45,23 @@ public class ContentsMacro : ContentsBase
     {
         base.Initialize(bitmexMain);
 
-        for (int i = 0; i < 10; ++i)
+        for (int i = 0; i < bitmexMain.Macro.Macros.Count; i++)
         {
             var go = Instantiate(this.goHotKeyItem);
-            this.listHotKeys.Add(go.GetComponent<ContentsMacroHotKeyItem>().Initialized(i, OnCombinationMacro, bitmexMain.CommandRepository.GetCommands()));
+
+            this.listHotKeys.Add(
+                go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
+                    i,
+                    OnKeyChanged,
+                    OnCommandChanged,
+                    OnResisterMacro,
+                    bitmexMain.CommandRepository.GetCommands(), 
+                    bitmexMain.Macro.Macros[i]));
+
             go.transform.SetParent(this.svHotKey.content.transform);
         }
 
         this.btnPopup.onClick.AddListener(OnClickPopupOK);
-
-        //for (int i = 0; i < 10; ++i)
-        //{
-        //    var go = Instantiate(goLogItem);
-        //    go.GetComponent<ContentsMacroLogItem>().Initialized();
-        //    go.GetComponent<ContentsMacroLogItem>().SetLogText("aaaa\nbbbb");
-        //    go.transform.SetParent(this.svLog.content.transform);
-        //}
 
         this.btnAdd.onClick.AddListener(OnClickAdd);
         this.btnDel.onClick.AddListener(OnClickDel);
@@ -77,11 +78,83 @@ public class ContentsMacro : ContentsBase
         go.transform.SetParent(this.svLog.content.transform);
     }
 
-    private bool OnCombinationMacro(int index, List<RawKey> rawKeys, BitMexCommandType commandType)
+    private bool OnKeyChanged(int index, List<RawKey> keys)
+    {
+        return this.bitmexMain.Macro.ModifyRawKeys(index, keys);
+    }
+
+    private bool OnCommandChanged(int index, BitMexCommandType commandType)
     {
         var command = this.bitmexMain.CommandRepository.CreateCommand(commandType);
-        command.Parameters.Add(100); //< set percent, count
-        return this.bitmexMain.Session.ResisterMacro(rawKeys, command);
+
+        switch (commandType)
+        {
+            case BitMexCommandType.ChangeCoinTap:
+                command.Parameters.Add("XBTUSD");
+                break;
+            case BitMexCommandType.MarketPriceBuyMagnification1:
+            case BitMexCommandType.MarketPriceBuyMagnification2:
+            case BitMexCommandType.MarketPriceBuyMagnification3:
+            case BitMexCommandType.MarketPriceBuyMagnification4:
+            case BitMexCommandType.MarketPriceSellMagnification1:
+            case BitMexCommandType.MarketPriceSellMagnification2:
+            case BitMexCommandType.MarketPriceSellMagnification3:
+            case BitMexCommandType.MarketPriceSellMagnification4:
+            case BitMexCommandType.MarketSpecifiedPriceBuy1:
+            case BitMexCommandType.MarketSpecifiedPriceBuy2:
+            case BitMexCommandType.MarketSpecifiedPriceBuy3:
+            case BitMexCommandType.MarketSpecifiedPriceBuy4:
+            case BitMexCommandType.MarketSpecifiedPriceSell1:
+            case BitMexCommandType.MarketSpecifiedPriceSell2:
+            case BitMexCommandType.MarketSpecifiedPriceSell3:
+            case BitMexCommandType.MarketSpecifiedPriceSell4:
+                break;
+            case BitMexCommandType.MarketPriceBuyMagnificationCustom:
+            case BitMexCommandType.MarketPriceSellMagnificationCustom:
+            case BitMexCommandType.MarketSpecifiedPriceBuyCustom:
+            case BitMexCommandType.MarketSpecifiedPriceSellCustom:
+                command.Parameters.Add(50);
+                break;
+        }
+
+        return this.bitmexMain.Macro.ModifyCommand(index, command);
+    }
+
+    private bool OnResisterMacro(int index, List<RawKey> rawKeys, BitMexCommandType commandType)
+    {
+        var command = this.bitmexMain.CommandRepository.CreateCommand(commandType);
+
+        switch (commandType)
+        {
+            case BitMexCommandType.ChangeCoinTap:
+                command.Parameters.Add("XBTUSD");
+                break;
+            case BitMexCommandType.MarketPriceBuyMagnification1:
+            case BitMexCommandType.MarketPriceBuyMagnification2:
+            case BitMexCommandType.MarketPriceBuyMagnification3:
+            case BitMexCommandType.MarketPriceBuyMagnification4:
+            case BitMexCommandType.MarketPriceSellMagnification1:
+            case BitMexCommandType.MarketPriceSellMagnification2:
+            case BitMexCommandType.MarketPriceSellMagnification3:
+            case BitMexCommandType.MarketPriceSellMagnification4:
+            case BitMexCommandType.MarketSpecifiedPriceBuy1:
+            case BitMexCommandType.MarketSpecifiedPriceBuy2:
+            case BitMexCommandType.MarketSpecifiedPriceBuy3:
+            case BitMexCommandType.MarketSpecifiedPriceBuy4:
+            case BitMexCommandType.MarketSpecifiedPriceSell1:
+            case BitMexCommandType.MarketSpecifiedPriceSell2:
+            case BitMexCommandType.MarketSpecifiedPriceSell3:
+            case BitMexCommandType.MarketSpecifiedPriceSell4:
+                break;
+            case BitMexCommandType.MarketPriceBuyMagnificationCustom:
+            case BitMexCommandType.MarketPriceSellMagnificationCustom:
+            case BitMexCommandType.MarketSpecifiedPriceBuyCustom:
+            case BitMexCommandType.MarketSpecifiedPriceSellCustom:
+                command.Parameters.Add(50);
+                break;
+        }
+
+        return this.bitmexMain.Macro.ResisterMacro(rawKeys, command);
     }
 
     private void OnClickPopupOK()

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Assets.KeyBoardHook;
 
-namespace Assets.KeyBoardHook
+namespace Assets.CombinationKey
 {
     public static class KeyboardHooker
     {

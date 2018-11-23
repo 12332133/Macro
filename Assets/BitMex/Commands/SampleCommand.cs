@@ -6,20 +6,30 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex.Commands
 {
-    public class SampleCommand : BitMexCommand
+    public class SampleCommand : BitMexCommand<SampleCommand>
     {
-        public SampleCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
-            : base(bitmexMain, contentString, isExpose)
+        public SampleCommand(IBitMexMainAdapter bitmexMain) 
+            : base(bitmexMain)
         {
         }
 
-        public override object Clone()
+        public SampleCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> parameters) 
+            : base(bitmexMain, commandType, parameters)
         {
-            return new SampleCommand(BitMexMain, ContentString, IsExpose);
+        }
+
+        protected override SampleCommand Create()
+        {
+            return new SampleCommand(BitMexMain, CommandType, Parameters);
         }
 
         public override void Execute()
         {
+        }
+
+        public override string GetCommandText()
+        {
+            return "sample command";
         }
     }
 }

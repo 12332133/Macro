@@ -6,22 +6,31 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex.Commands
 {
-    public class PositionClearCommand : BitMexCommand
+    public class PositionClearCommand : BitMexCommand<PositionClearCommand>
     {
-        public PositionClearCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
-            : base(bitmexMain, contentString, isExpose)
+        public PositionClearCommand(IBitMexMainAdapter bitmexMain) 
+            : base(bitmexMain)
         {
         }
 
-        public override object Clone()
+        public PositionClearCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> parameters) 
+            : base(bitmexMain, commandType, parameters)
         {
-            return new PositionClearCommand(BitMexMain, ContentString, IsExpose);
+        }
+
+        protected override PositionClearCommand Create()
+        {
+            return new PositionClearCommand(BitMexMain, CommandType, Parameters);
         }
 
         public override void Execute()
         {
-            var symbol = BitMexMain.DriverService.HandleGetCurrentSymbol();
-            BitMexMain.DriverService.HandleClearPosition(symbol);
+            BitMexMain.DriverService.HandleClearPosition(BitMexMain.DriverService.HandleGetCurrentSymbol());
+        }
+
+        public override string GetCommandText()
+        {
+            return "해당 포지션 청산";
         }
     }
 }

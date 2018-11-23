@@ -6,35 +6,55 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex.Commands
 {
-    public enum BitMexCommandType
+    public enum BitMexCommandType : ushort
     {
         None,
-        Test,
         //FixedAvailableXbt,
         //SpecifiedAditional,
 
-        MarketPriceBuyMagnification,
-        //MarketPriceBuy25Magnification,
-        //MarketPriceBuy50Magnification,
-        //MarketPriceBuy100Magnification,
+        //시장가 구매 
+        MarketPriceBuyMagnification1,
+        MarketPriceBuyMagnification2,
+        MarketPriceBuyMagnification3,
+        MarketPriceBuyMagnification4,
+        MarketPriceBuyMagnificationCustom,
 
-        MarketPriceSellMagnification,
-        //MarketPriceSell25Magnification,
-        //MarketPriceSell50Magnification,
-        //MarketPriceSell100Magnification,
+        //시장가 판매
+        MarketPriceSellMagnification1,
+        MarketPriceSellMagnification2,
+        MarketPriceSellMagnification3,
+        MarketPriceSellMagnification4,
+        MarketPriceSellMagnificationCustom,
 
-        MarketSpecifiedPriceBuy,
-        //MarketSpecified25PriceBuy,
-        //MarketSpecified50PriceBuy,
-        //MarketSpecified100PriceBuy,
+        //지정가 구매
+        MarketSpecifiedPriceBuy1,
+        MarketSpecifiedPriceBuy2,
+        MarketSpecifiedPriceBuy3,
+        MarketSpecifiedPriceBuy4,
+        MarketSpecifiedPriceBuyCustom,
 
-        MarketSpecifiedPriceSell,
-        //MarketSpecified25PriceSell,
-        //MarketSpecified50PriceSell,
-        //MarketSpecified100PriceSell,
+
+        //지정가 판매
+        MarketSpecifiedPriceSell1,
+        MarketSpecifiedPriceSell2,
+        MarketSpecifiedPriceSell3,
+        MarketSpecifiedPriceSell4,
+        MarketSpecifiedPriceSellCustom,
+
+        //시장가 지정 수량 구매
+        MarketPriceSpecifiedQuantityBuy,
+        //시장가 지정 수량 판매
+        MarketPriceSpecifiedQuantitySell,
+
+        //지정가 지정 수량 구매
+        MarketSpecifiedQuantityBuy,
+        //지정가 지정 수량 판매
+        MarketSpecifiedQuantitySell,
 
         ClearPosition,
         CancleTopActivateOrder,
-        CancleAllActivateOrder
+        CancleAllActivateOrder,
+
+        ChangeCoinTap,
     }
 }

@@ -6,21 +6,31 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex.Commands
 {
-    public class ActivateOrderCancleCommand : BitMexCommand
+    public class ActivateOrderCancleCommand : BitMexCommand<ActivateOrderCancleCommand>
     {
-        public ActivateOrderCancleCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
-            : base(bitmexMain, contentString, isExpose)
+        public ActivateOrderCancleCommand(IBitMexMainAdapter bitmexMain) 
+            : base(bitmexMain)
         {
         }
 
-        public override object Clone()
+        public ActivateOrderCancleCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> paramters)
+            : base(bitmexMain, commandType, paramters)
         {
-            return new ActivateOrderCancleCommand(BitMexMain, ContentString, IsExpose);
+        }
+
+        protected override ActivateOrderCancleCommand Create()
+        {
+            return new ActivateOrderCancleCommand(BitMexMain, CommandType, Parameters);
         }
 
         public override void Execute()
         {
             BitMexMain.DriverService.HandleCancleActivatedOrders(BitMexMain.DriverService.HandleGetCurrentSymbol(), true);
+        }
+
+        public override string GetCommandText()
+        {
+            return "전체 주문 취소";
         }
     }
 }

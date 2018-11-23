@@ -1,4 +1,4 @@
-﻿using Assets.KeyBoardHook;
+﻿using Assets.CombinationKey;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,12 +9,12 @@ using UnityEngine.UI;
 
 public class MacroInputField : InputField
 {
-    private const string SelectString = "input macro key...";
+    public Func<List<RawKey>, bool> OnKeyChanged;
 
+    private const string SelectString = "input macro key...";
     private bool isCombination;
     private List<RawKey> inputRawKeys;
     private List<RawKey> combinationRawKeys;
-    private Dictionary<RawKey, int> allowSpecialKeys;
 
     public List<RawKey> CombinationKey
     {
@@ -22,24 +22,17 @@ public class MacroInputField : InputField
         {
             return this.combinationRawKeys;
         }
+        //set
+        //{
+        //    this.combinationRawKeys = value;
+        //    this.text = GetCombinationKeyName(this.combinationRawKeys);
+        //}
     }
 
     protected override void Awake()
     {
         this.inputRawKeys = new List<RawKey>();
         this.combinationRawKeys = new List<RawKey>();
-
-        this.allowSpecialKeys = new Dictionary<RawKey, int>();
-        this.allowSpecialKeys.Add(RawKey.LeftShift, 1);
-        this.allowSpecialKeys.Add(RawKey.Shift, 1);
-        this.allowSpecialKeys.Add(RawKey.RightShift, 1);
-        this.allowSpecialKeys.Add(RawKey.Control, 1);
-        this.allowSpecialKeys.Add(RawKey.LeftControl, 1);
-        this.allowSpecialKeys.Add(RawKey.RightControl, 1);
-        this.allowSpecialKeys.Add(RawKey.Menu, 1);
-        this.allowSpecialKeys.Add(RawKey.LeftMenu, 1);
-        this.allowSpecialKeys.Add(RawKey.RightMenu, 1);
-
         this.readOnly = true;
         this.isCombination = false;
 
@@ -87,7 +80,7 @@ public class MacroInputField : InputField
             return;
         }
 
-        if (this.allowSpecialKeys.ContainsKey(key) == true)
+        if (AllowedModifire.IsAllowed(key) == true)
         {
             this.inputRawKeys.Add(key);
             this.isCombination = true;
@@ -108,12 +101,20 @@ public class MacroInputField : InputField
             return;
         }
 
-        this.combinationRawKeys.Clear();
-        this.combinationRawKeys.AddRange(this.inputRawKeys);
-        this.text = GetCombinationKeyName(this.combinationRawKeys);
+        if (OnKeyChanged(this.inputRawKeys) == true)
+        {
+            this.combinationRawKeys.Clear();
+            this.combinationRawKeys.AddRange(this.inputRawKeys);
+            this.text = GetCombinationKeyName(this.combinationRawKeys);
+        }
 
         this.inputRawKeys.Clear();
         this.isCombination = false;
+    }
+
+    public void RefreshCombinationString()
+    {
+        this.text = GetCombinationKeyName(this.combinationRawKeys);
     }
 
     private string GetCombinationKeyName(List<RawKey> rawKeys)

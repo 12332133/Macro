@@ -8,30 +8,56 @@ namespace Assets.BitMex.Commands
 {
     public interface IBitMexCommand
     {
-        IBitMexMainAdapter BitMexMain { get; }
-        string ContentString { get; }
-        bool IsExpose { get; }
+        IBitMexMainAdapter BitMexMain { get; set; }
+        BitMexCommandType CommandType { get; set; }
+        List<object> Parameters { get; set; }
+
+        IBitMexCommand Clone();
         void Execute();
-        List<int> Parameters { get; }
-        object Clone();
+        string GetCommandText();
     }
 
     public abstract class BitMexCommand : IBitMexCommand
     {
-        public IBitMexMainAdapter BitMexMain { get; private set; }
-        public string ContentString { get; private set; }
-        public bool IsExpose { get; private set; }
-        public List<int> Parameters { get; private set; }
+        public IBitMexMainAdapter BitMexMain { get; set; }
+        public BitMexCommandType CommandType { get; set; }
+        public List<object> Parameters { get; set; }
 
-        public BitMexCommand(IBitMexMainAdapter bitmexMain, string contentString, bool isExpose)
+        public BitMexCommand(IBitMexMainAdapter bitmexMain)
         {
-            Parameters = new List<int> { 0, 0 };
             BitMexMain = bitmexMain;
-            ContentString = contentString;
-            IsExpose = isExpose;
+            Parameters = new List<object>();
         }
 
-        public abstract object Clone();
+        public BitMexCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> parameters)
+        {
+            BitMexMain = bitmexMain;
+            CommandType = commandType;
+            Parameters = new List<object>(parameters);
+        }
+
+        public abstract IBitMexCommand Clone();
+        public abstract string GetCommandText();
         public abstract void Execute();
+    }
+
+    public abstract class BitMexCommand<T> : BitMexCommand where T : IBitMexCommand
+    {
+        public BitMexCommand(IBitMexMainAdapter bitmexMain) 
+            : base(bitmexMain)
+        {
+        }
+
+        public BitMexCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> parameters)
+            : base(bitmexMain, commandType, parameters)
+        {
+        }
+
+        public override IBitMexCommand Clone()
+        {
+            return Create();
+        }
+
+        protected abstract T Create();
     }
 }

@@ -72,6 +72,10 @@ namespace Assets.BitMex
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(domain + url);
             webRequest.Method = method;
+            webRequest.AllowAutoRedirect = false;
+            webRequest.ServicePoint.Expect100Continue = false;
+            webRequest.Proxy = null;
+            webRequest.CookieContainer = null;
 
             if (auth)
             {

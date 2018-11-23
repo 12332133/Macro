@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using Assets.BitMex;
 using Assets.BitMex.WebDriver;
-using Assets.KeyBoardHook;
 using System.Collections.Generic;
 using System.Threading;
 using System.Collections.Concurrent;
@@ -11,6 +10,7 @@ using System.Linq;
 using Assets.BitMex.Commands;
 using System.Collections;
 using Newtonsoft.Json.Linq;
+using Assets.CombinationKey;
 
 public class Main : MonoBehaviour, IBitMexMainAdapter
 {
@@ -27,7 +27,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private BitMexSession session;
     private BitMexDriverService service;
-    private ConcurrentQueue<IBitMexPriceSchedule> priceSchedules;
+    private ConcurrentQueue<IBitMexSchedule> schedules;
 
     private const string BitMexDomain = "https://testnet.bitmex.com";
     //private const string BitMexDomain = "https://www.bitmex.com/";
@@ -35,7 +35,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     private bool isCombination = false;
     private bool isEnableMacro = false;
     private List<RawKey> inputRawKeys;
-    private Dictionary<RawKey, int> allowSpecialKeys;
 
     private void Reset()
     {
@@ -54,31 +53,17 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     private void OnApplicationQuit()
     {
         KeyboardHooker.Stop();
+
+        this.session.Save();
+
         this.service.CloseDriver();
     }
 
     private void Awake()
     {
         SetBitMexService();
-        SetAllowSpecialKey();
         SetInputKey();
-        SetActiveInstruments();
-
-        this.toggleTabs[0].onValueChanged.AddListener(OnToggleTab);
-        this.toggleTabs[1].onValueChanged.AddListener(OnToggleTab);
-        this.toggleTabs[2].onValueChanged.AddListener(OnToggleTab);
-        this.toggleTabs[3].onValueChanged.AddListener(OnToggleTab);
-        this.toggleTabs[4].onValueChanged.AddListener(OnToggleTab);
-
-        this.btnBitMex.onClick.AddListener(OnOpenBitMex);
-        this.btnMacro.onClick.AddListener(OnEnableMacro);
-
-        foreach (var content in this.contents)
-        {
-            content.Initialize(this);
-        }
-
-        OnToggleTab(true);
+        SetContents();
     }
 
     public void Show(BitMexSession session)
@@ -87,58 +72,102 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         gameObject.SetActive(true);
     }
 
-    private void SetActiveInstruments()
-    {
-        var response = BitMexApiHelper.GetActiveInstruments(BitMexDomain);
-
-        var jarray = JArray.Parse(response);
-
-        foreach (var item in jarray)
-        {
-            var jobject = JObject.Parse(item.ToString());
-
-            if (jobject["state"].ToString().Equals("Open") == true)
-            {
-                var rootSymbol = jobject["rootSymbol"].ToString();
-                var symbol = jobject["symbol"].ToString();
-                this.service.CoinTable.ResisterCoin(rootSymbol, symbol);
-            }
-        }
-    }
-
     private void SetBitMexService()
     {
-        this.priceSchedules = new ConcurrentQueue<IBitMexPriceSchedule>();
+        this.schedules = new ConcurrentQueue<IBitMexSchedule>();
         this.service = new BitMexDriverService();
+        this.service.CoinTable.LoadActiveCoins(BitMexDomain);
 
         //command 
-        this.service.Repository.Resister(BitMexCommandType.Test, new SampleCommand(this, "Test", true));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnification, new MarketPriceBuyCommand(this, "시장가 매수", true));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnification, new MarketPriceSellCommand(this, "시장가 매도", true));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuy, new MarketSpecifiedBuyCommand(this, "빠른 지정가 매수", true));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSell, new MarketSpecifiedSellCommand(this, "빠른 지정가 매도", true));
-        this.service.Repository.Resister(BitMexCommandType.ClearPosition, new PositionClearCommand(this, "해당 포지션 청산", true));
-        this.service.Repository.Resister(BitMexCommandType.CancleTopActivateOrder, new TopActivateOrderCancleCommand(this, "최상위 주문 취소", true));
-        this.service.Repository.Resister(BitMexCommandType.CancleAllActivateOrder, new ActivateOrderCancleCommand(this, "전체 주문 취소", true));
-    }
+        this.service.Repository.Resister(BitMexCommandType.None,
+            new SampleCommand(this));
 
-    private void SetAllowSpecialKey()
-    {
-        this.allowSpecialKeys = new Dictionary<RawKey, int>();
-        this.allowSpecialKeys.Add(RawKey.LeftShift, 1);
-        this.allowSpecialKeys.Add(RawKey.Shift, 1);
-        this.allowSpecialKeys.Add(RawKey.RightShift, 1);
-        this.allowSpecialKeys.Add(RawKey.Control, 1);
-        this.allowSpecialKeys.Add(RawKey.LeftControl, 1);
-        this.allowSpecialKeys.Add(RawKey.RightControl, 1);
-        this.allowSpecialKeys.Add(RawKey.Menu, 1);
-        this.allowSpecialKeys.Add(RawKey.LeftMenu, 1);
-        this.allowSpecialKeys.Add(RawKey.RightMenu, 1);
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnification1, 
+            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(100); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnification2,
+            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(80); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnification3,
+            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(50); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnification4,
+            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(20); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnificationCustom,
+            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add("설정"); }));
+
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnification1, 
+            new MarketPriceSellCommand(this, (parameters) => { parameters.Add(100); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnification2,
+            new MarketPriceSellCommand(this, (parameters) => { parameters.Add(80); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnification3,
+            new MarketPriceSellCommand(this, (parameters) => { parameters.Add(50); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnification4,
+            new MarketPriceSellCommand(this, (parameters) => { parameters.Add(20); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnificationCustom,
+            new MarketPriceSellCommand(this, (parameters) => { parameters.Add("설정"); }));
+
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuy1, 
+            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(100); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuy2,
+            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(80); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuy3,
+            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(50); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuy4,
+            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(20); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuyCustom,
+            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add("설정"); }));
+
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSell1, 
+            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(100); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSell2,
+            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(80); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSell3,
+            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(50); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSell4,
+            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(20); }));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSellCustom,
+            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add("설정"); }));
+
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSpecifiedQuantityBuy, 
+            new MarketPriceSpecifiedQuantityBuyCommand(this));
+        this.service.Repository.Resister(BitMexCommandType.MarketPriceSpecifiedQuantitySell, 
+            new MarketPriceSpecifiedQuantitySellCommand(this));
+
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedQuantityBuy, 
+            new MarketSpecifiedQuantityBuyCommand(this));
+        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedQuantitySell, 
+            new MarketSpecifiedQuantitySellCommand(this));
+
+        this.service.Repository.Resister(BitMexCommandType.ChangeCoinTap, 
+            new ChangeCoinTapCommand(this, (parameters) => { parameters.Add("설정"); }));
+
+        this.service.Repository.Resister(BitMexCommandType.ClearPosition, new PositionClearCommand(this));
+        this.service.Repository.Resister(BitMexCommandType.CancleTopActivateOrder, new TopActivateOrderCancleCommand(this));
+        this.service.Repository.Resister(BitMexCommandType.CancleAllActivateOrder, new ActivateOrderCancleCommand(this));
+
+        this.session.Macro.LoadLocalCache(this.service.Repository);
     }
 
     private void SetInputKey()
     {
         this.inputRawKeys = new List<RawKey>();
+    }
+
+    private void SetContents()
+    {
+        this.btnBitMex.onClick.AddListener(OnOpenBitMex);
+        this.btnMacro.onClick.AddListener(OnEnableMacro);
+
+        this.toggleTabs[0].onValueChanged.AddListener(OnToggleTab);
+        this.toggleTabs[1].onValueChanged.AddListener(OnToggleTab);
+        this.toggleTabs[2].onValueChanged.AddListener(OnToggleTab);
+        this.toggleTabs[3].onValueChanged.AddListener(OnToggleTab);
+        this.toggleTabs[4].onValueChanged.AddListener(OnToggleTab);
+
+        foreach (var content in this.contents)
+        {
+            content.Initialize(this);
+        }
+
+        OnToggleTab(true);
     }
 
     private void OnToggleTab(bool state)
@@ -153,58 +182,59 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void OnOpenBitMex()
     {
+        //if (this.service.IsDriverOpen() == false)
+        //{
+        //    var driver = DriverFactory.CreateDriver(
+        //          DriverType.Chrome,
+        //          Application.streamingAssetsPath,
+        //          false);
+
+        //    this.service.OpenService(driver, BitMexDomain);
+
+        //    StartCoroutine(SyncCointPrices());
+        //}
+        //else
+        //{
+        //    try
+        //    {
+        //        var wc = new System.Diagnostics.Stopwatch();
+        //        wc.Start();
+
+        //        var coin = this.CoinTable.GetCoin("XBTUSD");
+        //        if (this.service.HandleChangeCoinTab(coin.RootCoinName, coin.CoinName) == false)
+        //        {
+        //            Debug.Log("not found tab");
+        //        }
+
+        //        wc.Stop();
+        //        Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
+
+        //        //foreach (var coin in this.CoinTable.Coins.Values.ToList())
+        //        //{
+
+        //        //}
+
+        //        //var command = this.service.Repository.CreateCommand(BitMexCommandType.ClearPosition);
+        //        //command.Execute();
+        //    }
+        //    catch (BitMexDriverServiceException exception)
+        //    {
+        //        Debug.Log(exception.ToString());
+        //    }
+        //}
+
         if (this.service.IsDriverOpen() == false)
         {
             var driver = DriverFactory.CreateDriver(
-                  DriverType.Chrome,
-                  Application.streamingAssetsPath,
-                  false);
+                    DriverType.Chrome,
+                    Application.streamingAssetsPath,
+                    false);
 
             this.service.OpenService(driver, BitMexDomain);
 
             StartCoroutine(SyncCointPrices());
+            //StartCoroutine(CheckBitmexDriverAccount());
         }
-        else
-        {
-            try
-            {
-                var wc = new System.Diagnostics.Stopwatch();
-                wc.Start();
-
-                var coin = this.CoinTable.GetCoin("XBTUSD");
-                if (this.service.HandleChangeCoinTab(coin.RootCoinName, coin.CoinName) == false)
-                {
-                    Debug.Log("not found tab");
-                }
-
-                wc.Stop();
-                Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
-
-                //foreach (var coin in this.CoinTable.Coins.Values.ToList())
-                //{
-
-                //}
-
-                //var command = this.service.Repository.CreateCommand(BitMexCommandType.ClearPosition);
-                //command.Execute();
-            }
-            catch (BitMexDriverServiceException exception)
-            {
-                Debug.Log(exception.ToString());
-            }
-        }
-
-        //if (this.service.IsDriverOpen() == false)
-        //{
-        //    var driver = DriverFactory.CreateDriver(
-        //            DriverType.Chrome,
-        //            Application.streamingAssetsPath,
-        //            false);
-
-        //    this.service.OpenService(driver, BitMexDomain);
-
-        //    StartCoroutine(SyncSpecificCoinVariable());
-        //}
     }
 
     private IEnumerator SyncCointPrices() 
@@ -219,14 +249,14 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                     //wc.Start();
                     this.service.HandleSyncCointPrices();
 
-                    var enumerator = this.priceSchedules.GetEnumerator();
+                    var enumerator = this.schedules.GetEnumerator();
 
                     while (enumerator.MoveNext())
                     {
                         if (enumerator.Current.Execute() == true)
                         {
-                            IBitMexPriceSchedule bsc;
-                            this.priceSchedules.TryDequeue(out bsc);
+                            IBitMexSchedule bsc;
+                            this.schedules.TryDequeue(out bsc);
                             Debug.Log(string.Format("execute price schedule"));
                         }
                     }
@@ -241,6 +271,26 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             }
 
             yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    private IEnumerator CheckBitmexDriverAccount()
+    {
+        while (true)
+        {
+            try
+            {
+                if (this.service.IsAuthenticatedAccount(this.session.Email) == false)
+                {
+                    Debug.Log("threc account");
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
+            }
+
+            yield return new WaitForSeconds(5.0f);
         }
     }
 
@@ -276,11 +326,11 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                 return;
             }
 
-            if (this.service.IsAuthenticatedAccount(session.Email) == false)
-            {
-                Debug.Log("invaild login account");
-                return;
-            }
+            //if (this.service.IsAuthenticatedAccount(session.Email) == false)
+            //{
+            //    Debug.Log("invaild login account");
+            //    return;
+            //}
 
             if (KeyboardHooker.IsRunning() == false)
             {
@@ -306,7 +356,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             return;
         }
 
-        if (this.allowSpecialKeys.ContainsKey(key) == true)
+        if (AllowedModifire.IsAllowed(key) == true)
         {
             this.inputRawKeys.Add(key);
             this.isCombination = true;
@@ -320,11 +370,11 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             return;
         }
 
-        foreach (var macro in this.session.Macros)
+        foreach (var macro in Macro.Macros)
         {
-            if (this.inputRawKeys.SequenceEqual(macro.Key) == true)
+            if (this.inputRawKeys.SequenceEqual(macro.Keys) == true)
             {
-                if (this.service.Executor.AddCommand(macro.Value) == false)
+                if (this.service.Executor.AddCommand(macro.Command.Clone()) == false)
                 {
                     Debug.Log("executor add command timeout");
                 }
@@ -338,13 +388,14 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     }
 
     //bitmexmainadapter impl
-    public IBitMexCommandHandler CommandHandler
+    public BitMexMacro Macro
     {
         get
         {
-            return this.service;
+            return this.session.Macro;
         }
     }
+
 
     public BitMexCoinTable CoinTable
     {
@@ -386,17 +437,9 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         }
     }
 
-
-    public bool ResisterMacro(List<RawKey> keys, BitMexCommandType type)
+    public void ResisterSchedule(IBitMexSchedule schedule)
     {
-        Debug.Log("resister macro complete");
-        var command = this.service.Repository.CreateCommand(type);
-        return this.session.ResisterMacro(keys, command);
-    }
-
-    public void ResisterPriceSchedule(IBitMexPriceSchedule schedule)
-    {
-        this.priceSchedules.Enqueue(schedule);
+        this.schedules.Enqueue(schedule);
     }
 
     public void WriteMacroLog(string log)

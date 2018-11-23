@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex
 {
-    public interface IBitMexPriceSchedule
+    public interface IBitMexSchedule
     {
         bool Execute();
     }
