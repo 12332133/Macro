@@ -13,43 +13,38 @@ namespace Assets.BitMex.Commands
         //SpecifiedAditional,
 
         //시장가 구매 
-        MarketPriceBuyMagnification1,
-        MarketPriceBuyMagnification2,
-        MarketPriceBuyMagnification3,
-        MarketPriceBuyMagnification4,
-        MarketPriceBuyMagnificationCustom,
+        MarketPriceBuyMagnification,
+        //MarketPriceBuyMagnificationCreate,
 
         //시장가 판매
-        MarketPriceSellMagnification1,
-        MarketPriceSellMagnification2,
-        MarketPriceSellMagnification3,
-        MarketPriceSellMagnification4,
-        MarketPriceSellMagnificationCustom,
+        MarketPriceSellMagnification,
+        //MarketPriceSellMagnificationCreate,
 
         //지정가 구매
-        MarketSpecifiedPriceBuy1,
-        MarketSpecifiedPriceBuy2,
-        MarketSpecifiedPriceBuy3,
-        MarketSpecifiedPriceBuy4,
-        MarketSpecifiedPriceBuyCustom,
-
+        MarketSpecifiedPriceBuy,
+        //MarketSpecifiedPriceBuyCreate,
 
         //지정가 판매
-        MarketSpecifiedPriceSell1,
-        MarketSpecifiedPriceSell2,
-        MarketSpecifiedPriceSell3,
-        MarketSpecifiedPriceSell4,
-        MarketSpecifiedPriceSellCustom,
+        MarketSpecifiedPriceSell,
+        MarketSpecifiedPriceSellCreate,
 
         //시장가 지정 수량 구매
         MarketPriceSpecifiedQuantityBuy,
+        //MarketPriceSpecifiedQuantityBuyCreate,
+
         //시장가 지정 수량 판매
         MarketPriceSpecifiedQuantitySell,
+        //MarketPriceSpecifiedQuantitySellCreate,
 
         //지정가 지정 수량 구매
         MarketSpecifiedQuantityBuy,
+        //MarketSpecifiedQuantityBuyCreate,
+
         //지정가 지정 수량 판매
         MarketSpecifiedQuantitySell,
+        //MarketSpecifiedQuantitySellCreate,
+
+        OrderCommandCreate,
 
         ClearPosition,
         CancleTopActivateOrder,

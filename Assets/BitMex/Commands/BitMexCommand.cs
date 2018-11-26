@@ -10,9 +10,11 @@ namespace Assets.BitMex.Commands
     {
         IBitMexMainAdapter BitMexMain { get; set; }
         BitMexCommandType CommandType { get; set; }
+        int Index { get; set; }
         List<object> Parameters { get; set; }
 
         IBitMexCommand Clone();
+        IBitMexCommand SafeAddParameter(object value);
         void Execute();
         string GetCommandText();
     }
@@ -22,6 +24,7 @@ namespace Assets.BitMex.Commands
         public IBitMexMainAdapter BitMexMain { get; set; }
         public BitMexCommandType CommandType { get; set; }
         public List<object> Parameters { get; set; }
+        public int Index { get; set; }
 
         public BitMexCommand(IBitMexMainAdapter bitmexMain)
         {
@@ -29,11 +32,19 @@ namespace Assets.BitMex.Commands
             Parameters = new List<object>();
         }
 
-        public BitMexCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> parameters)
+        public BitMexCommand()
         {
-            BitMexMain = bitmexMain;
-            CommandType = commandType;
-            Parameters = new List<object>(parameters);
+        }
+
+        public IBitMexCommand SafeAddParameter(object value)
+        {
+            if (Parameters.Count > 0)
+            {
+                Parameters.Clear();
+            }
+
+            Parameters.Add(value);
+            return this;
         }
 
         public abstract IBitMexCommand Clone();
@@ -48,8 +59,7 @@ namespace Assets.BitMex.Commands
         {
         }
 
-        public BitMexCommand(IBitMexMainAdapter bitmexMain, BitMexCommandType commandType, List<object> parameters)
-            : base(bitmexMain, commandType, parameters)
+        public BitMexCommand()
         {
         }
 

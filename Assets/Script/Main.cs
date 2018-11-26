@@ -53,9 +53,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     private void OnApplicationQuit()
     {
         KeyboardHooker.Stop();
-
-        this.session.Save();
-
         this.service.CloseDriver();
     }
 
@@ -76,74 +73,87 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         this.schedules = new ConcurrentQueue<IBitMexSchedule>();
         this.service = new BitMexDriverService();
+
         this.service.CoinTable.LoadActiveCoins(BitMexDomain);
 
-        //command 
-        this.service.Repository.Resister(BitMexCommandType.None,
-            new SampleCommand(this));
-
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnification1, 
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceBuyMagnification, 
             new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(100); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnification2,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceBuyMagnification,
             new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(80); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnification3,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceBuyMagnification,
             new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(50); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnification4,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceBuyMagnification,
             new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(20); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceBuyMagnificationCustom,
-            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add("설정"); }));
+        this.service.CommandTable.Resister(BitMexCommandType.OrderCommandCreate,
+            new OderCommandCreator(this, "시장가 매수 추가"));
 
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnification1, 
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceSellMagnification, 
             new MarketPriceSellCommand(this, (parameters) => { parameters.Add(100); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnification2,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceSellMagnification,
             new MarketPriceSellCommand(this, (parameters) => { parameters.Add(80); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnification3,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceSellMagnification,
             new MarketPriceSellCommand(this, (parameters) => { parameters.Add(50); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnification4,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceSellMagnification,
             new MarketPriceSellCommand(this, (parameters) => { parameters.Add(20); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSellMagnificationCustom,
-            new MarketPriceSellCommand(this, (parameters) => { parameters.Add("설정"); }));
+        this.service.CommandTable.Resister(BitMexCommandType.OrderCommandCreate,
+            new OderCommandCreator(this, "시장가 매도 추가"));
 
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuy1, 
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedPriceBuy, 
             new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(100); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuy2,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedPriceBuy,
             new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(80); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuy3,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedPriceBuy,
             new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(50); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuy4,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedPriceBuy,
             new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(20); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceBuyCustom,
-            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add("설정"); }));
+        this.service.CommandTable.Resister(BitMexCommandType.OrderCommandCreate,
+            new OderCommandCreator(this, "빠른 지정가 매도 추가"));
 
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSell1, 
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedPriceSell, 
             new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(100); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSell2,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedPriceSell,
             new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(80); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSell3,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedPriceSell,
             new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(50); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSell4,
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedPriceSell,
             new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(20); }));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedPriceSellCustom,
-            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add("설정"); }));
+        this.service.CommandTable.Resister(BitMexCommandType.OrderCommandCreate,
+            new OderCommandCreator(this, "빠른 지정가 매수 추가"));
 
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSpecifiedQuantityBuy, 
-            new MarketPriceSpecifiedQuantityBuyCommand(this));
-        this.service.Repository.Resister(BitMexCommandType.MarketPriceSpecifiedQuantitySell, 
-            new MarketPriceSpecifiedQuantitySellCommand(this));
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceSpecifiedQuantityBuy, 
+            new MarketPriceSpecifiedQuantityBuyCommand(this, (parameters) => { parameters.Add(0); }));
+        this.service.CommandTable.Resister(BitMexCommandType.OrderCommandCreate,
+            new OderCommandCreator(this, "시장가 지정수량 매수 추가"));
 
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedQuantityBuy, 
-            new MarketSpecifiedQuantityBuyCommand(this));
-        this.service.Repository.Resister(BitMexCommandType.MarketSpecifiedQuantitySell, 
-            new MarketSpecifiedQuantitySellCommand(this));
+        this.service.CommandTable.Resister(BitMexCommandType.MarketPriceSpecifiedQuantitySell, 
+            new MarketPriceSpecifiedQuantitySellCommand(this, (parameters) => { parameters.Add(0); }));
+        this.service.CommandTable.Resister(BitMexCommandType.OrderCommandCreate,
+            new OderCommandCreator(this, "시장가 지정수량 매도 추가"));
 
-        this.service.Repository.Resister(BitMexCommandType.ChangeCoinTap, 
-            new ChangeCoinTapCommand(this, (parameters) => { parameters.Add("설정"); }));
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedQuantityBuy, 
+            new MarketSpecifiedQuantityBuyCommand(this, (parameters) => { parameters.Add(0); }));
+        this.service.CommandTable.Resister(BitMexCommandType.OrderCommandCreate,
+            new OderCommandCreator(this, "빠른 지정가 지정수량 매수 추가"));
 
-        this.service.Repository.Resister(BitMexCommandType.ClearPosition, new PositionClearCommand(this));
-        this.service.Repository.Resister(BitMexCommandType.CancleTopActivateOrder, new TopActivateOrderCancleCommand(this));
-        this.service.Repository.Resister(BitMexCommandType.CancleAllActivateOrder, new ActivateOrderCancleCommand(this));
+        this.service.CommandTable.Resister(BitMexCommandType.MarketSpecifiedQuantitySell, 
+            new MarketSpecifiedQuantitySellCommand(this, (parameters) => { parameters.Add(0); }));
+        this.service.CommandTable.Resister(BitMexCommandType.OrderCommandCreate,
+            new OderCommandCreator(this, "빠른 지정가 지정수량 매도 추가"));
 
-        this.session.Macro.LoadLocalCache(this.service.Repository);
+        this.service.CommandTable.Resister(BitMexCommandType.ChangeCoinTap, 
+            new ChangeCoinTapCommand(this));
+
+        this.service.CommandTable.Resister(BitMexCommandType.ClearPosition, 
+            new PositionClearCommand(this));
+
+        this.service.CommandTable.Resister(BitMexCommandType.CancleTopActivateOrder, 
+            new TopActivateOrderCancleCommand(this));
+
+        this.service.CommandTable.Resister(BitMexCommandType.CancleAllActivateOrder, 
+            new ActivateOrderCancleCommand(this));
+
+        this.service.CommandTable.LoadLocalCache();
+        this.session.Macro.LoadLocalCache(this.service.CommandTable);
     }
 
     private void SetInputKey()
@@ -156,11 +166,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.btnBitMex.onClick.AddListener(OnOpenBitMex);
         this.btnMacro.onClick.AddListener(OnEnableMacro);
 
-        //this.toggleTabs[0].onValueChanged.AddListener(OnToggleTab);
-        //this.toggleTabs[1].onValueChanged.AddListener(OnToggleTab);
-        //this.toggleTabs[2].onValueChanged.AddListener(OnToggleTab);
-        //this.toggleTabs[3].onValueChanged.AddListener(OnToggleTab);
-        //this.toggleTabs[4].onValueChanged.AddListener(OnToggleTab);
         for (int i = 0; i < this.toggleTabs.Length; ++i)
         {
             this.toggleTabs[i].onValueChanged.AddListener(OnToggleTab);
@@ -251,17 +256,19 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                 {
                     //var wc = new System.Diagnostics.Stopwatch();
                     //wc.Start();
+
                     this.service.HandleSyncCointPrices();
 
-                    var enumerator = this.schedules.GetEnumerator();
-
-                    while (enumerator.MoveNext())
+                    using (var enumerator = this.schedules.GetEnumerator())
                     {
-                        if (enumerator.Current.Execute() == true)
+                        while (enumerator.MoveNext())
                         {
-                            IBitMexSchedule bsc;
-                            this.schedules.TryDequeue(out bsc);
-                            Debug.Log(string.Format("execute price schedule"));
+                            if (enumerator.Current.Execute() == true)
+                            {
+                                IBitMexSchedule schedule;
+                                this.schedules.TryDequeue(out schedule);
+                                Debug.Log(string.Format("execute price schedule"));
+                            }
                         }
                     }
 
@@ -433,11 +440,11 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         }
     }
 
-    public BitMexCommandRepository CommandRepository
+    public BitMexCommandTable CommandTable
     {
         get
         {
-            return this.service.Repository;
+            return this.service.CommandTable;
         }
     }
 

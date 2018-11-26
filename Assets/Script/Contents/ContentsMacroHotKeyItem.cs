@@ -13,10 +13,9 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
 
     private int index;
     private Func<int, List<RawKey>, bool> onKeyChanged;
-    private Func<int, BitMexCommandType, bool> onCommandChangedChanged;
-    private Func<int, List<RawKey>, BitMexCommandType, bool> onResisterCommand;
-
-    private List<BitMexCommandType> commandTypes;
+    private Func<int, IBitMexCommand, bool> onCommandChanged;
+    private Func<List<RawKey>, IBitMexCommand, bool> onResisterCommand;
+    private IBitMexMainAdapter bitmexMain;
 
     private void Reset()
     {
@@ -27,55 +26,61 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     public ContentsMacroHotKeyItem Initialized(
         int index,
         Func<int, List<RawKey>, bool> onKeyChanged,
-        Func<int, BitMexCommandType, bool> onCommandChangedChanged, 
-        Func<int, List<RawKey>, BitMexCommandType, bool> onResisterCommand,
-        Dictionary<BitMexCommandType, IBitMexCommand> commands,
+        Func<int, IBitMexCommand, bool> onCommandChanged, 
+        Func<List<RawKey>, IBitMexCommand, bool> onResisterCommand,
+        IBitMexMainAdapter bitmexMain,
         Macro macro)
     {
-        this.commandTypes = new List<BitMexCommandType>();
-
         this.index = index;
+        this.bitmexMain = bitmexMain;
 
         this.onKeyChanged = onKeyChanged;
         this.onResisterCommand = onResisterCommand;
-        this.onCommandChangedChanged = onCommandChangedChanged;
+        this.onCommandChanged = onCommandChanged;
         this.inputHotkey.OnKeyChanged = OnKeyChanged;
+       
+        this.dropdown.onValueChanged.AddListener(OnValueChanged);
 
+        RefreshCommandDropdown(macro);
+        return this;
+    }
+
+    public void RefreshCommandDropdown(Macro macro = null)
+    {
         this.dropdown.options.Clear();
-
-        foreach (var command in commands)
+        foreach (var command in this.bitmexMain.CommandTable.Commands)
         {
-            this.dropdown.options.Add(new Dropdown.OptionData(command.Value.GetCommandText()));
-            this.commandTypes.Add(command.Key);
-
-            if (macro != null && command.Value.CommandType == macro.Command.CommandType)
+            if (macro != null && command.CommandType == macro.Command.CommandType)
             {
-                this.dropdown.value = this.dropdown.options.Count - 1;
+                this.dropdown.value = this.dropdown.options.Count;
                 this.inputHotkey.CombinationKey.AddRange(macro.Keys);
                 this.inputHotkey.RefreshCombinationString();
             }
+
+            this.dropdown.options.Add(new Dropdown.OptionData(command.GetCommandText()));
         }
-
-        this.dropdown.onValueChanged.AddListener(OnValueChanged);
-
-        return this;
     }
 
     private bool OnKeyChanged(List<RawKey> keys)
     {
-        return onKeyChanged(this.index, keys);
+        return this.bitmexMain.Macro.ModifyRawKeys(this.index, keys);
     }
 
     private void OnValueChanged(int index)
     {
-        var commandType = this.commandTypes[index];
+        var command = this.bitmexMain.CommandTable.FindCommand(index);
 
-        if (this.onCommandChangedChanged(this.index, commandType) == false)
+        switch (command.CommandType)
         {
-
+            case BitMexCommandType.OrderCommandCreate:
+                this.onResisterCommand(this.inputHotkey.CombinationKey, command);
+                break;
+            default:
+                this.onCommandChanged(this.index, command);
+                break;
         }
 
-        Debug.Log(commandType);
+        Debug.Log(command.CommandType);
 
         //if (onCompleteCombinationMacro(this.index, this.inputHotkey.CombinationKey, commandType) == false)
         //{

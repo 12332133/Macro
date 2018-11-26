@@ -20,17 +20,15 @@ namespace Assets.BitMex
 
     public class BitMexMacro
     {
-        private readonly string CachePath;
-
+        private readonly string DataPath = Application.dataPath + "/Resources/Config/macro.json";
         public List<Macro> Macros { get; private set; }
 
         public BitMexMacro()
         {
             Macros = new List<Macro>();
-            CachePath = Application.dataPath + "/Resources/Config/macro.json";
         }
 
-        public bool ResisterMacro(List<RawKey> keys, IBitMexCommand command)
+        public bool Resister(List<RawKey> keys, IBitMexCommand command)
         {
             if (IsEqualKeys(keys) == false)
             {
@@ -81,11 +79,11 @@ namespace Assets.BitMex
             return true;
         }
 
-        public void LoadLocalCache(BitMexCommandRepository repository)
+        public void LoadLocalCache(BitMexCommandTable commandTable)
         {
-            if (File.Exists(CachePath) == true)
+            if (File.Exists(this.DataPath) == true)
             {
-                foreach (var item in JArray.Parse(File.ReadAllText(CachePath)))
+                foreach (var item in JArray.Parse(File.ReadAllText(this.DataPath)))
                 {
                     var jobjectMacro = JObject.Parse(item.ToString());
                     var jelementRawKeys = jobjectMacro["RawKeys"].ToString();
@@ -96,18 +94,22 @@ namespace Assets.BitMex
                         rawKeys.Add((RawKey)((ushort)rawKey));
                     }
 
-                    var commandType = (BitMexCommandType)((ushort)jobjectMacro["CommandType"]);
+                    //var commandType = (BitMexCommandType)((ushort)jobjectMacro["CommandType"]);
+                    var index = (int)jobjectMacro["Index"];
 
-                    var command = repository.CreateCommand(commandType);
-
-                    var jelementParameters = jobjectMacro["Parameters"].ToString();
-
-                    foreach (var parameter in JArray.Parse(jelementParameters))
+                    var command = commandTable.FindCommand(index);
+                    if (command != null)
                     {
-                        command.Parameters.Add(parameter);
+                        Resister(rawKeys, command);
                     }
 
-                    ResisterMacro(rawKeys, command);
+                    //command.Parameters.Clear();
+
+                    //var jelementParameters = jobjectMacro["Parameters"].ToString();
+                    //foreach (var parameter in JArray.Parse(jelementParameters))
+                    //{
+                    //    command.Parameters.Add(parameter);
+                    //}
                 }
             }
         }
@@ -141,7 +143,7 @@ namespace Assets.BitMex
                 jarray.Add(jobjectMacro);
             }
 
-            File.WriteAllText(CachePath, jarray.ToString());
+            File.WriteAllText(this.DataPath, jarray.ToString());
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Assets.BitMex
         BitMexSession Session { get; }
         BitMexDriverService DriverService { get; }
         BitMexCommandExecutor CommandExecutor { get; }
-        BitMexCommandRepository CommandRepository { get; }
+        BitMexCommandTable CommandTable { get; }
         BitMexCoinTable CoinTable { get; }
         BitMexMacro Macro { get; }
         void ResisterSchedule(IBitMexSchedule schedule);

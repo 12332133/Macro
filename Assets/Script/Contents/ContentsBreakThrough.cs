@@ -52,8 +52,8 @@ public class ContentsBreakThrough : ContentsBase
     }
 
     private BlockingCollection<BreakThroughTrade> trades;
-    private List<BitMexCommandType> overCommandTypes;
-    private List<BitMexCommandType> underCommandTypes;
+    private List<IBitMexCommand> overCommands;
+    private List<IBitMexCommand> underCommands;
 
     private void Reset()
     {
@@ -71,26 +71,26 @@ public class ContentsBreakThrough : ContentsBase
     {
         base.Initialize(bitmexMain);
 
-        this.overCommandTypes = new List<BitMexCommandType>();
-        this.underCommandTypes = new List<BitMexCommandType>();
+        this.overCommands = new List<IBitMexCommand>();
+        this.underCommands = new List<IBitMexCommand>();
 
-        foreach (var command in bitmexMain.CommandRepository.GetCommands())
+        foreach (var command in bitmexMain.CommandTable.Commands)
         {
-            switch (command.Key)
+            switch (command.CommandType)
             {
-                case BitMexCommandType.MarketSpecifiedPriceBuy1:
-                case BitMexCommandType.MarketSpecifiedPriceBuy2:
-                case BitMexCommandType.MarketSpecifiedPriceBuy3:
-                case BitMexCommandType.MarketSpecifiedPriceBuy4:
-                case BitMexCommandType.MarketSpecifiedPriceBuyCustom:
-                    this.overCommandTypes.Add(command.Key);
+                //case BitMexCommandType.MarketSpecifiedPriceBuy1:
+                //case BitMexCommandType.MarketSpecifiedPriceBuy2:
+                //case BitMexCommandType.MarketSpecifiedPriceBuy3:
+                //case BitMexCommandType.MarketSpecifiedPriceBuy4:
+                case BitMexCommandType.MarketSpecifiedPriceBuy:
+                    this.overCommands.Add(command);
                     break;
-                case BitMexCommandType.MarketSpecifiedPriceSell1:
-                case BitMexCommandType.MarketSpecifiedPriceSell2:
-                case BitMexCommandType.MarketSpecifiedPriceSell3:
-                case BitMexCommandType.MarketSpecifiedPriceSell4:
-                case BitMexCommandType.MarketSpecifiedPriceSellCustom:
-                    this.underCommandTypes.Add(command.Key);
+                //case BitMexCommandType.MarketSpecifiedPriceSell1:
+                //case BitMexCommandType.MarketSpecifiedPriceSell2:
+                //case BitMexCommandType.MarketSpecifiedPriceSell3:
+                //case BitMexCommandType.MarketSpecifiedPriceSell4:
+                case BitMexCommandType.MarketSpecifiedPriceSell:
+                    this.underCommands.Add(command);
                     break;
             }
         }
@@ -128,13 +128,13 @@ public class ContentsBreakThrough : ContentsBase
 
                             if (coin.Value.MarketPrice > price)
                             {
-                                var commandType = this.underCommandTypes[0];
+                                var commandType = this.underCommands[0];
                                 AddTrade(coin.Value, TradeType.Under, price, commandType);
 
                             }
                             else
                             {
-                                var commandType = this.overCommandTypes[0];
+                                var commandType = this.overCommands[0];
                                 AddTrade(coin.Value, TradeType.Over, price, commandType);
                             }
                         }
@@ -152,14 +152,14 @@ public class ContentsBreakThrough : ContentsBase
         }
     }
 
-    public void AddTrade(BitMexCoin coin, TradeType tradeType, decimal price, BitMexCommandType commandType)
+    public void AddTrade(BitMexCoin coin, TradeType tradeType, decimal price, IBitMexCommand command)
     {
-        if (commandType == BitMexCommandType.None)
+        if (command.CommandType == BitMexCommandType.None)
         {
             return;
         }
 
-        var command = this.bitmexMain.CommandRepository.CreateCommand(commandType);
+        //var command = this.bitmexMain.CommandRepository.CreateCommand(command);
 
         this.bitmexMain.ResisterSchedule(new BreakThroughTrade()
         {

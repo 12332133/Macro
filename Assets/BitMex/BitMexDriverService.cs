@@ -9,7 +9,7 @@ using Assets.BitMex.Commands;
 
 namespace Assets.BitMex
 {
-    public class BitMexDriverService : IBitMexCommandHandler
+    public class BitMexDriverService
     {
         public const string MainSymbol = "XBTUSD";
 
@@ -32,10 +32,10 @@ namespace Assets.BitMex
         private string url;
         private IWebDriver driver;
         private BitMexCommandExecutor executor;
-        private BitMexCommandRepository repository;
+        private BitMexCommandTable repository;
         private BitMexCoinTable coinTable;
 
-        public BitMexCommandRepository Repository
+        public BitMexCommandTable CommandTable
         {
             get
             {
@@ -63,7 +63,7 @@ namespace Assets.BitMex
         {
             this.executor = new BitMexCommandExecutor();
             this.coinTable = new BitMexCoinTable();
-            this.repository = new BitMexCommandRepository();
+            this.repository = new BitMexCommandTable();
         }
 
         public void SetDriver(IWebDriver driver, string url)
@@ -114,6 +114,10 @@ namespace Assets.BitMex
             }
         }
 
+        /// <summary>
+        /// 매수 버튼 클릭 
+        /// </summary>
+        /// <returns></returns>
         public bool HandleBuy()
         {
             var elementBuy = this.driver.SafeFindElement(By.CssSelector(CssBuyButton));
@@ -122,10 +126,14 @@ namespace Assets.BitMex
 
             elementBuy.Click();
 
-            HandleClearOrderConfirmationWindow();
+            //HandleClearOrderConfirmationWindow();
             return true;
         }
 
+        /// <summary>
+        /// 매도 버튼 클릭
+        /// </summary>
+        /// <returns></returns>
         public bool HandleSell()
         {
             var elementSell = this.driver.SafeFindElement(By.CssSelector(CssSellButton));
@@ -134,16 +142,25 @@ namespace Assets.BitMex
 
             elementSell.Click();
 
-            HandleClearOrderConfirmationWindow();
+            //HandleClearOrderConfirmationWindow();
             return true;
         }
 
+        /// <summary>
+        /// 현재 주문 탭 코인 이름 가져오기
+        /// </summary>
+        /// <returns></returns>
         public string HandleGetCurrentSymbol()
         {
             var elementSymbol = driver.SafeFindElement(By.XPath(XPathSymbol));
             return elementSymbol.Text.Split(':')[1].Trim();
         }
 
+        /// <summary>
+        /// 현재 포지션 수량 가져오기
+        /// </summary>
+        /// <param name="symbol">조회 할 코인 이름</param>
+        /// <returns></returns>
         public int HandleGetCurrentPositionCount(string symbol)
         {
             var elementPositionView = driver.SafeFindElement(By.XPath(XPathPositionViewButton));
@@ -178,14 +195,6 @@ namespace Assets.BitMex
             return decimal.Parse(maxValue, System.Globalization.NumberStyles.Any);
         }
 
-        public void HandleForceChangeFocus(string xPath)
-        {
-            // 실시간 매크로 매수/매도 시 현재 보고있는 주문타입이 다를경우 강재로 이동시켜줌 
-            // 스퀘줄 구매 동일 동작 
-            var elementOrderTarget = driver.SafeFindElement(By.XPath(xPath));
-            elementOrderTarget.Click();
-        }
-
         public bool HandleIsSameOrderTap(string xPath)
         {
             return true;
@@ -194,15 +203,17 @@ namespace Assets.BitMex
         /// <summary>
         /// 시장가 주문
         /// </summary>
-        /// <param name="qty">수량</param>
+        /// <param name="qty">지정 수량 있을 경우 모두 무시 후 수량만 대신 입력</param>
         /// <param name="magnification">배수 0~100</param>
         /// <param name="fixedAvailableXbt">고정xbt</param>
-        /// <param name="symbol"></param>
+        /// <param name="symbol">코인 종류</param>
         /// <returns></returns>
         public bool HandleOrderMarketQty(decimal qty, int magnification, decimal fixedAvailableXbt, string symbol)
         {
-            // 강제로 주문 탭 전환 
-            //HandleForceChangeFocus(XPathOderTargetMarketButton);
+            // 강제로 주문 조건 탭 전환 
+            var elementOrderTap = driver.SafeFindElement(By.XPath(XPathOderTargetMarketButton));
+            elementOrderTap.Click();
+
             // 실시간 매크로 시 주문 탭이 다를경우 무시하려면 수정 필요 
             //HandleIsSameOrderTap(XPathOderTargetMarketButton);
 
@@ -224,16 +235,11 @@ namespace Assets.BitMex
                         xbt = decimal.Parse(elementRemainXBT.Text.Split(' ')[0], System.Globalization.NumberStyles.Any);
                     }
 
-                    //교차 선택
+                    // 교차 선택
                     decimal leverage = 0;
                     try
                     {                                             
-                        var slider = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[3]/div/div/div/div[3]"), false);
-                        if (slider == null)
-                        {
-                            return false;
-                        }
-
+                        var slider = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[3]/div/div/div/div[3]"));
                         var index = slider.SafeGetAttribute("aria-valuenow");
                         if (Int32.Parse(index) == 0)
                         {
@@ -251,7 +257,7 @@ namespace Assets.BitMex
                         leverage = decimal.Parse(elementSelectedLeverage.Text.Split('x')[0], System.Globalization.NumberStyles.Any);
                     }
 
-                    var elementMarketPrice = driver.FindElement(By.XPath(XPathMarketPrice));
+                    var elementMarketPrice = driver.SafeFindElement(By.XPath(XPathMarketPrice));
                     var price = decimal.Parse(elementMarketPrice.Text, System.Globalization.NumberStyles.Any);
 
                     if (symbol.Equals(BitMexDriverService.MainSymbol) == true) // bitcoin usd only differnt algo
@@ -272,6 +278,7 @@ namespace Assets.BitMex
                     return false;
             }
 
+            // 수량 입력
             var elementOderQty = this.driver.FindElement(By.XPath(XPathOrderMarkerQtyTextBox));
             elementOderQty.Clear();
             elementOderQty.SendKeys(seletedQty.ToString());
@@ -279,10 +286,21 @@ namespace Assets.BitMex
             return true;
         }
 
+        /// <summary>
+        /// 지정가 주문
+        /// </summary>
+        /// <param name="qty">지정 수량 있을 경우 모두 무시 후 수량만 대신 입력</param> 
+        /// <param name="magnification">배수 0~100</param>
+        /// <param name="specifiedAditional">지정가</param>
+        /// <param name="fixedAvailableXbt">고정xbt</param>
+        /// <param name="symbol">코인 종류</param>
+        /// <returns></returns>
         public bool HandleOrderSpecifiedQty(decimal qty, int magnification, decimal specifiedAditional, decimal fixedAvailableXbt, string symbol)
         {
             // 강제로 주문 탭 전환
-            //HandleForceChangeFocus(XPathOderTargetSpecifedButton);
+            var elementOrderTap = driver.SafeFindElement(By.XPath(XPathOderTargetSpecifedButton));
+            elementOrderTap.Click();
+
             // 실시간 매크로 시 주문 탭이 다를경우 무시하려면 수정 필요 
             //HandleIsSameOrderTap(XPathOderTargetSpecifedButton);
 
@@ -291,7 +309,7 @@ namespace Assets.BitMex
 
             decimal seletedQty = qty;
 
-            //수량 미지정시 자동계산
+            // 수량 미지정시 자동계산
             if (seletedQty == 0)
             {
                 var position = HandleGetCurrentPositionCount(symbol);
@@ -311,7 +329,7 @@ namespace Assets.BitMex
                     decimal leverage = 0;
                     try
                     {
-                        var slider = driver.FindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[3]/div/div/div/div[3]"));
+                        var slider = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[2]/ul/div/div/div[3]/div/div/div/div[3]"));
                         var index = slider.SafeGetAttribute("aria-valuenow");
 
                         if (Int32.Parse(index) == 0)
@@ -346,6 +364,8 @@ namespace Assets.BitMex
 
                 if (seletedQty <= 0)
                     return false;
+
+                return true;
             }
 
             var elementOderQty = this.driver.FindElement(By.XPath(XPathOrderSpecifiedQtyTextBox));
@@ -359,6 +379,11 @@ namespace Assets.BitMex
             return true;
         }
 
+        /// <summary>
+        /// 포지션 초기화 
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="isClear"></param>
         public void HandleClearPosition(string symbol, bool isClear = false)
         {
             // 포지션 창 클릭
@@ -384,6 +409,11 @@ namespace Assets.BitMex
             }
         }
 
+        /// <summary>
+        /// 활선화 된 주문 취소
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <param name="isClear"></param>
         public void HandleCancleActivatedOrders(string symbol, bool isClear = false)
         {
             // 주문 창 클릭
@@ -426,6 +456,9 @@ namespace Assets.BitMex
         //    return decimal.Parse(marketPrice.Text);
         //}
 
+        /// <summary>
+        /// 주문 후 팝업 확인 창 자동 클릭
+        /// </summary>
         public void HandleClearOrderConfirmationWindow()
         {
             var elementOrderConfirmation = this.driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span[2]/div/section/div/div[4]/button[2]"), false);
@@ -446,20 +479,34 @@ namespace Assets.BitMex
             return elementEmail.Text.Equals(email);
         }
 
+        /// <summary>
+        /// 거래 페이지 진입 여부 확인 
+        /// </summary>
+        /// <returns></returns>
         public bool HandleIsTradingPage()
         {
             return this.driver.SafeFindElement(By.CssSelector("span.visible-lg-inline-block.visible-sm-inline-block"), false) != null;
         }
 
-        //public void HandleChangeCoinTab(string targetSymbol)
-        //{
-        //    var targetUrl = this.url + "/app/trade/"+ targetSymbol;
-        //    if (this.driver.Url.Equals(targetUrl) == false)
-        //    {
-        //        this.driver.Navigate().GoToUrl(targetUrl);
-        //    }
-        //}
+        /// <summary>
+        /// 거래 코인 탭 이동 driver url 
+        /// </summary>
+        /// <param name="targetSymbol"></param>
+        public void HandleChangeCoinTabByUrl(string symbol)
+        {
+            var targetUrl = this.url + "/app/trade/" + symbol;
+            if (this.driver.Url.Equals(targetUrl) == false)
+            {
+                this.driver.Navigate().GoToUrl(targetUrl);
+            }
+        }
 
+        /// <summary>
+        /// 거래 코인 탭 이동 element 클릭 
+        /// </summary>
+        /// <param name="rootCoinName">대표 코인 이름</param>
+        /// <param name="coinName">실 코인 이름</param>
+        /// <returns></returns>
         public bool HandleChangeCoinTab(string rootCoinName, string coinName)
         {
             var elementCoinTabs = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[2]/div/div/div[1]/div/section/header/span/div/ul"));
@@ -485,26 +532,15 @@ namespace Assets.BitMex
 
                         return false;
                     });
-
-                    //elementRootCoin.Click();
-
-                    //var elementExpiries = elementCoinTabs.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[2]/div/div/div[1]/div/section/div/span"), false);
-                    //var elementChildCoins = elementExpiries.SafeFindElements(By.TagName("div"));
-                    //foreach (var elementChildCoin in elementChildCoins)
-                    //{
-                    //    var childSymbol = elementChildCoin.SafeGetAttribute("title");
-                    //    if (childSymbol.Equals(coinName) == true)
-                    //    {
-                    //        elementChildCoin.Click();
-                    //        return true;
-                    //    }
-                    //}
                 }
             }
 
             return false;
         }
 
+        /// <summary>
+        /// 현재 서비스 중인 코인 시장가 동기화
+        /// </summary>
         public void HandleSyncCointPrices() //bench 0.07s
         {
             var elementCoinsSection = driver.SafeFindElement(By.CssSelector("span.instruments.tickerBarSection"));

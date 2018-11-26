@@ -55,7 +55,7 @@ public class ContentsMacro : ContentsBase
                     OnKeyChanged,
                     OnCommandChanged,
                     OnResisterMacro,
-                    bitmexMain.CommandRepository.GetCommands(), 
+                    bitmexMain, 
                     bitmexMain.Macro.Macros[i]));
 
             go.transform.SetParent(this.svHotKey.content.transform);
@@ -78,83 +78,57 @@ public class ContentsMacro : ContentsBase
         go.transform.SetParent(this.svLog.content.transform);
     }
 
-    private bool OnKeyChanged(int index, List<RawKey> keys)
+    private bool OnKeyChanged(int macroIndex, List<RawKey> keys)
     {
-        return this.bitmexMain.Macro.ModifyRawKeys(index, keys);
+        return this.bitmexMain.Macro.ModifyRawKeys(macroIndex, keys);
     }
 
-    private bool OnCommandChanged(int index, BitMexCommandType commandType)
+    private bool OnCommandChanged(int macroIndex, IBitMexCommand command)
     {
-        var command = this.bitmexMain.CommandRepository.CreateCommand(commandType);
-
-        switch (commandType)
+        switch (command.CommandType)
         {
             case BitMexCommandType.ChangeCoinTap:
-                command.Parameters.Add("XBTUSD");
+                command.Parameters.Clear();
+                command.Parameters.Add("XBTUSD"); // 선택한 코인 이름 
                 break;
-            case BitMexCommandType.MarketPriceBuyMagnification1:
-            case BitMexCommandType.MarketPriceBuyMagnification2:
-            case BitMexCommandType.MarketPriceBuyMagnification3:
-            case BitMexCommandType.MarketPriceBuyMagnification4:
-            case BitMexCommandType.MarketPriceSellMagnification1:
-            case BitMexCommandType.MarketPriceSellMagnification2:
-            case BitMexCommandType.MarketPriceSellMagnification3:
-            case BitMexCommandType.MarketPriceSellMagnification4:
-            case BitMexCommandType.MarketSpecifiedPriceBuy1:
-            case BitMexCommandType.MarketSpecifiedPriceBuy2:
-            case BitMexCommandType.MarketSpecifiedPriceBuy3:
-            case BitMexCommandType.MarketSpecifiedPriceBuy4:
-            case BitMexCommandType.MarketSpecifiedPriceSell1:
-            case BitMexCommandType.MarketSpecifiedPriceSell2:
-            case BitMexCommandType.MarketSpecifiedPriceSell3:
-            case BitMexCommandType.MarketSpecifiedPriceSell4:
-                break;
-            case BitMexCommandType.MarketPriceBuyMagnificationCustom:
-            case BitMexCommandType.MarketPriceSellMagnificationCustom:
-            case BitMexCommandType.MarketSpecifiedPriceBuyCustom:
-            case BitMexCommandType.MarketSpecifiedPriceSellCustom:
-                command.Parameters.Add(50);
+            case BitMexCommandType.MarketPriceBuyMagnification:
+            case BitMexCommandType.MarketPriceSellMagnification:
+            case BitMexCommandType.MarketSpecifiedPriceBuy:
+            case BitMexCommandType.MarketSpecifiedPriceSell:
+                command.Parameters.Clear();
+                command.Parameters.Add(50); // 선택한 퍼센트 
                 break;
         }
 
-        return this.bitmexMain.Macro.ModifyCommand(index, command);
+        return this.bitmexMain.Macro.ModifyCommand(macroIndex, command);
     }
 
-    private bool OnResisterMacro(int index, List<RawKey> rawKeys, BitMexCommandType commandType)
+    private bool OnResisterMacro(List<RawKey> rawKeys, IBitMexCommand command)
     {
-        var command = this.bitmexMain.CommandRepository.CreateCommand(commandType);
+        var com = this.bitmexMain.CommandTable.CreateCommandByCreator(command.Index);
 
-        switch (commandType)
+        switch (command.CommandType)
         {
             case BitMexCommandType.ChangeCoinTap:
-                command.Parameters.Add("XBTUSD");
+                com.Parameters.Clear();
+                com.Parameters.Add("XBTUSD"); // 선택한 코인 이름 
                 break;
-            case BitMexCommandType.MarketPriceBuyMagnification1:
-            case BitMexCommandType.MarketPriceBuyMagnification2:
-            case BitMexCommandType.MarketPriceBuyMagnification3:
-            case BitMexCommandType.MarketPriceBuyMagnification4:
-            case BitMexCommandType.MarketPriceSellMagnification1:
-            case BitMexCommandType.MarketPriceSellMagnification2:
-            case BitMexCommandType.MarketPriceSellMagnification3:
-            case BitMexCommandType.MarketPriceSellMagnification4:
-            case BitMexCommandType.MarketSpecifiedPriceBuy1:
-            case BitMexCommandType.MarketSpecifiedPriceBuy2:
-            case BitMexCommandType.MarketSpecifiedPriceBuy3:
-            case BitMexCommandType.MarketSpecifiedPriceBuy4:
-            case BitMexCommandType.MarketSpecifiedPriceSell1:
-            case BitMexCommandType.MarketSpecifiedPriceSell2:
-            case BitMexCommandType.MarketSpecifiedPriceSell3:
-            case BitMexCommandType.MarketSpecifiedPriceSell4:
-                break;
-            case BitMexCommandType.MarketPriceBuyMagnificationCustom:
-            case BitMexCommandType.MarketPriceSellMagnificationCustom:
-            case BitMexCommandType.MarketSpecifiedPriceBuyCustom:
-            case BitMexCommandType.MarketSpecifiedPriceSellCustom:
-                command.Parameters.Add(50);
+            case BitMexCommandType.MarketPriceBuyMagnification:
+            case BitMexCommandType.MarketPriceSellMagnification:
+            case BitMexCommandType.MarketSpecifiedPriceBuy:
+            case BitMexCommandType.MarketSpecifiedPriceSell:
+                com.Parameters.Clear();
+                com.Parameters.Add(50); // 선택한 퍼센트 
                 break;
         }
 
-        return this.bitmexMain.Macro.ResisterMacro(rawKeys, command);
+        if (this.bitmexMain.Macro.Resister(rawKeys, com) == false)
+        {
+            return false;
+        }
+
+        this.bitmexMain.CommandTable.Resister(com.CommandType, com);
+        return true;
     }
 
     private void OnClickPopupOK()
@@ -174,6 +148,7 @@ public class ContentsMacro : ContentsBase
 
     private void OnClickSave()
     {
+        this.bitmexMain.Macro.SaveLocalCache();
         Debug.Log("ContentsMacro.OnClickSave()");
     }
 }

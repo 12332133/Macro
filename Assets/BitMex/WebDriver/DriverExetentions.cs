@@ -92,12 +92,12 @@ namespace Assets.BitMex.WebDriver
             return null;
         }
 
-        public static bool SafeChainingClick(this IWebElement element, Func<bool> complete, bool isThrow = true)
+        public static bool SafeChainingClick(this IWebElement element, Func<bool> result, bool isThrow = true)
         {
             element.Click();
             for (int i = 0; i < 3; i++)
             {
-                if (complete() == true)
+                if (result() == true)
                 {
                     return true;
                 }

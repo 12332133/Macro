@@ -24,10 +24,5 @@ namespace Assets.BitMex
         {
             this.Macro = new BitMexMacro();
         }
-
-        public void Save()
-        {
-            this.Macro.SaveLocalCache();
-        }
     }
 }

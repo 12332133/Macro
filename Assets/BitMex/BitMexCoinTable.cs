@@ -11,22 +11,37 @@ namespace Assets.BitMex
 {
     public class BitMexCoin
     {
-        public string RootCoinName { get; set; } //대표 코인 이름
-        public string CoinName { get; set; } //서브 코인 이름
-        public decimal MarketPrice { get; set; } //현재 시장가 
-        public decimal FixedAvailableXbt { get; set; } //사용 가능 고정XBT
-        public decimal SpecifiedAditional { get; set; } //지정가
+        /// <summary>
+        /// 대표 코인 이름
+        /// </summary>
+        public string RootCoinName { get; set; }
+        /// <summary>
+        /// 코인 이름
+        /// </summary>
+        public string CoinName { get; set; }
+        /// <summary>
+        /// 현재 시장가
+        /// </summary>
+        public decimal MarketPrice { get; set; }
+        /// <summary>
+        /// 사용 가능 고정XBT
+        /// </summary>
+        public decimal FixedAvailableXbt { get; set; }
+        /// <summary>
+        /// 지정가
+        /// </summary>
+        public decimal SpecifiedAditional { get; set; } 
     }
 
     public class BitMexCoinTable
     {
-        private readonly string CachePath = "CoinTable.json";
+        private readonly string DataPath = Application.dataPath + "/Resources/Config/cointable.json";
         private Dictionary<string, BitMexCoin> coins;
 
         public BitMexCoinTable()
         {
             this.coins = new Dictionary<string, BitMexCoin>();
-            CachePath = Application.dataPath + "/Resources/Config/cointable.json";
+            //savedPath = Application.dataPath + "/Resources/Config/cointable.json";
         }
 
         public void LoadActiveCoins(string bitMexDomain)
@@ -57,11 +72,11 @@ namespace Assets.BitMex
             }
 
             //load local cache then sync local cache by active coins
-            if (File.Exists(CachePath) == true)
+            if (File.Exists(this.DataPath) == true)
             {
-                var json = File.ReadAllText(CachePath);
+                var json = File.ReadAllText(this.DataPath);
 
-                foreach (var item in JArray.Parse(File.ReadAllText(CachePath)))
+                foreach (var item in JArray.Parse(File.ReadAllText(this.DataPath)))
                 {
                     var jobject = JObject.Parse(item.ToString());
 
@@ -97,7 +112,7 @@ namespace Assets.BitMex
                 jarray.Add(jobject);
             }
 
-            File.WriteAllText(CachePath, jarray.ToString());
+            File.WriteAllText(this.DataPath, jarray.ToString());
             //PlayerPrefs.SetString("BitMexCoinTable", jarray.ToString());
             //PlayerPrefs.Save();
         }

@@ -37,14 +37,14 @@ public class ContentsCoinSetting : ContentsBase
     {
         base.Initialize(bitmexMain);
 
-        using (var e = bitmexMain.CoinTable.Coins.GetEnumerator())
-        {
-            while (e.MoveNext())
-            {
-                var go = Instantiate(this.goCoinItem);
-                this.listCoins.Add(go.GetComponent<ContentsMacroCoinItem>().Initialized(e.Current.Value));
-                go.transform.SetParent(this.svCoins.content.transform);
-            }
-        }
+        //using (var e = this.bitmexMain.CoinTable.Coins.GetEnumerator())
+        //{
+        //    while (e.MoveNext())
+        //    {
+        //        var go = Instantiate(this.goCoinItem);
+        //        this.listCoins.Add(go.GetComponent<ContentsMacroCoinItem>().Initialized(e.Current.Value));
+        //        go.transform.SetParent(this.svCoins.content.transform);
+        //    }
+        //}
     }
 }
