@@ -156,11 +156,15 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.btnBitMex.onClick.AddListener(OnOpenBitMex);
         this.btnMacro.onClick.AddListener(OnEnableMacro);
 
-        this.toggleTabs[0].onValueChanged.AddListener(OnToggleTab);
-        this.toggleTabs[1].onValueChanged.AddListener(OnToggleTab);
-        this.toggleTabs[2].onValueChanged.AddListener(OnToggleTab);
-        this.toggleTabs[3].onValueChanged.AddListener(OnToggleTab);
-        this.toggleTabs[4].onValueChanged.AddListener(OnToggleTab);
+        //this.toggleTabs[0].onValueChanged.AddListener(OnToggleTab);
+        //this.toggleTabs[1].onValueChanged.AddListener(OnToggleTab);
+        //this.toggleTabs[2].onValueChanged.AddListener(OnToggleTab);
+        //this.toggleTabs[3].onValueChanged.AddListener(OnToggleTab);
+        //this.toggleTabs[4].onValueChanged.AddListener(OnToggleTab);
+        for (int i = 0; i < this.toggleTabs.Length; ++i)
+        {
+            this.toggleTabs[i].onValueChanged.AddListener(OnToggleTab);
+        }
 
         foreach (var content in this.contents)
         {
