@@ -1,4 +1,5 @@
 ﻿using Assets.BitMex;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,19 +12,21 @@ public class ContentsMacroCoinItem : MonoBehaviour
 
     private void Awake()
     {
-        this.btnCoin = transform.Find("Button").GetComponent<Button>();
-        this.txtCoin = transform.Find("Button/Text").GetComponent<Text>();
     }
 
     private void Reset()
     {
+        this.btnCoin = transform.Find("Button").GetComponent<Button>();
+        this.txtCoin = transform.Find("Button/Text").GetComponent<Text>();
     }
 
-    public ContentsMacroCoinItem Initialized(BitMexCoin coin)
+    //public ContentsMacroCoinItem Initialized(BitMexCoin coin, UnityEngine.Events.UnityAction callBack)
+    public ContentsMacroCoinItem Initialized(BitMexCoin coin, Action<BitMexCoin> callBack)
     {
         this.coin = coin;
 
         this.txtCoin.text = this.coin.CoinName;
+        this.btnCoin.onClick.AddListener(() => { callBack(this.coin); });
 
         return this;
     }

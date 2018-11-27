@@ -11,6 +11,8 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     [SerializeField] private MacroInputField inputHotkey;
     [SerializeField] private Dropdown dropdown;
 
+    [SerializeField] private Button btnDelete;
+
     private Func<int, List<RawKey>, bool> onKeyChanged;
     private Func<int, IBitMexCommand, bool> onCommandChanged;
     private Func<List<RawKey>, IBitMexCommand, bool> onResisterCommand;
@@ -25,6 +27,8 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     {
         this.inputHotkey = transform.Find("InputField").GetComponent<MacroInputField>();
         this.dropdown = transform.Find("Dropdown").GetComponent<Dropdown>();
+
+        this.btnDelete = transform.Find("btnDelete").GetComponent<Button>();
     }
 
     public ContentsMacroHotKeyItem Initialized(
@@ -42,9 +46,15 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.refreshAllMacroItem = refreshAllMacroItem;
 
         this.dropdown.onValueChanged.AddListener(OnValueChanged);
+        this.btnDelete.onClick.AddListener(OnClickDelete);
 
         RefreshCommandDropdown();
         return this;
+    }
+
+    private void OnClickDelete()
+    {
+        Debug.Log("OnClickDelete()");
     }
 
     public void RefreshCommandDropdown()

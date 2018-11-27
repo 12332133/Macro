@@ -8,6 +8,10 @@ using UnityEngine.UI;
 
 public class ContentsMacro : ContentsBase
 {
+    [SerializeField] private Text[] txtTabs;
+    [SerializeField] private Toggle[] toggleTabs;
+    [SerializeField] private Button btnAddMacro;
+
     [SerializeField] private ScrollRect svHotKey;
     [SerializeField] private GameObject goHotKeyItem;
 
@@ -17,8 +21,8 @@ public class ContentsMacro : ContentsBase
 
     [SerializeField] private ScrollRect svLog;
     [SerializeField] private GameObject goLogItem;
-    [SerializeField] private Button btnAdd;
-    [SerializeField] private Button btnDel;
+    [SerializeField] private Button btnAddLog;
+    [SerializeField] private Button btnDelLog;
 
     [SerializeField] private Button btnSave;
 
@@ -26,6 +30,11 @@ public class ContentsMacro : ContentsBase
 
     private void Reset()
     {
+        this.txtTabs = transform.Find("Panel/Tab").GetComponentsInChildren<Text>();
+        this.toggleTabs = transform.Find("Panel/Tab").GetComponentsInChildren<Toggle>();
+
+        this.btnAddMacro = transform.Find("Panel/btnAddMacro").GetComponent<Button>();
+
         this.svHotKey = transform.Find("Panel/svHotKey").GetComponent<ScrollRect>();
         this.goHotKeyItem = Resources.Load<GameObject>("MacroHotKeyItem");
 
@@ -35,8 +44,8 @@ public class ContentsMacro : ContentsBase
 
         this.svLog = transform.Find("Panel/LogRoot/svLog").GetComponent<ScrollRect>();
         this.goLogItem = Resources.Load<GameObject>("MacroLogItem");
-        this.btnAdd = transform.Find("Panel/LogRoot/btnAdd").GetComponent<Button>();
-        this.btnDel = transform.Find("Panel/LogRoot/btnDel").GetComponent<Button>();
+        this.btnAddLog = transform.Find("Panel/LogRoot/btnAdd").GetComponent<Button>();
+        this.btnDelLog = transform.Find("Panel/LogRoot/btnDel").GetComponent<Button>();
 
         this.btnSave = transform.Find("Panel/btnSave").GetComponent<Button>();
     }
@@ -45,15 +54,36 @@ public class ContentsMacro : ContentsBase
     {
         base.Initialize(bitmexMain);
 
+        for (int i = 0; i < this.toggleTabs.Length; ++i)
+        {
+            this.toggleTabs[i].onValueChanged.AddListener(OnToggleTab);
+        }
+        this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
+
         OnRefreshAllMacroItem();
 
         this.btnPopup.onClick.AddListener(OnClickPopupOK);
 
-        this.btnAdd.onClick.AddListener(OnClickAdd);
-        this.btnDel.onClick.AddListener(OnClickDel);
+        this.btnAddLog.onClick.AddListener(OnClickAddLog);
+        this.btnDelLog.onClick.AddListener(OnClickDelLog);
 
         this.btnSave.onClick.AddListener(OnClickSave);
         this.btnSave.interactable = false;
+    }
+
+    private void OnToggleTab(bool state)
+    {
+        if (!state) return;
+
+        for (int i = 0; i < this.toggleTabs.Length; ++i)
+        {
+            if(this.toggleTabs[i].isOn) Debug.Log("OnToggleTab() - " + this.toggleTabs[i].name);
+        }
+    }
+
+    private void OnClickAddMacro()
+    {
+        Debug.Log("OnClickAddMacro()");
     }
 
     public void WriteMacroLog(string log)
@@ -157,12 +187,12 @@ public class ContentsMacro : ContentsBase
         this.goPopup.SetActive(false);
     }
 
-    private void OnClickAdd()
+    private void OnClickAddLog()
     {
         Debug.Log("ContentsMacro.OnClickAdd()");
     }
 
-    private void OnClickDel()
+    private void OnClickDelLog()
     {
         Debug.Log("ContentsMacro.OnClickDel()");
     }

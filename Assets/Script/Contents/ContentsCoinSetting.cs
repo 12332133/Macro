@@ -22,7 +22,7 @@ public class ContentsCoinSetting : ContentsBase
     {
         this.svCoins = transform.Find("Panel/svCoins").GetComponent<ScrollRect>();
         this.goCoinItem = Resources.Load<GameObject>("MacroCoinItem");
-        
+
         this.txtFixCoin = transform.Find("Panel/Setting/FixCoin/Text").GetComponent<Text>();
         this.inputFixCoin = transform.Find("Panel/Setting/FixCoin/InputField").GetComponent<InputField>();
         this.txtFastCoin = transform.Find("Panel/Setting/FastCoin/Text").GetComponent<Text>();
@@ -37,14 +37,16 @@ public class ContentsCoinSetting : ContentsBase
     {
         base.Initialize(bitmexMain);
 
-        //using (var e = this.bitmexMain.CoinTable.Coins.GetEnumerator())
-        //{
-        //    while (e.MoveNext())
-        //    {
-        //        var go = Instantiate(this.goCoinItem);
-        //        this.listCoins.Add(go.GetComponent<ContentsMacroCoinItem>().Initialized(e.Current.Value));
-        //        go.transform.SetParent(this.svCoins.content.transform);
-        //    }
-        //}
+        foreach (var coin in this.bitmexMain.CoinTable.Coins.Values)
+        {
+            var go = Instantiate(this.goCoinItem);
+            this.listCoins.Add(go.GetComponent<ContentsMacroCoinItem>().Initialized(coin, OnClickCoinSettingItem));
+            go.transform.SetParent(this.svCoins.content.transform);
+        }
+    }
+
+    public void OnClickCoinSettingItem(BitMexCoin coin)
+    {
+        Debug.Log("OnClickCoinSettingItem - " + coin.CoinName);
     }
 }
