@@ -11,20 +11,16 @@ namespace Assets.BitMex.Commands
         public MarketSpecifiedQuantityBuyCommand(IBitMexMainAdapter bitmexMain, Action<List<object>> initializer) 
             : base(bitmexMain)
         {
+            initializer(Parameters);
         }
 
-        public MarketSpecifiedQuantityBuyCommand()
+        public MarketSpecifiedQuantityBuyCommand(IBitMexCommand command) : base(command)
         {
         }
 
         protected override MarketSpecifiedQuantityBuyCommand Create()
         {
-            return new MarketSpecifiedQuantityBuyCommand()
-            {
-                BitMexMain = this.BitMexMain,
-                CommandType = this.CommandType,
-                Parameters = new List<object>(this.Parameters)
-            };
+            return new MarketSpecifiedQuantityBuyCommand(this);
         }
 
         /// <summary>

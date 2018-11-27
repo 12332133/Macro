@@ -71,6 +71,7 @@
     <Compile Include="Assets\BitMex\Commands\BitMexCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\BitMexCommandType.cs" />
     <Compile Include="Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\Etc\NoneCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Etc\OderCommandCreator.cs" />
     <Compile Include="Assets\BitMex\Commands\Etc\SampleCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs" />

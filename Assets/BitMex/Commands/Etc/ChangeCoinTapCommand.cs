@@ -8,23 +8,19 @@ namespace Assets.BitMex.Commands
 {
     public class ChangeCoinTapCommand : BitMexCommand<ChangeCoinTapCommand>
     {
-        public ChangeCoinTapCommand(IBitMexMainAdapter bitmexMain) 
+        public ChangeCoinTapCommand(IBitMexMainAdapter bitmexMain, Action<List<object>> initializer) 
             : base(bitmexMain)
         {
+            initializer(Parameters);
         }
 
-        public ChangeCoinTapCommand()
+        public ChangeCoinTapCommand(IBitMexCommand command) : base(command)
         {
         }
 
         protected override ChangeCoinTapCommand Create()
         {
-            return new ChangeCoinTapCommand()
-            {
-                BitMexMain = this.BitMexMain,
-                CommandType = this.CommandType,
-                Parameters = new List<object>(this.Parameters)
-            };
+            return new ChangeCoinTapCommand(this);
         }
 
         /// <summary>
@@ -39,7 +35,7 @@ namespace Assets.BitMex.Commands
 
         public override string GetCommandText()
         {
-            return string.Format("거래 코인 이동");
+            return string.Format("{0} 이동", Parameters[0].ToString());
         }
     }
 }

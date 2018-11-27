@@ -13,18 +13,13 @@ namespace Assets.BitMex.Commands
         {
         }
 
-        public SampleCommand()
+        public SampleCommand(IBitMexCommand command) : base(command)
         {
         }
 
         protected override SampleCommand Create()
         {
-            return new SampleCommand()
-            {
-                BitMexMain = this.BitMexMain,
-                CommandType = this.CommandType,
-                Parameters = new List<object>(this.Parameters)
-            };
+            return new SampleCommand(this);
         }
 
         public override void Execute()

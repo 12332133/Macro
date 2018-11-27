@@ -14,19 +14,13 @@ namespace Assets.BitMex.Commands
             initializer(this.Parameters);
         }
 
-        public MarketPriceBuyCommand()
+        public MarketPriceBuyCommand(IBitMexCommand command) : base(command)
         {
         }
 
         protected override MarketPriceBuyCommand Create()
         {
-            return new MarketPriceBuyCommand()
-            {
-                BitMexMain = this.BitMexMain,
-                CommandType = this.CommandType,
-                Index = this.Index,
-                Parameters = new List<object>(this.Parameters)
-            };
+            return new MarketPriceBuyCommand(this);
         }
 
         /// <summary>

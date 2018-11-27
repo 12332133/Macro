@@ -13,18 +13,13 @@ namespace Assets.BitMex.Commands
         {
         }
 
-        public ActivateOrderCancleCommand()
+        public ActivateOrderCancleCommand(IBitMexCommand command) : base(command)
         {
         }
 
         protected override ActivateOrderCancleCommand Create()
         {
-            return new ActivateOrderCancleCommand()
-            {
-                BitMexMain = this.BitMexMain,
-                CommandType = this.CommandType,
-                Parameters = new List<object>(this.Parameters)
-            };
+            return new ActivateOrderCancleCommand(this);
         }
 
         public override void Execute()

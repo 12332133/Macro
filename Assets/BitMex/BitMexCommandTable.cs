@@ -1,4 +1,5 @@
 ﻿using Assets.BitMex.Commands;
+using Assets.CombinationKey;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,20 +8,6 @@ using UnityEngine;
 
 namespace Assets.BitMex
 {
-    public class BitMexCommandFactory
-    {
-        private Dictionary<BitMexCommandType, IBitMexCommand> factory;
-
-        public BitMexCommandFactory()
-        {
-            this.factory = new Dictionary<BitMexCommandType, IBitMexCommand>();
-        }
-
-        public void Resister(BitMexCommandType type, IBitMexCommand command)
-        {
-        }
-    }
-
     public class BitMexCommandTable
     {
         private readonly string DataPath = Application.dataPath + "/Resources/Config/commandtable.json";
@@ -36,7 +23,7 @@ namespace Assets.BitMex
         public void Resister(BitMexCommandType type, IBitMexCommand command)
         {
             command.CommandType = type;
-            command.Index = this.commands.Count;
+            command.RefCommandTableIndex = this.commands.Count;
 
             if (this.factory.ContainsKey(type) == false)
             {
@@ -46,11 +33,42 @@ namespace Assets.BitMex
             this.commands.Add(command);
         }
 
-        public IBitMexCommand CreateCommandByCreator(int index)
+        public void InsertAt(IBitMexCommand command)
         {
-            var original = this.commands[index - 1];
+            this.commands.Insert(command.RefCommandTableIndex, command);
+
+            // 인덱스 재 배치
+            for (int i = 0; i < this.commands.Count; i++)
+            {
+                this.commands[i].RefCommandTableIndex = i;
+            }
+        }
+
+        public IBitMexCommand CreateByCreator(int creatorIndex)
+        {
+            var original = this.commands[creatorIndex - 1];
             var command = original.Clone();
+            command.RefCommandTableIndex += 1;
             return command;
+        }
+
+        public bool Remove(IBitMexCommand command)
+        {
+            if (command.CommandType == BitMexCommandType.None ||
+                command.CommandType == BitMexCommandType.OrderCommandCreate)
+            {
+                return false;
+            }
+
+            this.commands.RemoveAt(command.RefCommandTableIndex);
+
+            // 인덱스 재 배치
+            for (int i = 0; i < this.commands.Count; i++)
+            {
+                this.commands[i].RefCommandTableIndex = i;
+            }
+
+            return true;
         }
 
         public List<IBitMexCommand> Commands
@@ -61,7 +79,7 @@ namespace Assets.BitMex
             }
         }
 
-        public void ModifyCommandParameters(int index, List<object> parameters)
+        public void ModifyParameters(int index, List<object> parameters)
         {
             var command = this.commands[index];
             command.Parameters.Clear();
@@ -76,9 +94,10 @@ namespace Assets.BitMex
         public IBitMexCommand FindCommand(int index)
         {
             var command = this.commands[index];
-            if (command.CommandType == BitMexCommandType.OrderCommandCreate)
-                return null;
-            return this.commands[index];
+            //if (command.CommandType == BitMexCommandType.OrderCommandCreate ||
+            //    command.CommandType == BitMexCommandType.None)
+            //    return null;
+            return command;
         }
 
         public IBitMexCommand FindCommand(BitMexCommandType type)
@@ -94,7 +113,7 @@ namespace Assets.BitMex
             return null;
         }
 
-        public IBitMexCommand CreateCommand(BitMexCommandType commandType)
+        public IBitMexCommand Create(BitMexCommandType commandType)
         {
             if (this.factory.ContainsKey(commandType) == true)
             {
@@ -108,10 +127,42 @@ namespace Assets.BitMex
         {
             if (File.Exists(this.DataPath) == true)
             {
+                var loadCommands = new List<IBitMexCommand>();
+
                 foreach (var item in JArray.Parse(File.ReadAllText(this.DataPath)))
                 {
                     var jobjectCommand = JObject.Parse(item.ToString());
-                    
+
+                    var commandType = (BitMexCommandType)((ushort)jobjectCommand["CommandType"]);
+                    var commandIndex = (int)jobjectCommand["CommandIndex"];
+
+                    if (commandType == BitMexCommandType.None || 
+                        commandType == BitMexCommandType.OrderCommandCreate)
+                    {
+                        continue;
+                    }
+
+                    var parameters = new List<object>();
+                    var jelementParameters = jobjectCommand["Parameters"].ToString();
+                    foreach (var parameter in JArray.Parse(jelementParameters))
+                    {
+                        parameters.Add(parameter);
+                    }
+
+                    var command = FindCommand(commandIndex);
+                    if (command == null)
+                    {
+                        var newCommand = Create(commandType);
+                        newCommand.Parameters.Clear();
+                        newCommand.Parameters.AddRange(parameters);
+                        newCommand.RefCommandTableIndex = commandIndex;
+                        this.commands.Insert(newCommand.RefCommandTableIndex, newCommand);
+                    }
+                    else
+                    {
+                        command.Parameters.Clear();
+                        command.Parameters.AddRange(parameters);
+                    }
                 }
             }
         }
@@ -123,18 +174,18 @@ namespace Assets.BitMex
             foreach (var command in this.commands)
             {
                 var jobjectCommand = new JObject();
-
+                jobjectCommand.Add("CommandIndex", command.RefCommandTableIndex);
                 jobjectCommand.Add("CommandType", (ushort)command.CommandType);
 
-                //var jarrayParameters = new JArray();
-                //foreach (var parameter in macro.Command.Parameters)
-                //{
-                //    jarrayParameters.Add(parameter);
-                //}
+                var jarrayParameters = new JArray();
+                foreach (var parameter in command.Parameters)
+                {
+                    jarrayParameters.Add(parameter);
+                }
 
-                //jobjectMacro.Add("Parameters", jarrayParameters);
+                jobjectCommand.Add("Parameters", jarrayParameters);
 
-                //jarray.Add(jobjectMacro);
+                jarray.Add(jobjectCommand);
             }
 
             File.WriteAllText(this.DataPath, jarray.ToString());

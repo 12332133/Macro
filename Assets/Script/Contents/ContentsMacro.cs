@@ -45,21 +45,7 @@ public class ContentsMacro : ContentsBase
     {
         base.Initialize(bitmexMain);
 
-        for (int i = 0; i < bitmexMain.Macro.Macros.Count; i++)
-        {
-            var go = Instantiate(this.goHotKeyItem);
-
-            this.listHotKeys.Add(
-                go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
-                    i,
-                    OnKeyChanged,
-                    OnCommandChanged,
-                    OnResisterMacro,
-                    bitmexMain, 
-                    bitmexMain.Macro.Macros[i]));
-
-            go.transform.SetParent(this.svHotKey.content.transform);
-        }
+        OnRefreshAllMacroItem();
 
         this.btnPopup.onClick.AddListener(OnClickPopupOK);
 
@@ -78,18 +64,76 @@ public class ContentsMacro : ContentsBase
         go.transform.SetParent(this.svLog.content.transform);
     }
 
-    private bool OnKeyChanged(int macroIndex, List<RawKey> keys)
+    private void OnRefreshAllDropdown()
     {
-        return this.bitmexMain.Macro.ModifyRawKeys(macroIndex, keys);
+        foreach (var item in this.listHotKeys)
+        {
+            item.RefreshCommandDropdown();
+        }
     }
 
-    private bool OnCommandChanged(int macroIndex, IBitMexCommand command)
+    private void OnRefreshAllMacroItem()
+    {
+        this.listHotKeys.Clear();
+
+        if (bitmexMain.Macro.Macros.Count < 5)
+        {
+            for (int i = 0; i < bitmexMain.Macro.Macros.Count; i++)
+            {
+                var go = Instantiate(this.goHotKeyItem);
+
+                this.listHotKeys.Add(
+                    go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
+                        OnModifyCommandParameters,
+                        OnRefreshAllDropdown,
+                        OnRefreshAllMacroItem,
+                        bitmexMain,
+                        bitmexMain.Macro.Macros[i]));
+
+                go.transform.SetParent(this.svHotKey.content.transform);
+            }
+
+            for (int i = 0; i < 5 - bitmexMain.Macro.Macros.Count; i++)
+            {
+                var go = Instantiate(this.goHotKeyItem);
+
+                this.listHotKeys.Add(
+                    go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
+                        OnModifyCommandParameters,
+                        OnRefreshAllDropdown,
+                        OnRefreshAllMacroItem,
+                        bitmexMain,
+                        null));
+
+                go.transform.SetParent(this.svHotKey.content.transform);
+            }
+        }
+        else
+        {
+            foreach (var macro in bitmexMain.Macro.Macros)
+            {
+                var go = Instantiate(this.goHotKeyItem);
+
+                this.listHotKeys.Add(
+                    go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
+                        OnModifyCommandParameters,
+                        OnRefreshAllDropdown,
+                        OnRefreshAllMacroItem,
+                        bitmexMain,
+                        macro));
+
+                go.transform.SetParent(this.svHotKey.content.transform);
+            }
+        }
+    }
+
+    private void OnModifyCommandParameters(IBitMexCommand command)
     {
         switch (command.CommandType)
         {
             case BitMexCommandType.ChangeCoinTap:
                 command.Parameters.Clear();
-                command.Parameters.Add("XBTUSD"); // 선택한 코인 이름 
+                command.Parameters.Add("SAMPLECOIN"); // 선택한 코인 이름 
                 break;
             case BitMexCommandType.MarketPriceBuyMagnification:
             case BitMexCommandType.MarketPriceSellMagnification:
@@ -98,37 +142,14 @@ public class ContentsMacro : ContentsBase
                 command.Parameters.Clear();
                 command.Parameters.Add(50); // 선택한 퍼센트 
                 break;
-        }
-
-        return this.bitmexMain.Macro.ModifyCommand(macroIndex, command);
-    }
-
-    private bool OnResisterMacro(List<RawKey> rawKeys, IBitMexCommand command)
-    {
-        var com = this.bitmexMain.CommandTable.CreateCommandByCreator(command.Index);
-
-        switch (command.CommandType)
-        {
-            case BitMexCommandType.ChangeCoinTap:
-                com.Parameters.Clear();
-                com.Parameters.Add("XBTUSD"); // 선택한 코인 이름 
-                break;
-            case BitMexCommandType.MarketPriceBuyMagnification:
-            case BitMexCommandType.MarketPriceSellMagnification:
-            case BitMexCommandType.MarketSpecifiedPriceBuy:
-            case BitMexCommandType.MarketSpecifiedPriceSell:
-                com.Parameters.Clear();
-                com.Parameters.Add(50); // 선택한 퍼센트 
+            case BitMexCommandType.MarketPriceSpecifiedQuantityBuy:
+            case BitMexCommandType.MarketPriceSpecifiedQuantitySell:
+            case BitMexCommandType.MarketSpecifiedQuantityBuy:
+            case BitMexCommandType.MarketSpecifiedQuantitySell:
+                command.Parameters.Clear();
+                command.Parameters.Add(100); // 선택한 수량
                 break;
         }
-
-        if (this.bitmexMain.Macro.Resister(rawKeys, com) == false)
-        {
-            return false;
-        }
-
-        this.bitmexMain.CommandTable.Resister(com.CommandType, com);
-        return true;
     }
 
     private void OnClickPopupOK()
@@ -148,7 +169,12 @@ public class ContentsMacro : ContentsBase
 
     private void OnClickSave()
     {
+        foreach (var item in this.listHotKeys)
+        {
+            item.ResisterCompleteMaro();
+        }
+
+        this.bitmexMain.CommandTable.SaveLocalCache();
         this.bitmexMain.Macro.SaveLocalCache();
-        Debug.Log("ContentsMacro.OnClickSave()");
     }
 }

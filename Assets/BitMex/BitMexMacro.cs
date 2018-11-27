@@ -28,21 +28,36 @@ namespace Assets.BitMex
             Macros = new List<Macro>();
         }
 
-        public bool Resister(List<RawKey> keys, IBitMexCommand command)
+        public Macro Resister(List<RawKey> keys, IBitMexCommand command)
         {
-            if (IsEqualKeys(keys) == false)
-            {
-                return false;
-            }
-
             var macro = new Macro();
             macro.Index = this.Macros.Count;
             macro.Keys.AddRange(keys);
             macro.Command = command; 
 
             Macros.Add(macro);
+            return macro;
+        }
 
-            return true;
+        public bool RemoveAt(IBitMexCommand command)
+        {
+            bool bRemoved = false;
+            foreach (var macro in this.Macros)
+            {
+                if (macro.Command == command)
+                {
+                    this.Macros.RemoveAt(macro.Index);
+                    bRemoved = true;
+                }
+            }
+
+            // 인덱스 재 배치
+            for (int i = 0; i < this.Macros.Count; i++)
+            {
+                this.Macros[i].Index = i;
+            }
+
+            return bRemoved;
         }
 
         public bool ModifyRawKeys(int index, List<RawKey> keys)
@@ -62,11 +77,16 @@ namespace Assets.BitMex
         public bool ModifyCommand(int index, IBitMexCommand command)
         {
             var macro = Macros[index];
+            if (macro == null)
+            {
+                return false;
+            }
+
             macro.Command = command;
             return true;
         }
 
-        private bool IsEqualKeys(List<RawKey> keys)
+        public bool IsEqualKeys(List<RawKey> keys)
         {
             foreach (var macro in Macros)
             {
@@ -94,10 +114,10 @@ namespace Assets.BitMex
                         rawKeys.Add((RawKey)((ushort)rawKey));
                     }
 
-                    //var commandType = (BitMexCommandType)((ushort)jobjectMacro["CommandType"]);
-                    var index = (int)jobjectMacro["Index"];
+                    var commandIndex = (int)jobjectMacro["CommandIndex"];
+                    var commandType = (BitMexCommandType)((ushort)jobjectMacro["CommandType"]);
 
-                    var command = commandTable.FindCommand(index);
+                    var command = commandTable.FindCommand(commandIndex);
                     if (command != null)
                     {
                         Resister(rawKeys, command);
@@ -129,16 +149,18 @@ namespace Assets.BitMex
                 }
 
                 jobjectMacro.Add("RawKeys", jarrayRawKeys);
-
+                jobjectMacro.Add("CommandIndex", (ushort)macro.Command.RefCommandTableIndex);
                 jobjectMacro.Add("CommandType", (ushort)macro.Command.CommandType);
 
-                var jarrayParameters = new JArray();
-                foreach (var parameter in macro.Command.Parameters)
-                {
-                    jarrayParameters.Add(parameter);
-                }
+                //jobjectMacro.Add("CommandType", (ushort)macro.Command.CommandType);
 
-                jobjectMacro.Add("Parameters", jarrayParameters);
+                //var jarrayParameters = new JArray();
+                //foreach (var parameter in macro.Command.Parameters)
+                //{
+                //    jarrayParameters.Add(parameter);
+                //}
+
+                //jobjectMacro.Add("Parameters", jarrayParameters);
 
                 jarray.Add(jobjectMacro);
             }

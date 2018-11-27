@@ -13,18 +13,13 @@ namespace Assets.BitMex.Commands
         {
         }
 
-        public PositionClearCommand()
+        public PositionClearCommand(IBitMexCommand command) : base(command)
         {
         }
 
         protected override PositionClearCommand Create()
         {
-            return new PositionClearCommand()
-            {
-                BitMexMain = this.BitMexMain,
-                CommandType = this.CommandType,
-                Parameters = new List<object>(this.Parameters)
-            };
+            return new PositionClearCommand(this);
         }
 
         public override void Execute()
