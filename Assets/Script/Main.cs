@@ -53,7 +53,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     private void OnApplicationQuit()
     {
         KeyboardHooker.Stop();
-        this.service.CommandTable.SaveLocalCache();
+        //this.service.CommandTable.SaveLocalCache();
         //this.session.Macro.SaveLocalCache();
         this.service.CloseDriver();
     }
@@ -162,8 +162,8 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.service.CommandTable.Resister(BitMexCommandType.CancleAllActivateOrder, 
             new ActivateOrderCancleCommand(this));
 
-        //this.service.CommandTable.LoadLocalCache();
-        //this.session.Macro.LoadLocalCache(this.service.CommandTable);
+        this.service.CommandTable.LoadLocalCache();
+        this.session.Macro.LoadLocalCache(this.service.CommandTable);
     }
 
     private void SetInputKey()

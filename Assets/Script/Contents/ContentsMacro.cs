@@ -26,8 +26,6 @@ public class ContentsMacro : ContentsBase
 
     [SerializeField] private Button btnSave;
 
-    private List<ContentsMacroHotKeyItem> listHotKeys = new List<ContentsMacroHotKeyItem>();
-
     private void Reset()
     {
         this.txtTabs = transform.Find("Panel/Tab").GetComponentsInChildren<Text>();
@@ -60,7 +58,7 @@ public class ContentsMacro : ContentsBase
         }
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
 
-        OnRefreshAllMacroItem();
+        OnRefreshMacroItem();
 
         this.btnPopup.onClick.AddListener(OnClickPopupOK);
 
@@ -68,7 +66,7 @@ public class ContentsMacro : ContentsBase
         this.btnDelLog.onClick.AddListener(OnClickDelLog);
 
         this.btnSave.onClick.AddListener(OnClickSave);
-        this.btnSave.interactable = false;
+        //this.btnSave.interactable = false;
     }
 
     private void OnToggleTab(bool state)
@@ -81,9 +79,25 @@ public class ContentsMacro : ContentsBase
         }
     }
 
-    private void OnClickAddMacro()
+    private ContentsMacroHotKeyItem CreateHotKeyItem(Macro refMacro)
+    {
+        var go = Instantiate(this.goHotKeyItem);
+
+        var item = go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
+                        OnModifyCommandParameters,
+                        OnRefreshDropdown,
+                        OnRefreshMacroItem,
+                        bitmexMain,
+                        refMacro);
+
+        go.transform.SetParent(this.svHotKey.content.transform);
+        return item;
+    }
+
+    private void OnClickAddMacro() 
     {
         Debug.Log("OnClickAddMacro()");
+        CreateHotKeyItem(null);
     }
 
     public void WriteMacroLog(string log)
@@ -94,65 +108,31 @@ public class ContentsMacro : ContentsBase
         go.transform.SetParent(this.svLog.content.transform);
     }
 
-    private void OnRefreshAllDropdown()
+    private void OnRefreshDropdown()
     {
-        foreach (var item in this.listHotKeys)
+        foreach (var item in this.svHotKey.content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
             item.RefreshCommandDropdown();
         }
     }
 
-    private void OnRefreshAllMacroItem()
+    private void OnRefreshMacroItem()
     {
-        this.listHotKeys.Clear();
+        foreach (var item in this.svHotKey.content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        {
+            Destroy(item.gameObject);
+        }
+
+        foreach (var macro in bitmexMain.Macro.Macros)
+        {
+            CreateHotKeyItem(macro);
+        }
 
         if (bitmexMain.Macro.Macros.Count < 5)
         {
-            for (int i = 0; i < bitmexMain.Macro.Macros.Count; i++)
-            {
-                var go = Instantiate(this.goHotKeyItem);
-
-                this.listHotKeys.Add(
-                    go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
-                        OnModifyCommandParameters,
-                        OnRefreshAllDropdown,
-                        OnRefreshAllMacroItem,
-                        bitmexMain,
-                        bitmexMain.Macro.Macros[i]));
-
-                go.transform.SetParent(this.svHotKey.content.transform);
-            }
-
             for (int i = 0; i < 5 - bitmexMain.Macro.Macros.Count; i++)
             {
-                var go = Instantiate(this.goHotKeyItem);
-
-                this.listHotKeys.Add(
-                    go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
-                        OnModifyCommandParameters,
-                        OnRefreshAllDropdown,
-                        OnRefreshAllMacroItem,
-                        bitmexMain,
-                        null));
-
-                go.transform.SetParent(this.svHotKey.content.transform);
-            }
-        }
-        else
-        {
-            foreach (var macro in bitmexMain.Macro.Macros)
-            {
-                var go = Instantiate(this.goHotKeyItem);
-
-                this.listHotKeys.Add(
-                    go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
-                        OnModifyCommandParameters,
-                        OnRefreshAllDropdown,
-                        OnRefreshAllMacroItem,
-                        bitmexMain,
-                        macro));
-
-                go.transform.SetParent(this.svHotKey.content.transform);
+                CreateHotKeyItem(null);
             }
         }
     }
@@ -199,9 +179,9 @@ public class ContentsMacro : ContentsBase
 
     private void OnClickSave()
     {
-        foreach (var item in this.listHotKeys)
+        foreach (var item in this.svHotKey.content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
-            item.ResisterCompleteMaro();
+            item.ResisterMacro();
         }
 
         this.bitmexMain.CommandTable.SaveLocalCache();

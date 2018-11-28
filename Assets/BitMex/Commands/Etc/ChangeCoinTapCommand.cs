@@ -25,12 +25,11 @@ namespace Assets.BitMex.Commands
 
         /// <summary>
         /// Parameter[0] : 변경 할 대표 코인 이름
-        /// Parameter[1] : 변경 할 코인 이름
         /// </summary>
         public override void Execute()
         {
-            var coin = this.BitMexMain.DriverService.CoinTable.GetCoin((string)Parameters[1]);
-            this.BitMexMain.DriverService.HandleChangeCoinTab((string)Parameters[0], (string)Parameters[1]);
+            var coin = this.BitMexMain.DriverService.CoinTable.GetCoin((string)Parameters[0]);
+            this.BitMexMain.DriverService.HandleChangeCoinTab(coin.RootCoinName, coin.CoinName);
         }
 
         public override string GetCommandText()

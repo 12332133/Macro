@@ -10,31 +10,28 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
 {
     [SerializeField] private MacroInputField inputHotkey;
     [SerializeField] private Dropdown dropdown;
-
     [SerializeField] private Button btnDelete;
 
-    private Func<int, List<RawKey>, bool> onKeyChanged;
-    private Func<int, IBitMexCommand, bool> onCommandChanged;
-    private Func<List<RawKey>, IBitMexCommand, bool> onResisterCommand;
     private Action<IBitMexCommand> modifyCommandParameters;
-    private Action refreshAllDropwon;
-    private Action refreshAllMacroItem;
+    private Action refreshDropdown;
+    private Action refreshMacroItem;
+    private Action<int> deleteMacroItem;
+
     private IBitMexMainAdapter bitmexMain;
-    private Macro macro;
     private IBitMexCommand command;
+    private Macro macro;
 
     private void Reset()
     {
         this.inputHotkey = transform.Find("InputField").GetComponent<MacroInputField>();
         this.dropdown = transform.Find("Dropdown").GetComponent<Dropdown>();
-
         this.btnDelete = transform.Find("btnDelete").GetComponent<Button>();
     }
 
     public ContentsMacroHotKeyItem Initialized(
         Action<IBitMexCommand> modifyCommandParameters,
-        Action refreshAllDropwon,
-        Action refreshAllMacroItem,
+        Action refreshDropdown,
+        Action refreshMacroItem,
         IBitMexMainAdapter bitmexMain,
         Macro macro)
     {
@@ -42,19 +39,15 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.macro = macro;
         this.inputHotkey.OnKeyChanged = OnKeyChanged;
         this.modifyCommandParameters = modifyCommandParameters;
-        this.refreshAllDropwon = refreshAllDropwon;
-        this.refreshAllMacroItem = refreshAllMacroItem;
+        this.refreshDropdown = refreshDropdown;
+        this.refreshMacroItem = refreshMacroItem;
 
         this.dropdown.onValueChanged.AddListener(OnValueChanged);
         this.btnDelete.onClick.AddListener(OnClickDelete);
 
         RefreshCommandDropdown();
-        return this;
-    }
 
-    private void OnClickDelete()
-    {
-        Debug.Log("OnClickDelete()");
+        return this;
     }
 
     public void RefreshCommandDropdown()
@@ -68,9 +61,12 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         if (this.macro != null)
         {
             this.dropdown.value = this.macro.Command.RefCommandTableIndex;
+            this.inputHotkey.CombinationKey.Clear();
             this.inputHotkey.CombinationKey.AddRange(this.macro.Keys);
             this.inputHotkey.RefreshCombinationString();
         }
+
+        Debug.Log("RefreshCommandDropdown");
     }
 
     private bool OnKeyChanged(List<RawKey> keys)
@@ -86,19 +82,19 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     private void OnValueChanged(int index)
     {
         var command = this.bitmexMain.CommandTable.FindCommand(index);
-        
+
         switch (command.CommandType)
         {
             case BitMexCommandType.None:
                 break;
             case BitMexCommandType.OrderCommandCreate: // 커맨드 생성만 후 추가(신규 커맨드는 참조중인 매크로가 없기 때문에 드랍다운만 갱신한다)
                 var newCommand = this.bitmexMain.CommandTable.CreateByCreator(command.RefCommandTableIndex);
-                this.modifyCommandParameters(newCommand);
+                //this.modifyCommandParameters(newCommand);
                 this.bitmexMain.CommandTable.InsertAt(newCommand);
-                this.refreshAllDropwon();
+                this.refreshDropdown();
                 break;
             default:
-                this.modifyCommandParameters(command);
+                //this.modifyCommandParameters(command);
                 if (this.macro == null) // 최초 생성이면 캐시만  
                 {
                     this.command = command;
@@ -107,11 +103,23 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
                 {
                     this.bitmexMain.Macro.ModifyCommand(this.macro.Index, command);
                 }
-                this.refreshAllDropwon();
+                this.refreshDropdown();
                 break;
         }
 
         Debug.Log(command.CommandType);
+    }
+
+    private void OnClickDelete()
+    {
+        if (this.macro != null) // 기존 등록된 매크로 삭제
+        {
+            this.bitmexMain.Macro.RemoveAt(this.macro.Index);
+        }
+
+        Destroy(this.gameObject);
+
+        Debug.Log("OnClickDelete");
     }
 
     private void OnRemoveCommand(int index)
@@ -121,27 +129,33 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         // CommandTable의 커스텀 커맨드만 삭제한다.
         if (this.bitmexMain.CommandTable.Remove(command) == false)
         {
-            // 삭제 불가능한 커맨드 팝업창 올려줌.
+            // 삭제 불가능한 커맨드 팝업창 출력.
             return;
         }
 
         // Macro에서 커맨드를 참조중인놈을 찾아서 삭제한다.
-        if (this.bitmexMain.Macro.RemoveAt(command) == false)
+        if (this.bitmexMain.Macro.RemoveByCommand(command) == false)
         {
             return;
         }
 
         // 매크로 아이템을 모두 재 배치한다.
-        this.refreshAllMacroItem();
+        this.refreshMacroItem();
     }
 
-    public void ResisterCompleteMaro()
+    public void ResisterMacro()
     {
         // 현재 캐시중인 정보를 저장한다. macro 변수에 생성된 macro를 참조시킨다.
         if (this.macro == null)
         {
             if (this.command != null && this.inputHotkey.CombinationKey.Count > 0)
             {
+                if (this.bitmexMain.Macro.IsEqualKeys(this.inputHotkey.CombinationKey) == false)
+                {
+                    // 중복 키, 키 재설정 팝업창 출력
+                    return;
+                }
+
                 this.macro = this.bitmexMain.Macro.Resister(this.inputHotkey.CombinationKey, this.command);
             }
         }

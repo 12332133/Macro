@@ -48,5 +48,7 @@ public class ContentsCoinSetting : ContentsBase
     public void OnClickCoinSettingItem(BitMexCoin coin)
     {
         Debug.Log("OnClickCoinSettingItem - " + coin.CoinName);
+        this.inputFixCoin.text = coin.FixedAvailableXbt.ToString();
+        this.inputFastCoin.text = coin.SpecifiedAditional.ToString();
     }
 }

@@ -39,7 +39,31 @@ namespace Assets.BitMex
             return macro;
         }
 
-        public bool RemoveAt(IBitMexCommand command)
+        /// <summary>
+        /// 인덱스 재 배치
+        /// </summary>
+        private void Restore()
+        {
+            for (int i = 0; i < this.Macros.Count; i++)
+            {
+                this.Macros[i].Index = i;
+            }
+        }
+
+        public bool RemoveAt(int index)
+        {
+            if (this.Macros[index] == null)
+            {
+                return false;
+            }
+
+            this.Macros.RemoveAt(index);
+
+            Restore();
+            return true;
+        }
+
+        public bool RemoveByCommand(IBitMexCommand command)
         {
             bool bRemoved = false;
             foreach (var macro in this.Macros)
@@ -51,12 +75,7 @@ namespace Assets.BitMex
                 }
             }
 
-            // 인덱스 재 배치
-            for (int i = 0; i < this.Macros.Count; i++)
-            {
-                this.Macros[i].Index = i;
-            }
-
+            Restore();
             return bRemoved;
         }
 
@@ -122,14 +141,6 @@ namespace Assets.BitMex
                     {
                         Resister(rawKeys, command);
                     }
-
-                    //command.Parameters.Clear();
-
-                    //var jelementParameters = jobjectMacro["Parameters"].ToString();
-                    //foreach (var parameter in JArray.Parse(jelementParameters))
-                    //{
-                    //    command.Parameters.Add(parameter);
-                    //}
                 }
             }
         }
@@ -151,16 +162,6 @@ namespace Assets.BitMex
                 jobjectMacro.Add("RawKeys", jarrayRawKeys);
                 jobjectMacro.Add("CommandIndex", (ushort)macro.Command.RefCommandTableIndex);
                 jobjectMacro.Add("CommandType", (ushort)macro.Command.CommandType);
-
-                //jobjectMacro.Add("CommandType", (ushort)macro.Command.CommandType);
-
-                //var jarrayParameters = new JArray();
-                //foreach (var parameter in macro.Command.Parameters)
-                //{
-                //    jarrayParameters.Add(parameter);
-                //}
-
-                //jobjectMacro.Add("Parameters", jarrayParameters);
 
                 jarray.Add(jobjectMacro);
             }
