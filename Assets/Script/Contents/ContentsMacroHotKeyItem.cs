@@ -20,6 +20,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     private IBitMexMainAdapter bitmexMain;
     private IBitMexCommand command;
     private Macro macro;
+    private ContentsMacro.MacroPopup popup;
 
     private void Reset()
     {
@@ -33,7 +34,8 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         Action refreshDropdown,
         Action refreshMacroItem,
         IBitMexMainAdapter bitmexMain,
-        Macro macro)
+        Macro macro,
+        ContentsMacro.MacroPopup popup)
     {
         this.bitmexMain = bitmexMain;
         this.macro = macro;
@@ -44,6 +46,8 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
 
         this.dropdown.onValueChanged.AddListener(OnValueChanged);
         this.btnDelete.onClick.AddListener(OnClickDelete);
+
+        this.popup = popup;
 
         RefreshCommandDropdown();
 
@@ -106,6 +110,8 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
                 this.refreshDropdown();
                 break;
         }
+
+        popup.OnEnablePopup();
 
         Debug.Log(command.CommandType);
     }

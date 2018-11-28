@@ -15,8 +15,11 @@ public class ContentsCoinSetting : ContentsBase
     [SerializeField] private Text txtFastCoin;
     [SerializeField] private InputField inputFastCoin;
 
+    [SerializeField] private Button btnSave;
+    [SerializeField] private Text txtSave;
 
     private List<ContentsMacroCoinItem> listCoins = new List<ContentsMacroCoinItem>();
+    private BitMexCoin curCoin;
 
     private void Reset()
     {
@@ -27,6 +30,9 @@ public class ContentsCoinSetting : ContentsBase
         this.inputFixCoin = transform.Find("Panel/Setting/FixCoin/InputField").GetComponent<InputField>();
         this.txtFastCoin = transform.Find("Panel/Setting/FastCoin/Text").GetComponent<Text>();
         this.inputFastCoin = transform.Find("Panel/Setting/FastCoin/InputField").GetComponent<InputField>();
+
+        this.btnSave = transform.Find("Panel/Setting/btnSaveCoin").GetComponent<Button>();
+        this.txtSave = transform.Find("Panel/Setting/btnSaveCoin/Text").GetComponent<Text>();
     }
 
     private void Awake()
@@ -43,12 +49,22 @@ public class ContentsCoinSetting : ContentsBase
             this.listCoins.Add(go.GetComponent<ContentsMacroCoinItem>().Initialized(coin, OnClickCoinSettingItem));
             go.transform.SetParent(this.svCoins.content.transform);
         }
+
+        btnSave.onClick.AddListener(OnClickCoinSettingSave);
     }
 
     public void OnClickCoinSettingItem(BitMexCoin coin)
     {
-        Debug.Log("OnClickCoinSettingItem - " + coin.CoinName);
+        curCoin = coin;
+        Debug.Log("OnClickCoinSettingItem - " + curCoin.CoinName);
         this.inputFixCoin.text = coin.FixedAvailableXbt.ToString();
         this.inputFastCoin.text = coin.SpecifiedAditional.ToString();
+    }
+
+    private void OnClickCoinSettingSave()
+    {
+        if (curCoin == null) return;
+
+        Debug.Log("OnClickCoinSettingSave - " + curCoin.CoinName);
     }
 }

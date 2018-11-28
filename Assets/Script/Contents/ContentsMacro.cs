@@ -8,16 +8,53 @@ using UnityEngine.UI;
 
 public class ContentsMacro : ContentsBase
 {
+    public class MacroPopup
+    {
+        public GameObject Root;
+        public Button btnPopupBack;
+        public InputField inputPopup;
+        public Button btnPopup;
+
+        public MacroPopup(Transform root)
+        {
+            this.Root = root.gameObject;
+            this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
+            this.inputPopup = root.Find("InputField").GetComponent<InputField>();
+            this.btnPopup = root.Find("Button").GetComponent<Button>();
+
+            this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
+            this.btnPopup.onClick.AddListener(OnClickPopupOK);
+        }
+
+        public void OnEnablePopup()
+        {
+            this.Root.SetActive(true);
+        }
+
+        private void OnClickPopupBack()
+        {
+            Debug.Log("ContentsMacro.OnClickPopupBack()");
+            this.Root.SetActive(false);
+        }
+
+        private void OnClickPopupOK()
+        {
+            Debug.Log("ContentsMacro.OnClickPopupOK()");
+            this.Root.SetActive(false);
+        }
+    }
+
     [SerializeField] private Text[] txtTabs;
     [SerializeField] private Toggle[] toggleTabs;
     [SerializeField] private Button btnAddMacro;
 
-    [SerializeField] private ScrollRect svHotKey;
+    [SerializeField] private ScrollRect[] svHotKeys;
     [SerializeField] private GameObject goHotKeyItem;
 
     [SerializeField] private GameObject goPopup;
-    [SerializeField] private InputField inputPopup;
-    [SerializeField] private Button btnPopup;    
+    //[SerializeField] private Button btnPopupBack;
+    //[SerializeField] private InputField inputPopup;
+    //[SerializeField] private Button btnPopup;
 
     [SerializeField] private ScrollRect svLog;
     [SerializeField] private GameObject goLogItem;
@@ -26,6 +63,8 @@ public class ContentsMacro : ContentsBase
 
     [SerializeField] private Button btnSave;
 
+    private MacroPopup macroPopup;
+
     private void Reset()
     {
         this.txtTabs = transform.Find("Panel/Tab").GetComponentsInChildren<Text>();
@@ -33,12 +72,13 @@ public class ContentsMacro : ContentsBase
 
         this.btnAddMacro = transform.Find("Panel/btnAddMacro").GetComponent<Button>();
 
-        this.svHotKey = transform.Find("Panel/svHotKey").GetComponent<ScrollRect>();
+        this.svHotKeys = transform.Find("Panel/HotKeys").GetComponentsInChildren<ScrollRect>();
         this.goHotKeyItem = Resources.Load<GameObject>("MacroHotKeyItem");
 
         this.goPopup = transform.Find("Panel/Popup").gameObject;
-        this.inputPopup = transform.Find("Panel/Popup/InputField").GetComponent<InputField>();
-        this.btnPopup = transform.Find("Panel/Popup/Button").GetComponent<Button>();
+        //this.btnPopupBack = transform.Find("Panel/Popup/BackPanel").GetComponent<Button>();
+        //this.inputPopup = transform.Find("Panel/Popup/InputField").GetComponent<InputField>();
+        //this.btnPopup = transform.Find("Panel/Popup/Button").GetComponent<Button>();
 
         this.svLog = transform.Find("Panel/LogRoot/svLog").GetComponent<ScrollRect>();
         this.goLogItem = Resources.Load<GameObject>("MacroLogItem");
@@ -56,11 +96,15 @@ public class ContentsMacro : ContentsBase
         {
             this.toggleTabs[i].onValueChanged.AddListener(OnToggleTab);
         }
+        OnToggleTab(true);
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
+
+        macroPopup = new MacroPopup(this.goPopup.transform);
 
         OnRefreshMacroItem();
 
-        this.btnPopup.onClick.AddListener(OnClickPopupOK);
+        //this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
+        //this.btnPopup.onClick.AddListener(OnClickPopupOK);
 
         this.btnAddLog.onClick.AddListener(OnClickAddLog);
         this.btnDelLog.onClick.AddListener(OnClickDelLog);
@@ -76,6 +120,7 @@ public class ContentsMacro : ContentsBase
         for (int i = 0; i < this.toggleTabs.Length; ++i)
         {
             if(this.toggleTabs[i].isOn) Debug.Log("OnToggleTab() - " + this.toggleTabs[i].name);
+            svHotKeys[i].gameObject.SetActive(this.toggleTabs[i].isOn);
         }
     }
 
@@ -88,9 +133,10 @@ public class ContentsMacro : ContentsBase
                         OnRefreshDropdown,
                         OnRefreshMacroItem,
                         bitmexMain,
-                        refMacro);
+                        refMacro,
+                        macroPopup);
 
-        go.transform.SetParent(this.svHotKey.content.transform);
+        go.transform.SetParent(this.svHotKeys[0].content.transform);
         return item;
     }
 
@@ -110,7 +156,7 @@ public class ContentsMacro : ContentsBase
 
     private void OnRefreshDropdown()
     {
-        foreach (var item in this.svHotKey.content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        foreach (var item in this.svHotKeys[0].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
             item.RefreshCommandDropdown();
         }
@@ -118,7 +164,7 @@ public class ContentsMacro : ContentsBase
 
     private void OnRefreshMacroItem()
     {
-        foreach (var item in this.svHotKey.content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        foreach (var item in this.svHotKeys[0].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
             Destroy(item.gameObject);
         }
@@ -162,10 +208,17 @@ public class ContentsMacro : ContentsBase
         }
     }
 
-    private void OnClickPopupOK()
-    {
-        this.goPopup.SetActive(false);
-    }
+    //private void OnClickPopupBack()
+    //{
+    //    Debug.Log("ContentsMacro.OnClickPopupBack()");
+    //    this.goPopup.SetActive(false);
+    //}
+
+    //private void OnClickPopupOK()
+    //{
+    //    Debug.Log("ContentsMacro.OnClickPopupOK()");
+    //    this.goPopup.SetActive(false);
+    //}
 
     private void OnClickAddLog()
     {
@@ -179,7 +232,7 @@ public class ContentsMacro : ContentsBase
 
     private void OnClickSave()
     {
-        foreach (var item in this.svHotKey.content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        foreach (var item in this.svHotKeys[0].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
             item.ResisterMacro();
         }
