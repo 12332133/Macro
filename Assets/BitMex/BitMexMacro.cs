@@ -20,82 +20,107 @@ namespace Assets.BitMex
 
     public class BitMexMacro
     {
-        public List<Macro> Macros { get; private set; }
+        private Dictionary<BitMexCommandTableType, List<Macro>> macros;
         private readonly string dir = Resource.Dir + "macro.json";
 
         public BitMexMacro()
         {
-            Macros = new List<Macro>();
+            macros = new Dictionary<BitMexCommandTableType, List<Macro>>();
+            macros.Add(BitMexCommandTableType.Etc, new List<Macro>());
+            macros.Add(BitMexCommandTableType.Percent, new List<Macro>());
+            macros.Add(BitMexCommandTableType.Quantity, new List<Macro>());
+        }
+
+        public Dictionary<BitMexCommandTableType, List<Macro>> GetMacroTable()
+        {
+            return this.macros;
+        }
+
+        public List<Macro> GetMacros(BitMexCommandTableType type)
+        {
+            return this.macros[type];
         }
 
         public Macro Resister(List<RawKey> keys, IBitMexCommand command)
         {
             var macro = new Macro();
-            macro.Index = this.Macros.Count;
+            macro.Index = this.macros[command.CommandTableType].Count;
             macro.Keys.AddRange(keys);
-            macro.Command = command; 
+            macro.Command = command;
 
-            Macros.Add(macro);
+            macros[command.CommandTableType].Add(macro);
             return macro;
         }
 
         /// <summary>
         /// 인덱스 재 배치
         /// </summary>
-        private void Restore()
+        private void Restore(BitMexCommandTableType type)
         {
-            for (int i = 0; i < this.Macros.Count; i++)
+            for (int i = 0; i < this.macros[type].Count; i++)
             {
-                this.Macros[i].Index = i;
+                this.macros[type][i].Index = i;
             }
         }
 
-        public bool RemoveAt(int index)
+        public bool RemoveAt(BitMexCommandTableType type, int index)
         {
-            if (this.Macros[index] == null)
+            if (this.macros[type][index] == null)
             {
                 return false;
             }
 
-            this.Macros.RemoveAt(index);
+            this.macros[type].RemoveAt(index);
 
-            Restore();
+            Restore(type);
             return true;
         }
 
         public bool RemoveByCommand(IBitMexCommand command)
         {
             bool bRemoved = false;
-            foreach (var macro in this.Macros)
+            foreach (var macro in this.macros[command.CommandTableType])
             {
                 if (macro.Command == command)
                 {
-                    this.Macros.RemoveAt(macro.Index);
+                    this.macros[command.CommandTableType].RemoveAt(macro.Index);
                     bRemoved = true;
                 }
             }
 
-            Restore();
+            Restore(command.CommandTableType);
             return bRemoved;
         }
 
-        public bool ModifyRawKeys(int index, List<RawKey> keys)
+        public bool ModifyRawKeys(Macro macro, List<RawKey> keys)
         {
             if (IsEqualKeys(keys) == false)
             {
                 return false;
             }
 
-            var macro = Macros[index];
+            macro.Keys.Clear();
+            macro.Keys.AddRange(keys);
+            return true;
+        }
+
+        public bool ModifyRawKeys(BitMexCommandTableType type, int index, List<RawKey> keys)
+        {
+            if (IsEqualKeys(keys) == false)
+            {
+                return false;
+            }
+
+            var macro = macros[type][index];
             macro.Keys.Clear();
             macro.Keys.AddRange(keys);
 
             return true;
         }
 
-        public bool ModifyCommand(int index, IBitMexCommand command)
+        public bool ModifyCommand(BitMexCommandTableType type, int index, IBitMexCommand command)
         {
-            var macro = Macros[index];
+            var macro = macros[type][index];
             if (macro == null)
             {
                 return false;
@@ -107,11 +132,14 @@ namespace Assets.BitMex
 
         public bool IsEqualKeys(List<RawKey> keys)
         {
-            foreach (var macro in Macros)
+            foreach (var table in macros)
             {
-                if (macro.Keys.SequenceEqual(keys) == true)
+                foreach (var macro in table.Value)
                 {
-                    return false;
+                    if (macro.Keys.SequenceEqual(keys) == true)
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -133,10 +161,11 @@ namespace Assets.BitMex
                         rawKeys.Add((RawKey)((ushort)rawKey));
                     }
 
+                    var commandTableType = (BitMexCommandTableType)((ushort)jobjectMacro["CommandTableType"]);
                     var commandIndex = (int)jobjectMacro["CommandIndex"];
                     var commandType = (BitMexCommandType)((ushort)jobjectMacro["CommandType"]);
 
-                    var command = commandTable.FindCommand(commandIndex);
+                    var command = commandTable.FindCommand(commandTableType, commandIndex);
                     if (command != null)
                     {
                         Resister(rawKeys, command);
@@ -149,21 +178,25 @@ namespace Assets.BitMex
         {
             var jarray = new JArray();
 
-            foreach (var macro in this.Macros)
+            foreach (var table in this.macros)
             {
-                var jobjectMacro = new JObject();
-
-                var jarrayRawKeys = new JArray();
-                foreach (var rawKey in macro.Keys)
+                foreach (var macro in table.Value)
                 {
-                    jarrayRawKeys.Add((ushort)rawKey);
+                    var jobjectMacro = new JObject();
+
+                    var jarrayRawKeys = new JArray();
+                    foreach (var rawKey in macro.Keys)
+                    {
+                        jarrayRawKeys.Add((ushort)rawKey);
+                    }
+
+                    jobjectMacro.Add("RawKeys", jarrayRawKeys);
+                    jobjectMacro.Add("CommandTableType", (ushort)macro.Command.CommandTableType);
+                    jobjectMacro.Add("CommandType", (ushort)macro.Command.CommandType);
+                    jobjectMacro.Add("CommandIndex", (ushort)macro.Command.RefCommandTableIndex);
+
+                    jarray.Add(jobjectMacro);
                 }
-
-                jobjectMacro.Add("RawKeys", jarrayRawKeys);
-                jobjectMacro.Add("CommandIndex", (ushort)macro.Command.RefCommandTableIndex);
-                jobjectMacro.Add("CommandType", (ushort)macro.Command.CommandType);
-
-                jarray.Add(jobjectMacro);
             }
 
             File.WriteAllText(this.dir, jarray.ToString());

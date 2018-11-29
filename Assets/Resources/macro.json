@@ -2,33 +2,37 @@
   {
     "RawKeys": [
       160,
-      72
-    ],
-    "CommandIndex": 2,
-    "CommandType": 2
-  },
-  {
-    "RawKeys": [
-      160,
       65
     ],
-    "CommandIndex": 3,
-    "CommandType": 2
+    "CommandTableType": 1,
+    "CommandType": 2,
+    "CommandIndex": 1
   },
   {
     "RawKeys": [
       160,
-      67
+      68
     ],
-    "CommandIndex": 29,
-    "CommandType": 13
+    "CommandTableType": 1,
+    "CommandType": 13,
+    "CommandIndex": 21
   },
   {
     "RawKeys": [
       160,
-      71
+      70
     ],
-    "CommandIndex": 30,
-    "CommandType": 13
+    "CommandTableType": 1,
+    "CommandType": 13,
+    "CommandIndex": 22
+  },
+  {
+    "RawKeys": [
+      160,
+      84
+    ],
+    "CommandTableType": 2,
+    "CommandType": 7,
+    "CommandIndex": 3
   }
 ]

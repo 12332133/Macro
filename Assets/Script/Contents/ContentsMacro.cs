@@ -100,12 +100,15 @@ public class ContentsMacro : ContentsBase
         {
             this.toggleTabs[i].onValueChanged.AddListener(OnToggleTab);
         }
+
         OnToggleTab(true);
+
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
 
         this.macroPopup = new MacroPopup(this.goPopup.transform);
 
-        OnRefreshMacroItem();
+        OnRefreshMacroItem(BitMexCommandTableType.Percent);
+        OnRefreshMacroItem(BitMexCommandTableType.Quantity);
 
         //this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
         //this.btnPopup.onClick.AddListener(OnClickPopupOK);
@@ -119,34 +122,42 @@ public class ContentsMacro : ContentsBase
 
     private void OnToggleTab(bool state)
     {
-        if (!state) return;
+        if (!state)
+        {
+            return;
+        }
 
         for (int i = 0; i < this.toggleTabs.Length; ++i)
         {
-            if(this.toggleTabs[i].isOn) Debug.Log("OnToggleTab() - " + this.toggleTabs[i].name);
+            if(this.toggleTabs[i].isOn)
+            {
+                Debug.Log("OnToggleTab() - " + this.toggleTabs[i].name);
+            }
+
             svHotKeys[i].gameObject.SetActive(this.toggleTabs[i].isOn);
         }
     }
 
-    private ContentsMacroHotKeyItem CreatePercentHotKeyItem(Macro macro)
+    private ContentsMacroHotKeyItem CreateHotKeyItem(BitMexCommandTableType type, Macro macro)
     {
         var go = Instantiate(this.goHotKeyItem);
 
         var item = go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
+                        type,
                         OnModifyCommandParameters,
                         OnRefreshDropdown,
                         OnRefreshMacroItem,
                         bitmexMain,
                         macro);
 
-        go.transform.SetParent(this.svHotKeys[0].content.transform);
+        go.transform.SetParent(this.svHotKeys[ConvertTypeToIndex(type)].content.transform);
         return item;
     }
 
     private void OnClickAddMacro() 
     {
         Debug.Log("OnClickAddMacro()");
-        CreatePercentHotKeyItem(null);
+        CreateHotKeyItem(GetActivateToggleType(), null);
     }
 
     public void WriteMacroLog(string log)
@@ -157,31 +168,76 @@ public class ContentsMacro : ContentsBase
         go.transform.SetParent(this.svLog.content.transform);
     }
 
-    private void OnRefreshDropdown()
+    private int GetActivateToggleIndex()
     {
-        foreach (var item in this.svHotKeys[0].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        for (int i = 0; i < this.toggleTabs.Length; ++i)
+        {
+            if (this.toggleTabs[i].isOn == true)
+            {
+                Debug.Log(string.Format("current toggle index : {0}", i));
+                return i;
+            }
+        }
+
+        throw new Exception();
+    }
+
+    private BitMexCommandTableType GetActivateToggleType()
+    {
+        return ConvertIndexToType(GetActivateToggleIndex());
+    }
+
+    private int ConvertTypeToIndex(BitMexCommandTableType type)
+    {
+        switch (type)
+        {
+            case BitMexCommandTableType.Percent:
+                return 0;
+            case BitMexCommandTableType.Quantity:
+                return 1;
+        }
+
+        throw new Exception();
+    }
+
+    private BitMexCommandTableType ConvertIndexToType(int toggleIndex)
+    {
+        switch (toggleIndex)
+        {
+            case 0:
+                return BitMexCommandTableType.Percent;
+            case 1:
+                return BitMexCommandTableType.Quantity;
+        }
+
+        throw new Exception();
+    }
+
+    private void OnRefreshDropdown(BitMexCommandTableType type)
+    {
+        foreach (var item in this.svHotKeys[ConvertTypeToIndex(type)].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
             item.RefreshCommandDropdown();
         }
     }
 
-    private void OnRefreshMacroItem()
+    private void OnRefreshMacroItem(BitMexCommandTableType type)
     {
-        foreach (var item in this.svHotKeys[0].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        foreach (var item in this.svHotKeys[ConvertTypeToIndex(type)].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
             Destroy(item.gameObject);
         }
 
-        foreach (var macro in bitmexMain.Macro.Macros)
+        foreach (var macro in bitmexMain.Macro.GetMacros(type))
         {
-            CreatePercentHotKeyItem(macro);
+            CreateHotKeyItem(type, macro);
         }
 
-        if (bitmexMain.Macro.Macros.Count < 5)
+        if (bitmexMain.Macro.GetMacros(type).Count < 5)
         {
-            for (int i = 0; i < 5 - bitmexMain.Macro.Macros.Count; i++)
+            for (int i = 0; i < 5 - bitmexMain.Macro.GetMacros(type).Count; i++)
             {
-                CreatePercentHotKeyItem(null);
+                CreateHotKeyItem(type, null);
             }
         }
     }
@@ -233,7 +289,7 @@ public class ContentsMacro : ContentsBase
 
     private void OnClickSave()
     {
-        foreach (var item in this.svHotKeys[0].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        foreach (var item in this.svHotKeys[GetActivateToggleIndex()].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
             item.ResisterMacro();
         }

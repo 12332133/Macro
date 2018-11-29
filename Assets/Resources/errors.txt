@@ -14,3 +14,15 @@
   at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state, System.Boolean preserveSyncCtx) [0x00000] in <f2e6809acb14476a81f399aeb800f8f2>:0 
   at System.Threading.ExecutionContext.Run (System.Threading.ExecutionContext executionContext, System.Threading.ContextCallback callback, System.Object state) [0x0002b] in <f2e6809acb14476a81f399aeb800f8f2>:0 
   at System.Threading.ThreadHelper.ThreadStart () [0x00008] in <f2e6809acb14476a81f399aeb800f8f2>:0 
+[2018-11-29 PM 5:50:54] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x0000c] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:31 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-29 PM 5:51:05] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x0000c] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:31 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-29 PM 5:51:14] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x0000c] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:31 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 

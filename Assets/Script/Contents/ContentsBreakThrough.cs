@@ -74,7 +74,7 @@ public class ContentsBreakThrough : ContentsBase
         this.overCommands = new List<IBitMexCommand>();
         this.underCommands = new List<IBitMexCommand>();
 
-        foreach (var command in bitmexMain.CommandTable.Commands)
+        foreach (var command in bitmexMain.CommandTable.GetCommands(BitMexCommandTableType.Percent))
         {
             switch (command.CommandType)
             {

@@ -1,10 +1,12 @@
 [
   {
+    "TableType": 1,
     "CommandIndex": 0,
     "CommandType": 0,
     "Parameters": []
   },
   {
+    "TableType": 1,
     "CommandIndex": 1,
     "CommandType": 2,
     "Parameters": [
@@ -12,13 +14,15 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 2,
     "CommandType": 2,
     "Parameters": [
-      "80"
+      80
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 3,
     "CommandType": 2,
     "Parameters": [
@@ -26,6 +30,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 4,
     "CommandType": 2,
     "Parameters": [
@@ -33,6 +38,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 5,
     "CommandType": 1,
     "Parameters": [
@@ -40,6 +46,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 6,
     "CommandType": 3,
     "Parameters": [
@@ -47,6 +54,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 7,
     "CommandType": 3,
     "Parameters": [
@@ -54,6 +62,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 8,
     "CommandType": 3,
     "Parameters": [
@@ -61,6 +70,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 9,
     "CommandType": 3,
     "Parameters": [
@@ -68,6 +78,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 10,
     "CommandType": 1,
     "Parameters": [
@@ -75,6 +86,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 11,
     "CommandType": 4,
     "Parameters": [
@@ -82,6 +94,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 12,
     "CommandType": 4,
     "Parameters": [
@@ -89,6 +102,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 13,
     "CommandType": 4,
     "Parameters": [
@@ -96,6 +110,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 14,
     "CommandType": 4,
     "Parameters": [
@@ -103,6 +118,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 15,
     "CommandType": 1,
     "Parameters": [
@@ -110,6 +126,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 16,
     "CommandType": 5,
     "Parameters": [
@@ -117,6 +134,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 17,
     "CommandType": 5,
     "Parameters": [
@@ -124,6 +142,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 18,
     "CommandType": 5,
     "Parameters": [
@@ -131,6 +150,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 19,
     "CommandType": 5,
     "Parameters": [
@@ -138,6 +158,7 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 20,
     "CommandType": 1,
     "Parameters": [
@@ -145,102 +166,123 @@
     ]
   },
   {
+    "TableType": 1,
     "CommandIndex": 21,
-    "CommandType": 6,
-    "Parameters": [
-      0
-    ]
-  },
-  {
-    "CommandIndex": 22,
-    "CommandType": 1,
-    "Parameters": [
-      "시장가 지정수량 매수 추가"
-    ]
-  },
-  {
-    "CommandIndex": 23,
-    "CommandType": 7,
-    "Parameters": [
-      0
-    ]
-  },
-  {
-    "CommandIndex": 24,
-    "CommandType": 1,
-    "Parameters": [
-      "시장가 지정수량 매도 추가"
-    ]
-  },
-  {
-    "CommandIndex": 25,
-    "CommandType": 8,
-    "Parameters": [
-      0
-    ]
-  },
-  {
-    "CommandIndex": 26,
-    "CommandType": 1,
-    "Parameters": [
-      "빠른 지정가 지정수량 매수 추가"
-    ]
-  },
-  {
-    "CommandIndex": 27,
-    "CommandType": 9,
-    "Parameters": [
-      0
-    ]
-  },
-  {
-    "CommandIndex": 28,
-    "CommandType": 1,
-    "Parameters": [
-      "빠른 지정가 지정수량 매도 추가"
-    ]
-  },
-  {
-    "CommandIndex": 29,
     "CommandType": 13,
     "Parameters": [
       "XBTUSD"
     ]
   },
   {
-    "CommandIndex": 30,
+    "TableType": 1,
+    "CommandIndex": 22,
     "CommandType": 13,
     "Parameters": [
       "ETHXBT"
     ]
   },
   {
-    "CommandIndex": 31,
+    "TableType": 1,
+    "CommandIndex": 23,
     "CommandType": 13,
     "Parameters": [
       "XRPZ18"
     ]
   },
   {
-    "CommandIndex": 32,
+    "TableType": 1,
+    "CommandIndex": 24,
     "CommandType": 1,
     "Parameters": [
       "코인 이동 추가"
     ]
   },
   {
-    "CommandIndex": 33,
+    "TableType": 1,
+    "CommandIndex": 25,
     "CommandType": 10,
     "Parameters": []
   },
   {
-    "CommandIndex": 34,
+    "TableType": 1,
+    "CommandIndex": 26,
     "CommandType": 11,
     "Parameters": []
   },
   {
-    "CommandIndex": 35,
+    "TableType": 1,
+    "CommandIndex": 27,
     "CommandType": 12,
     "Parameters": []
+  },
+  {
+    "TableType": 2,
+    "CommandIndex": 0,
+    "CommandType": 0,
+    "Parameters": []
+  },
+  {
+    "TableType": 2,
+    "CommandIndex": 1,
+    "CommandType": 6,
+    "Parameters": [
+      "0"
+    ]
+  },
+  {
+    "TableType": 2,
+    "CommandIndex": 2,
+    "CommandType": 1,
+    "Parameters": [
+      "시장가 지정수량 매수 추가"
+    ]
+  },
+  {
+    "TableType": 2,
+    "CommandIndex": 3,
+    "CommandType": 7,
+    "Parameters": [
+      "20"
+    ]
+  },
+  {
+    "TableType": 2,
+    "CommandIndex": 4,
+    "CommandType": 1,
+    "Parameters": [
+      "시장가 지정수량 매도 추가"
+    ]
+  },
+  {
+    "TableType": 2,
+    "CommandIndex": 5,
+    "CommandType": 8,
+    "Parameters": [
+      "0"
+    ]
+  },
+  {
+    "TableType": 2,
+    "CommandIndex": 6,
+    "CommandType": 1,
+    "Parameters": [
+      "빠른 지정가 지정수량 매수 추가"
+    ]
+  },
+  {
+    "TableType": 2,
+    "CommandIndex": 7,
+    "CommandType": 9,
+    "Parameters": [
+      "0"
+    ]
+  },
+  {
+    "TableType": 2,
+    "CommandIndex": 8,
+    "CommandType": 1,
+    "Parameters": [
+      "빠른 지정가 지정수량 매도 추가"
+    ]
   }
 ]
