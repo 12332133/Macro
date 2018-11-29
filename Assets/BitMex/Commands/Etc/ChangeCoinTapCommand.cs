@@ -28,7 +28,7 @@ namespace Assets.BitMex.Commands
         /// </summary>
         public override void Execute()
         {
-            var coin = this.BitMexMain.DriverService.CoinTable.GetCoin((string)Parameters[0]);
+            var coin = this.BitMexMain.DriverService.CoinTable.GetCoin(Parameters[0].ToString());
             this.BitMexMain.DriverService.HandleChangeCoinTab(coin.RootCoinName, coin.CoinName);
         }
 

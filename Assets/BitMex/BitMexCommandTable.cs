@@ -10,9 +10,9 @@ namespace Assets.BitMex
 {
     public class BitMexCommandTable
     {
-        private readonly string DataPath = Application.dataPath + "/Resources/Config/commandtable.json";
         private List<IBitMexCommand> commands;
         private Dictionary<BitMexCommandType, IBitMexCommand> factory;
+        private readonly string dir = Resource.Dir + "commandtable.json";
 
         public BitMexCommandTable()
         {
@@ -125,11 +125,11 @@ namespace Assets.BitMex
 
         public void LoadLocalCache()
         {
-            if (File.Exists(this.DataPath) == true)
+            if (File.Exists(this.dir) == true)
             {
                 var loadCommands = new List<IBitMexCommand>();
 
-                foreach (var item in JArray.Parse(File.ReadAllText(this.DataPath)))
+                foreach (var item in JArray.Parse(File.ReadAllText(this.dir)))
                 {
                     var jobjectCommand = JObject.Parse(item.ToString());
 
@@ -188,7 +188,7 @@ namespace Assets.BitMex
                 jarray.Add(jobjectCommand);
             }
 
-            File.WriteAllText(this.DataPath, jarray.ToString());
+            File.WriteAllText(this.dir, jarray.ToString());
         }
     }
 }

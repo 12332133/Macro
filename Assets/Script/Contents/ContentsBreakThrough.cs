@@ -112,7 +112,7 @@ public class ContentsBreakThrough : ContentsBase
             try
             {
                 if (this.bitmexMain.DriverService.IsDriverOpen() == true &&
-                    this.bitmexMain.DriverService.HandleIsTradingPage() == true)
+                    this.bitmexMain.DriverService.IsTradingPage() == true)
                 {
                     //var wc = new System.Diagnostics.Stopwatch();
                     //wc.Start();

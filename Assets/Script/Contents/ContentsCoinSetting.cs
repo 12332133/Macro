@@ -63,8 +63,7 @@ public class ContentsCoinSetting : ContentsBase
 
     private void OnClickCoinSettingSave()
     {
-        if (curCoin == null) return;
-
+        this.bitmexMain.CoinTable.SaveLocalCache();
         Debug.Log("OnClickCoinSettingSave - " + curCoin.CoinName);
     }
 }

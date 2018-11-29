@@ -262,7 +262,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             try
             {
-                if (this.service.HandleIsTradingPage() == true)
+                if (this.service.IsTradingPage() == true)
                 {
                     //var wc = new System.Diagnostics.Stopwatch();
                     //wc.Start();
@@ -338,12 +338,19 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             KeyboardHooker.OnKeyUp -= OnKeyUp;
             KeyboardHooker.OnKeyDown -= OnKeyDown;
             this.isEnableMacro = false;
+            this.txtMacro.text = "Macro Disabled";
         }
         else
         {
             if (this.service.IsDriverOpen() == false)
             {
                 Debug.Log("not found chrome driver");
+                return;
+            }
+
+            if (this.service.IsTradingPage() == false)
+            {
+                Debug.Log("invaild page");
                 return;
             }
 
@@ -366,6 +373,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             KeyboardHooker.OnKeyDown += OnKeyDown;
 
             this.isEnableMacro = true;
+            this.txtMacro.text = "Macro Enabled";
         }
     }
 

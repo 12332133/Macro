@@ -20,8 +20,8 @@ namespace Assets.BitMex
 
     public class BitMexMacro
     {
-        private readonly string DataPath = Application.dataPath + "/Resources/Config/macro.json";
         public List<Macro> Macros { get; private set; }
+        private readonly string dir = Resource.Dir + "macro.json";
 
         public BitMexMacro()
         {
@@ -120,9 +120,9 @@ namespace Assets.BitMex
 
         public void LoadLocalCache(BitMexCommandTable commandTable)
         {
-            if (File.Exists(this.DataPath) == true)
+            if (File.Exists(this.dir) == true)
             {
-                foreach (var item in JArray.Parse(File.ReadAllText(this.DataPath)))
+                foreach (var item in JArray.Parse(File.ReadAllText(this.dir)))
                 {
                     var jobjectMacro = JObject.Parse(item.ToString());
                     var jelementRawKeys = jobjectMacro["RawKeys"].ToString();
@@ -166,7 +166,7 @@ namespace Assets.BitMex
                 jarray.Add(jobjectMacro);
             }
 
-            File.WriteAllText(this.DataPath, jarray.ToString());
+            File.WriteAllText(this.dir, jarray.ToString());
         }
     }
 }

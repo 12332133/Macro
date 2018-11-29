@@ -87,6 +87,7 @@
     <Compile Include="Assets\BitMex\Commands\Specified\MarketSpecifiedSellCommand.cs" />
     <Compile Include="Assets\BitMex\IBitMexMainAdapter.cs" />
     <Compile Include="Assets\BitMex\IBitMexPriceSchedule.cs" />
+    <Compile Include="Assets\BitMex\Resource.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverBuilder.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverExetentions.cs" />
     <Compile Include="Assets\BitMex\WebDriver\DriverFactory.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Assets\Script\Contents\MacroInputField.cs" />
     <Compile Include="Assets\Script\Main.cs" />
     <Compile Include="Assets\Script\Title.cs" />
+    <None Include="Assets\Resources\errors.txt" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>

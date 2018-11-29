@@ -1,0 +1,34 @@
+[
+  {
+    "RawKeys": [
+      160,
+      72
+    ],
+    "CommandIndex": 2,
+    "CommandType": 2
+  },
+  {
+    "RawKeys": [
+      160,
+      65
+    ],
+    "CommandIndex": 3,
+    "CommandType": 2
+  },
+  {
+    "RawKeys": [
+      160,
+      67
+    ],
+    "CommandIndex": 29,
+    "CommandType": 13
+  },
+  {
+    "RawKeys": [
+      160,
+      71
+    ],
+    "CommandIndex": 30,
+    "CommandType": 13
+  }
+]

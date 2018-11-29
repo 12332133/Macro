@@ -35,13 +35,12 @@ namespace Assets.BitMex
 
     public class BitMexCoinTable
     {
-        private readonly string DataPath = Application.dataPath + "/Resources/Config/cointable.json";
+        private readonly string dir = Resource.Dir + "cointable.json";
         private Dictionary<string, BitMexCoin> coins;
 
         public BitMexCoinTable()
         {
             this.coins = new Dictionary<string, BitMexCoin>();
-            //savedPath = Application.dataPath + "/Resources/Config/cointable.json";
         }
 
         public void LoadActiveCoins(string bitMexDomain)
@@ -72,11 +71,11 @@ namespace Assets.BitMex
             }
 
             //load local cache then sync local cache by active coins
-            if (File.Exists(this.DataPath) == true)
+            if (File.Exists(this.dir) == true)
             {
-                var json = File.ReadAllText(this.DataPath);
+                var json = File.ReadAllText(this.dir);
 
-                foreach (var item in JArray.Parse(File.ReadAllText(this.DataPath)))
+                foreach (var item in JArray.Parse(File.ReadAllText(this.dir)))
                 {
                     var jobject = JObject.Parse(item.ToString());
 
@@ -108,15 +107,29 @@ namespace Assets.BitMex
                 jobject.Add("CoinName", coin.CoinName);
                 jobject.Add("FixedAvailableXbt", coin.FixedAvailableXbt.ToString());
                 jobject.Add("SpecifiedAditional", coin.SpecifiedAditional.ToString());
-
                 jarray.Add(jobject);
             }
 
-            File.WriteAllText(this.DataPath, jarray.ToString());
-            //PlayerPrefs.SetString("BitMexCoinTable", jarray.ToString());
-            //PlayerPrefs.Save();
+            File.WriteAllText(this.dir, jarray.ToString());
         }
-        
+
+        //public void SaveLocalCache(BitMexCoin coin)
+        //{
+        //    var jarray = new JArray();
+
+        //    foreach (var coin in this.coins.Values.ToArray())
+        //    {
+        //        var jobject = new JObject();
+        //        jobject.Add("RootCoinName", coin.RootCoinName);
+        //        jobject.Add("CoinName", coin.CoinName);
+        //        jobject.Add("FixedAvailableXbt", coin.FixedAvailableXbt.ToString());
+        //        jobject.Add("SpecifiedAditional", coin.SpecifiedAditional.ToString());
+        //        jarray.Add(jobject);
+        //    }
+
+        //    File.WriteAllText(this.dir, jarray.ToString());
+        //}
+
         public BitMexCoin GetCoin(string coinName)
         {
             if (this.coins.ContainsKey(coinName) == false)

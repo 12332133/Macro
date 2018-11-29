@@ -28,14 +28,14 @@ namespace Assets.BitMex.Commands
         /// </summary>
         public override void Execute()
         {
-            var currentCoinName = BitMexMain.DriverService.HandleGetCurrentSymbol();
-            var coin = BitMexMain.DriverService.CoinTable.GetCoin(currentCoinName);
+            var coinName = BitMexMain.DriverService.HandleGetCurrentSymbol();
+            var coin = BitMexMain.DriverService.CoinTable.GetCoin(coinName);
 
             if (BitMexMain.DriverService.HandleOrderMarketQty(
                 0,
                 (int)Parameters[0],
                 coin.FixedAvailableXbt,
-                currentCoinName
+                coinName
                 ) == true)
             {
                 BitMexMain.DriverService.HandleBuy();

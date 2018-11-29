@@ -1,6 +1,7 @@
 ﻿using Assets.BitMex;
 using Assets.BitMex.Commands;
 using Assets.CombinationKey;
+using System;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -14,6 +15,7 @@ public class ContentsMacro : ContentsBase
         public Button btnPopupBack;
         public InputField inputPopup;
         public Button btnPopup;
+        public Action<string> complete;
 
         public MacroPopup(Transform root)
         {
@@ -26,20 +28,22 @@ public class ContentsMacro : ContentsBase
             this.btnPopup.onClick.AddListener(OnClickPopupOK);
         }
 
-        public void OnEnablePopup()
+        public void OnEnablePopup(string original, Action<string> complete)
         {
+            this.inputPopup.text = original;
+            this.complete = complete;
             this.Root.SetActive(true);
         }
 
         private void OnClickPopupBack()
         {
-            Debug.Log("ContentsMacro.OnClickPopupBack()");
+            this.complete(this.inputPopup.text);
             this.Root.SetActive(false);
         }
 
         private void OnClickPopupOK()
         {
-            Debug.Log("ContentsMacro.OnClickPopupOK()");
+            this.complete(this.inputPopup.text);
             this.Root.SetActive(false);
         }
     }
@@ -99,7 +103,7 @@ public class ContentsMacro : ContentsBase
         OnToggleTab(true);
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
 
-        macroPopup = new MacroPopup(this.goPopup.transform);
+        this.macroPopup = new MacroPopup(this.goPopup.transform);
 
         OnRefreshMacroItem();
 
@@ -124,7 +128,7 @@ public class ContentsMacro : ContentsBase
         }
     }
 
-    private ContentsMacroHotKeyItem CreateHotKeyItem(Macro refMacro)
+    private ContentsMacroHotKeyItem CreatePercentHotKeyItem(Macro macro)
     {
         var go = Instantiate(this.goHotKeyItem);
 
@@ -133,8 +137,7 @@ public class ContentsMacro : ContentsBase
                         OnRefreshDropdown,
                         OnRefreshMacroItem,
                         bitmexMain,
-                        refMacro,
-                        macroPopup);
+                        macro);
 
         go.transform.SetParent(this.svHotKeys[0].content.transform);
         return item;
@@ -143,7 +146,7 @@ public class ContentsMacro : ContentsBase
     private void OnClickAddMacro() 
     {
         Debug.Log("OnClickAddMacro()");
-        CreateHotKeyItem(null);
+        CreatePercentHotKeyItem(null);
     }
 
     public void WriteMacroLog(string log)
@@ -171,39 +174,37 @@ public class ContentsMacro : ContentsBase
 
         foreach (var macro in bitmexMain.Macro.Macros)
         {
-            CreateHotKeyItem(macro);
+            CreatePercentHotKeyItem(macro);
         }
 
         if (bitmexMain.Macro.Macros.Count < 5)
         {
             for (int i = 0; i < 5 - bitmexMain.Macro.Macros.Count; i++)
             {
-                CreateHotKeyItem(null);
+                CreatePercentHotKeyItem(null);
             }
         }
     }
 
-    private void OnModifyCommandParameters(IBitMexCommand command)
+    private void OnModifyCommandParameters(IBitMexCommand command, Action complete)
     {
         switch (command.CommandType)
         {
-            case BitMexCommandType.ChangeCoinTap:
-                command.Parameters.Clear();
-                command.Parameters.Add("SAMPLECOIN"); // 선택한 코인 이름 
+            case BitMexCommandType.ChangeCoinTap: // 드랍박스 팝업창으로 -> 현재 서비스 중인 코인 리스트업
+                this.macroPopup.OnEnablePopup(command.Parameters[0].ToString(), (value) => {
+                    // 현재 서비스중인 코인 이름
+                    command.Parameters.Clear();
+                    command.Parameters.Add(value);
+                    complete();
+                });
                 break;
-            case BitMexCommandType.MarketPriceBuyMagnification:
-            case BitMexCommandType.MarketPriceSellMagnification:
-            case BitMexCommandType.MarketSpecifiedPriceBuy:
-            case BitMexCommandType.MarketSpecifiedPriceSell:
-                command.Parameters.Clear();
-                command.Parameters.Add(50); // 선택한 퍼센트 
-                break;
-            case BitMexCommandType.MarketPriceSpecifiedQuantityBuy:
-            case BitMexCommandType.MarketPriceSpecifiedQuantitySell:
-            case BitMexCommandType.MarketSpecifiedQuantityBuy:
-            case BitMexCommandType.MarketSpecifiedQuantitySell:
-                command.Parameters.Clear();
-                command.Parameters.Add(100); // 선택한 수량
+            default:
+                this.macroPopup.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
+                {
+                    command.Parameters.Clear();
+                    command.Parameters.Add(value);
+                    complete();
+                });
                 break;
         }
     }
@@ -239,5 +240,7 @@ public class ContentsMacro : ContentsBase
 
         this.bitmexMain.CommandTable.SaveLocalCache();
         this.bitmexMain.Macro.SaveLocalCache();
+
+        Debug.Log("ContentsMacro.OnClickSave()");
     }
 }

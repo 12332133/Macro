@@ -1,0 +1,246 @@
+[
+  {
+    "CommandIndex": 0,
+    "CommandType": 0,
+    "Parameters": []
+  },
+  {
+    "CommandIndex": 1,
+    "CommandType": 2,
+    "Parameters": [
+      100
+    ]
+  },
+  {
+    "CommandIndex": 2,
+    "CommandType": 2,
+    "Parameters": [
+      "80"
+    ]
+  },
+  {
+    "CommandIndex": 3,
+    "CommandType": 2,
+    "Parameters": [
+      50
+    ]
+  },
+  {
+    "CommandIndex": 4,
+    "CommandType": 2,
+    "Parameters": [
+      20
+    ]
+  },
+  {
+    "CommandIndex": 5,
+    "CommandType": 1,
+    "Parameters": [
+      "시장가 %매수 추가"
+    ]
+  },
+  {
+    "CommandIndex": 6,
+    "CommandType": 3,
+    "Parameters": [
+      100
+    ]
+  },
+  {
+    "CommandIndex": 7,
+    "CommandType": 3,
+    "Parameters": [
+      80
+    ]
+  },
+  {
+    "CommandIndex": 8,
+    "CommandType": 3,
+    "Parameters": [
+      50
+    ]
+  },
+  {
+    "CommandIndex": 9,
+    "CommandType": 3,
+    "Parameters": [
+      20
+    ]
+  },
+  {
+    "CommandIndex": 10,
+    "CommandType": 1,
+    "Parameters": [
+      "시장가 %매도 추가"
+    ]
+  },
+  {
+    "CommandIndex": 11,
+    "CommandType": 4,
+    "Parameters": [
+      100
+    ]
+  },
+  {
+    "CommandIndex": 12,
+    "CommandType": 4,
+    "Parameters": [
+      80
+    ]
+  },
+  {
+    "CommandIndex": 13,
+    "CommandType": 4,
+    "Parameters": [
+      50
+    ]
+  },
+  {
+    "CommandIndex": 14,
+    "CommandType": 4,
+    "Parameters": [
+      20
+    ]
+  },
+  {
+    "CommandIndex": 15,
+    "CommandType": 1,
+    "Parameters": [
+      "빠른 지정가 %매도 추가"
+    ]
+  },
+  {
+    "CommandIndex": 16,
+    "CommandType": 5,
+    "Parameters": [
+      100
+    ]
+  },
+  {
+    "CommandIndex": 17,
+    "CommandType": 5,
+    "Parameters": [
+      80
+    ]
+  },
+  {
+    "CommandIndex": 18,
+    "CommandType": 5,
+    "Parameters": [
+      50
+    ]
+  },
+  {
+    "CommandIndex": 19,
+    "CommandType": 5,
+    "Parameters": [
+      20
+    ]
+  },
+  {
+    "CommandIndex": 20,
+    "CommandType": 1,
+    "Parameters": [
+      "빠른 지정가 %매수 추가"
+    ]
+  },
+  {
+    "CommandIndex": 21,
+    "CommandType": 6,
+    "Parameters": [
+      0
+    ]
+  },
+  {
+    "CommandIndex": 22,
+    "CommandType": 1,
+    "Parameters": [
+      "시장가 지정수량 매수 추가"
+    ]
+  },
+  {
+    "CommandIndex": 23,
+    "CommandType": 7,
+    "Parameters": [
+      0
+    ]
+  },
+  {
+    "CommandIndex": 24,
+    "CommandType": 1,
+    "Parameters": [
+      "시장가 지정수량 매도 추가"
+    ]
+  },
+  {
+    "CommandIndex": 25,
+    "CommandType": 8,
+    "Parameters": [
+      0
+    ]
+  },
+  {
+    "CommandIndex": 26,
+    "CommandType": 1,
+    "Parameters": [
+      "빠른 지정가 지정수량 매수 추가"
+    ]
+  },
+  {
+    "CommandIndex": 27,
+    "CommandType": 9,
+    "Parameters": [
+      0
+    ]
+  },
+  {
+    "CommandIndex": 28,
+    "CommandType": 1,
+    "Parameters": [
+      "빠른 지정가 지정수량 매도 추가"
+    ]
+  },
+  {
+    "CommandIndex": 29,
+    "CommandType": 13,
+    "Parameters": [
+      "XBTUSD"
+    ]
+  },
+  {
+    "CommandIndex": 30,
+    "CommandType": 13,
+    "Parameters": [
+      "ETHXBT"
+    ]
+  },
+  {
+    "CommandIndex": 31,
+    "CommandType": 13,
+    "Parameters": [
+      "XRPZ18"
+    ]
+  },
+  {
+    "CommandIndex": 32,
+    "CommandType": 1,
+    "Parameters": [
+      "코인 이동 추가"
+    ]
+  },
+  {
+    "CommandIndex": 33,
+    "CommandType": 10,
+    "Parameters": []
+  },
+  {
+    "CommandIndex": 34,
+    "CommandType": 11,
+    "Parameters": []
+  },
+  {
+    "CommandIndex": 35,
+    "CommandType": 12,
+    "Parameters": []
+  }
+]

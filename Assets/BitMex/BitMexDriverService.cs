@@ -152,8 +152,9 @@ namespace Assets.BitMex
         /// <returns></returns>
         public string HandleGetCurrentSymbol()
         {
-            var elementSymbol = driver.SafeFindElement(By.XPath(XPathSymbol));
-            return elementSymbol.Text.Split(':')[1].Trim();
+            var elementSymbol = driver.SafeFindElement(By.XPath("//*[@id=\"content\"]/div/span/div[1]/div/div/li[3]/h4"));
+            var innerText = elementSymbol.SafeGetAttribute("innerText");
+            return innerText.Split(':')[1].Trim();
         }
 
         /// <summary>
@@ -483,7 +484,7 @@ namespace Assets.BitMex
         /// 거래 페이지 진입 여부 확인 
         /// </summary>
         /// <returns></returns>
-        public bool HandleIsTradingPage()
+        public bool IsTradingPage()
         {
             return this.driver.SafeFindElement(By.CssSelector("span.visible-lg-inline-block.visible-sm-inline-block"), false) != null;
         }

@@ -12,7 +12,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     [SerializeField] private Dropdown dropdown;
     [SerializeField] private Button btnDelete;
 
-    private Action<IBitMexCommand> modifyCommandParameters;
+    private Action<IBitMexCommand, Action> modifyCommandParameters;
     private Action refreshDropdown;
     private Action refreshMacroItem;
     private Action<int> deleteMacroItem;
@@ -20,7 +20,6 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     private IBitMexMainAdapter bitmexMain;
     private IBitMexCommand command;
     private Macro macro;
-    private ContentsMacro.MacroPopup popup;
 
     private void Reset()
     {
@@ -30,12 +29,11 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     }
 
     public ContentsMacroHotKeyItem Initialized(
-        Action<IBitMexCommand> modifyCommandParameters,
+        Action<IBitMexCommand, Action> modifyCommandParameters,
         Action refreshDropdown,
         Action refreshMacroItem,
         IBitMexMainAdapter bitmexMain,
-        Macro macro,
-        ContentsMacro.MacroPopup popup)
+        Macro macro)
     {
         this.bitmexMain = bitmexMain;
         this.macro = macro;
@@ -44,12 +42,10 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.refreshDropdown = refreshDropdown;
         this.refreshMacroItem = refreshMacroItem;
 
+        RefreshCommandDropdown();
+
         this.dropdown.onValueChanged.AddListener(OnValueChanged);
         this.btnDelete.onClick.AddListener(OnClickDelete);
-
-        this.popup = popup;
-
-        RefreshCommandDropdown();
 
         return this;
     }
@@ -93,26 +89,28 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
                 break;
             case BitMexCommandType.OrderCommandCreate: // 커맨드 생성만 후 추가(신규 커맨드는 참조중인 매크로가 없기 때문에 드랍다운만 갱신한다)
                 var newCommand = this.bitmexMain.CommandTable.CreateByCreator(command.RefCommandTableIndex);
-                //this.modifyCommandParameters(newCommand);
-                this.bitmexMain.CommandTable.InsertAt(newCommand);
-                this.refreshDropdown();
+                this.modifyCommandParameters(newCommand, () =>
+                {
+                    this.bitmexMain.CommandTable.InsertAt(newCommand);
+                    this.refreshDropdown();
+                });
                 break;
             default:
-                //this.modifyCommandParameters(command);
-                if (this.macro == null) // 최초 생성이면 캐시만  
+                this.modifyCommandParameters(command, () =>
                 {
-                    this.command = command;
-                }
-                else // 기존 매크로 수정이면 새로 선택/수정 한 커맨드를 참조
-                {
-                    this.bitmexMain.Macro.ModifyCommand(this.macro.Index, command);
-                }
-                this.refreshDropdown();
+                    if (this.macro == null) // 최초 생성이면 캐시만  
+                    {
+                        this.command = command;
+                    }
+                    else // 기존 매크로 수정이면 새로 선택/수정 한 커맨드를 참조
+                    {
+                        this.bitmexMain.Macro.ModifyCommand(this.macro.Index, command);
+                    }
+                    this.refreshDropdown();
+                });
                 break;
         }
-
-        popup.OnEnablePopup();
-
+        
         Debug.Log(command.CommandType);
     }
 
