@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 public class ContentsMacro : ContentsBase
 {
-    public class MacroPopup
+    public class MacroPopupInput
     {
         public GameObject Root;
         public Button btnPopupBack;
@@ -17,7 +17,7 @@ public class ContentsMacro : ContentsBase
         public Button btnPopup;
         public Action<string> complete;
 
-        public MacroPopup(Transform root)
+        public MacroPopupInput(Transform root)
         {
             this.Root = root.gameObject;
             this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
@@ -47,6 +47,76 @@ public class ContentsMacro : ContentsBase
             this.Root.SetActive(false);
         }
     }
+    public class MacroPopupDropdown
+    {
+        public GameObject Root;
+        public Button btnPopupBack;
+        public Dropdown dropPopup;
+        public Button btnPopup;
+        public Action<string> complete;
+
+        public MacroPopupDropdown(Transform root)
+        {
+            this.Root = root.gameObject;
+            this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
+            this.dropPopup = root.Find("Dropdown").GetComponent<Dropdown>();
+            this.btnPopup = root.Find("Button").GetComponent<Button>();
+
+            this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
+            this.btnPopup.onClick.AddListener(OnClickPopupOK);
+        }
+
+        public void OnEnablePopup(string original, Action<string> complete)
+        {
+            this.complete = complete;
+            this.Root.SetActive(true);
+        }
+
+        private void OnClickPopupBack()
+        {
+            this.Root.SetActive(false);
+        }
+
+        private void OnClickPopupOK()
+        {
+            this.Root.SetActive(false);
+        }
+    }
+    public class MacroPopupMessage
+    {
+        public GameObject Root;
+        public Button btnPopupBack;
+        public Text txtPopup;
+        public Button btnPopup;
+        public Action<string> complete;
+
+        public MacroPopupMessage(Transform root)
+        {
+            this.Root = root.gameObject;
+            this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
+            this.txtPopup = root.Find("Text").GetComponent<Text>();
+            this.btnPopup = root.Find("Button").GetComponent<Button>();
+
+            this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
+            this.btnPopup.onClick.AddListener(OnClickPopupOK);
+        }
+
+        public void OnEnablePopup(string original, Action<string> complete)
+        {
+            this.complete = complete;
+            this.Root.SetActive(true);
+        }
+
+        private void OnClickPopupBack()
+        {
+            this.Root.SetActive(false);
+        }
+
+        private void OnClickPopupOK()
+        {
+            this.Root.SetActive(false);
+        }
+    }
 
     [SerializeField] private Text[] txtTabs;
     [SerializeField] private Toggle[] toggleTabs;
@@ -67,7 +137,9 @@ public class ContentsMacro : ContentsBase
 
     [SerializeField] private Button btnSave;
 
-    private MacroPopup macroPopup;
+    private MacroPopupInput macroPopupInput;
+    private MacroPopupDropdown macroPopupDropdown;
+    private MacroPopupMessage macroPopupMessage;
 
     private void Reset()
     {
@@ -105,7 +177,9 @@ public class ContentsMacro : ContentsBase
 
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
 
-        this.macroPopup = new MacroPopup(this.goPopup.transform);
+        this.macroPopupInput = new MacroPopupInput(this.goPopup.transform.GetChild(0));
+        this.macroPopupDropdown = new MacroPopupDropdown(this.goPopup.transform.GetChild(1));
+        this.macroPopupMessage = new MacroPopupMessage(this.goPopup.transform.GetChild(2));
 
         OnRefreshMacroItem(BitMexCommandTableType.Percent);
         OnRefreshMacroItem(BitMexCommandTableType.Quantity);
@@ -247,7 +321,7 @@ public class ContentsMacro : ContentsBase
         switch (command.CommandType)
         {
             case BitMexCommandType.ChangeCoinTap: // 드랍박스 팝업창으로 -> 현재 서비스 중인 코인 리스트업
-                this.macroPopup.OnEnablePopup(command.Parameters[0].ToString(), (value) => {
+                this.macroPopupInput.OnEnablePopup(command.Parameters[0].ToString(), (value) => {
                     // 현재 서비스중인 코인 이름
                     command.Parameters.Clear();
                     command.Parameters.Add(value);
@@ -255,7 +329,7 @@ public class ContentsMacro : ContentsBase
                 });
                 break;
             default:
-                this.macroPopup.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
+                this.macroPopupInput.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
                 {
                     command.Parameters.Clear();
                     command.Parameters.Add(value);
