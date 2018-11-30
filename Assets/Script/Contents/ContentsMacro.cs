@@ -127,7 +127,7 @@ public class ContentsMacro : ContentsBase
         }
 
         private void OnClickPopupBack()
-        {
+        {   
             this.Root.SetActive(false);
         }
 
@@ -202,6 +202,7 @@ public class ContentsMacro : ContentsBase
 
         OnRefreshMacroItem(BitMexCommandTableType.Percent);
         OnRefreshMacroItem(BitMexCommandTableType.Quantity);
+        OnRefreshMacroItem(BitMexCommandTableType.Etc);
 
         //this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
         //this.btnPopup.onClick.AddListener(OnClickPopupOK);
@@ -243,7 +244,7 @@ public class ContentsMacro : ContentsBase
                         bitmexMain,
                         macro);
 
-        go.transform.SetParent(this.svHotKeys[ConvertTypeToIndex(type)].content.transform);
+        go.transform.SetParent(this.svHotKeys[(ushort)type].content.transform);
         return item;
     }
 
@@ -280,11 +281,6 @@ public class ContentsMacro : ContentsBase
         return ConvertIndexToType(GetActivateToggleIndex());
     }
 
-    private int ConvertTypeToIndex(BitMexCommandTableType type)
-    {
-        return (int)type;
-    }
-
     private BitMexCommandTableType ConvertIndexToType(int index)
     {
         return (BitMexCommandTableType)index;
@@ -292,7 +288,7 @@ public class ContentsMacro : ContentsBase
 
     private void OnRefreshDropdown(BitMexCommandTableType type)
     {
-        foreach (var item in this.svHotKeys[ConvertTypeToIndex(type)].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        foreach (var item in this.svHotKeys[(ushort)type].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
             item.RefreshCommandDropdown();
         }
@@ -300,7 +296,7 @@ public class ContentsMacro : ContentsBase
 
     private void OnRefreshMacroItem(BitMexCommandTableType type)
     {
-        foreach (var item in this.svHotKeys[ConvertTypeToIndex(type)].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        foreach (var item in this.svHotKeys[(ushort)type].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
             Destroy(item.gameObject);
         }
@@ -335,7 +331,7 @@ public class ContentsMacro : ContentsBase
                 this.macroPopupInput.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
                 {
                     command.Parameters.Clear();
-                    command.Parameters.Add(value);
+                    command.Parameters.Add(Int32.Parse(value));
                     complete();
                 });
                 break;

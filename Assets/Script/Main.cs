@@ -35,6 +35,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     private bool isCombination = false;
     private bool isEnableMacro = false;
     private List<RawKey> inputRawKeys;
+    private DateTime time = DateTime.Now;
 
     private void Reset()
     {
@@ -54,10 +55,10 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         KeyboardHooker.Stop();
 
-        //this.service.CommandTable.SaveLocalCache();
-        //this.session.Macro.SaveLocalCache();
-        //this.service.CoinTable.SaveLocalCache();
-        
+        this.service.CommandTable.SaveLocalCache();
+        this.session.Macro.SaveLocalCache();
+        this.service.CoinTable.SaveLocalCache();
+
         this.service.CloseDriver();
     }
 
@@ -156,8 +157,8 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.service.CommandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.CancleAllActivateOrder,
             new ActivateOrderCancleCommand(this));
 
-        //this.service.CommandTable.LoadLocalCache();
-        //this.session.Macro.LoadLocalCache(this.service.CommandTable);
+        this.service.CommandTable.LoadLocalCache();
+        this.session.Macro.LoadLocalCache(this.service.CommandTable);
     }
 
     private void SetInputKey()
@@ -263,16 +264,13 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
                     this.service.HandleSyncCointPrices();
 
-                    using (var enumerator = this.schedules.GetEnumerator())
+                    foreach (var schedule in this.schedules)
                     {
-                        while (enumerator.MoveNext())
+                        if (schedule.Execute() == true)
                         {
-                            if (enumerator.Current.Execute() == true)
-                            {
-                                IBitMexSchedule schedule;
-                                this.schedules.TryDequeue(out schedule);
-                                Debug.Log(string.Format("execute price schedule"));
-                            }
+                            IBitMexSchedule outi;
+                            this.schedules.TryDequeue(out outi);
+                            //Debug.Log(string.Format("execute price schedule"));
                         }
                     }
 
@@ -285,7 +283,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                 Debug.Log(e);
             }
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.05f);
         }
     }
 
@@ -393,6 +391,12 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             return;
         }
 
+        if ((DateTime.Now - this.time).TotalMilliseconds < 1000)
+        {
+            Debug.Log("over fast macro input");
+            return;
+        }
+ 
         foreach (var table in Macro.GetMacroTable())
         {
             foreach (var macro in table.Value)
@@ -409,6 +413,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             }
         }
 
+        this.time = DateTime.Now;
         this.inputRawKeys.Clear();
         this.isCombination = false;
     }

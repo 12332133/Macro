@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex
 {
+    public enum ExecuteType
+    {
+        PriceOver,
+        PriceUnder,
+    }
+
     public interface IBitMexSchedule
     {
         bool Execute();

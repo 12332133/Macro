@@ -26,3 +26,47 @@
   at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
   at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x0000c] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:31 
   at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:21:54] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.ChangeCoinTapCommand.Execute () [0x00033] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs:33 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:21:55] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.ChangeCoinTapCommand.Execute () [0x00033] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs:33 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:21:56] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.ChangeCoinTapCommand.Execute () [0x00033] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs:33 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:21:57] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.ChangeCoinTapCommand.Execute () [0x00033] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs:33 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:21:59] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.ChangeCoinTapCommand.Execute () [0x00033] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs:33 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:22:03] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.ChangeCoinTapCommand.Execute () [0x00033] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs:33 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:22:04] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.ChangeCoinTapCommand.Execute () [0x00033] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs:33 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:22:05] Message : Exception of type 'Assets.BitMex.BitMexDriverServiceException' was thrown. StackTrace :   at Assets.BitMex.WebDriver.DriverExetentions.SafeFindElement (OpenQA.Selenium.IWebDriver driver, OpenQA.Selenium.By by, System.Boolean isThrow) [0x00017] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\WebDriver\DriverExetentions.cs:35 
+  at Assets.BitMex.BitMexDriverService.HandleGetCurrentSymbol () [0x00012] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexDriverService.cs:155 
+  at Assets.BitMex.Commands.ChangeCoinTapCommand.Execute () [0x00033] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs:33 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:44:06] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00041] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:36 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:44:18] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.MarketPriceSellCommand.Execute () [0x00041] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceSellCommand.cs:36 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:44:23] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00041] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:36 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:45:23] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00041] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:36 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:46:09] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00041] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:36 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 
+[2018-11-30 PM 6:47:26] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00041] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:36 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:37 

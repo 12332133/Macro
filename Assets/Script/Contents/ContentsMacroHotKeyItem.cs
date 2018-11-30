@@ -121,7 +121,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
             {
                 if (this.inputHotkey.CombinationKey.Count > 0) // 기존 완성 조합키 + 커맨드 선택이면 매크로 등록
                 {
-                    this.macro = this.bitmexMain.Macro.Resister(this.inputHotkey.CombinationKey, this.tempCommand);
+                    this.macro = this.bitmexMain.Macro.Resister(this.inputHotkey.CombinationKey, command);
                     this.tempCommand = null;
                 }
                 else // 완성 조합키 없이 커맨드만 선택 했으면 

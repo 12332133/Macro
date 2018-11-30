@@ -1,44 +1,34 @@
 ﻿using Assets.BitMex;
+using Assets.BitMex.Commands;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ContentsAlarm : ContentsBase
 {
-    public enum AlramType
-    {
-        Over,
-        Under,
-    }
-
     public class MarketPriceAlram : IBitMexSchedule
     {
-        public AlramType Type { get; private set; }
-        public decimal Price { get; private set; }
-        public int AlramCount { get; private set; }
+        public ExecuteType ExecuteType { get; set; }
+        public decimal Price { get; set; }
+        public int AlramCount { get; set; }
         public BitMexCoin Coin { get; set; }
-
-        public MarketPriceAlram(AlramType type, decimal price, int alramCount)
-        {
-            Type = type;
-            Price = price;
-            AlramCount = alramCount;
-        }
+        public IBitMexMainAdapter BitmexMain { get; set; }
 
         public bool IsCompletePriceConditions
         {
             get
             {
-                switch (Type)
+                switch (this.ExecuteType)
                 {
-                    case AlramType.Over:
-                        return Coin.MarketPrice < Price;
-                    case AlramType.Under:
-                        return Coin.MarketPrice > Price;
+                    case ExecuteType.PriceOver:
+                        return this.Price > this.Coin.MarketPrice;
+                    case ExecuteType.PriceUnder:
+                        return this.Price < this.Coin.MarketPrice;
                 }
                 return false;
             }
@@ -46,12 +36,20 @@ public class ContentsAlarm : ContentsBase
 
         public bool Execute()
         {
-            return IsCompletePriceConditions;
+            if (IsCompletePriceConditions == true)
+            {
+                Task.Run(() => 
+                {
+                    for (int i = 0; i < this.AlramCount; i++)
+                    {
+                        EditorApplication.Beep();
+                        Thread.Sleep(300);
+                    }
+                });
+            }
+            return false;
         }
     }
-
-    private Thread updator;
-    private BlockingCollection<MarketPriceAlram> alrams;
 
     private void Reset()
     {
@@ -65,42 +63,36 @@ public class ContentsAlarm : ContentsBase
     {
         base.Initialize(bitmexMain);
 
-        this.alrams = new BlockingCollection<MarketPriceAlram>();
+        /*
+        new Thread(e => {
 
-        //this.updator = new Thread(() =>
-        //{
-        //    while (true)
-        //    {
-        //        try
-        //        {
-        //            var alram = this.alrams.Take();
-        //            if (alram.IsCompletePriceConditions == false)
-        //            {
-        //                Thread.Sleep(20);
-        //                this.alrams.Add(alram);
-        //            }
-        //            else
-        //            {
-        //                Task.Run(() =>
-        //                {
-        //                    for (int i = 0; i < alram.AlramCount; i++)
-        //                    {
-        //                        Debug.Log(string.Format("run alram {0}", alram.Price));
-        //                    }
-        //                });
-        //            }
-        //        }
-        //        catch (Exception e)
-        //        {
-        //        }
-        //    }
-        //});
-        //updator.IsBackground = true;
-        //updator.Start();
+            var commands = this.bitmexMain.CommandTable.GetCommands(BitMexCommandTableType.Percent);
+            var command = commands[3];
+            var coin = this.bitmexMain.CoinTable.GetCoin("XBTUSD");
+
+            while (true)
+            {
+                AddSchedule(coin, ExecuteType.PriceUnder, 0, 3);
+                Thread.Sleep(1000);
+            }
+        })
+        {
+            IsBackground = true,
+        }.Start();
+        */
     }
 
-    public void AddSchedule(AlramType type, decimal price, int alramCount)
+    public void AddSchedule(BitMexCoin coin, ExecuteType type, decimal price, int alramCount)
     {
-        this.alrams.Add(new MarketPriceAlram(type, price, alramCount));
+        var schedule = new MarketPriceAlram()
+        {
+            Coin = coin,
+            ExecuteType = type,
+            Price = price,
+            AlramCount = alramCount,
+            BitmexMain = bitmexMain,
+        };
+
+        this.bitmexMain.ResisterSchedule(schedule);
     }
 }

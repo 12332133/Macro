@@ -29,6 +29,12 @@ namespace Assets.BitMex.Commands
         public override void Execute()
         {
             var coin = this.BitMexMain.DriverService.CoinTable.GetCoin(Parameters[0].ToString());
+
+            //if (this.BitMexMain.DriverService.HandleGetCurrentSymbol().Equals(coin.CoinName) == true)
+            //{
+            //    return;
+            //}
+
             this.BitMexMain.DriverService.HandleChangeCoinTab(coin.RootCoinName, coin.CoinName);
         }
 
