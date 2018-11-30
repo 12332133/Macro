@@ -8,17 +8,14 @@ namespace Assets.BitMex.Commands
 {
     public enum BitMexCommandTableType : ushort
     {
-        Etc,
         Percent,
         Quantity,
+        Etc,
     }
 
     public enum BitMexCommandType : ushort
     {
         None,
-
-        // 커맨드 생성자 ??
-        OrderCommandCreate,
 
         // 시장가 구매 
         MarketPriceBuyMagnification,

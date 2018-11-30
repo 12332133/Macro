@@ -17,7 +17,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     private Action<BitMexCommandTableType> refreshMacroItem;
 
     private IBitMexMainAdapter bitmexMain;
-    private IBitMexCommand command;
+    private IBitMexCommand tempCommand;
     private BitMexCommandTableType commandTableType;
     private Macro macro;
 
@@ -70,6 +70,14 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
             this.inputHotkey.CombinationKey.AddRange(this.macro.Keys);
             this.inputHotkey.RefreshCombinationString();
         }
+        else 
+        {
+            if (this.tempCommand != null) 
+            {
+                this.dropdown.value = this.tempCommand.RefCommandTableIndex;
+                this.dropdown.captionText.text = this.dropdown.options[this.tempCommand.RefCommandTableIndex].text;
+            }
+        }
 
         this.dropdown.onValueChanged.AddListener(OnValueChanged);
 
@@ -80,7 +88,19 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     {
         if (this.macro == null) // 최초 생성이면 중복 단축키 검사만 
         {
-           return this.bitmexMain.Macro.IsEqualKeys(keys);
+            if (this.bitmexMain.Macro.IsEqualKeys(keys) == true)
+            {
+                if (this.tempCommand != null) // 매크로 키 채크 + 기존에 선택한 커맨드가 있으면 매크로 등록
+                {
+                    this.macro = this.bitmexMain.Macro.Resister(this.inputHotkey.CombinationKey, this.tempCommand);
+                    this.tempCommand = null; 
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         return this.bitmexMain.Macro.ModifyRawKeys(this.macro, keys); // 기존 매크로 수정이면 바로 수정
@@ -90,34 +110,33 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     {
         var command = this.bitmexMain.CommandTable.FindCommand(this.commandTableType, index);
 
-        switch (command.CommandType)
+        if (command.CommandType == BitMexCommandType.None)
         {
-            case BitMexCommandType.None:
-                break;
-            case BitMexCommandType.OrderCommandCreate: // 커맨드 생성만 후 추가(신규 커맨드는 참조중인 매크로가 없기 때문에 드랍다운만 갱신한다)
-                var newCommand = this.bitmexMain.CommandTable.CreateByCreator(command);
-                this.modifyCommandParameters(newCommand, () =>
-                {
-                    this.bitmexMain.CommandTable.InsertAt(newCommand);
-                    this.refreshDropdown(this.commandTableType);
-                });
-                break;
-            default:
-                this.modifyCommandParameters(command, () =>
-                {
-                    if (this.macro == null) // 최초 생성이면 캐시만  
-                    {
-                        this.command = command;
-                    }
-                    else // 기존 매크로 수정이면 새로 선택/수정 한 커맨드를 참조
-                    {
-                        this.bitmexMain.Macro.ModifyCommand(this.commandTableType, this.macro.Index, command);
-                    }
-                    this.refreshDropdown(this.commandTableType);
-                });
-                break;
+            return;
         }
-        
+
+        this.modifyCommandParameters(command, () =>
+        {
+            if (this.macro == null) // 최초 생성이면 
+            {
+                if (this.inputHotkey.CombinationKey.Count > 0) // 기존 완성 조합키 + 커맨드 선택이면 매크로 등록
+                {
+                    this.macro = this.bitmexMain.Macro.Resister(this.inputHotkey.CombinationKey, this.tempCommand);
+                    this.tempCommand = null;
+                }
+                else // 완성 조합키 없이 커맨드만 선택 했으면 
+                {
+                    this.tempCommand = command;
+                }
+            }
+            else // 기존 매크로 수정이면 새로 선택/수정 한 커맨드를 바로 참조
+            {
+                this.bitmexMain.Macro.ModifyCommand(this.commandTableType, this.macro.Index, command);
+            }
+
+            this.refreshDropdown(this.commandTableType);
+        });
+
         Debug.Log(command.CommandType);
     }
 
@@ -154,21 +173,21 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.refreshMacroItem(this.commandTableType);
     }
 
-    public void ResisterMacro()
-    {
-        // 현재 캐시중인 정보를 저장한다. macro 변수에 생성된 macro를 참조시킨다.
-        if (this.macro == null)
-        {
-            if (this.command != null && this.inputHotkey.CombinationKey.Count > 0)
-            {
-                //if (this.bitmexMain.Macro.IsEqualKeys(this.inputHotkey.CombinationKey) == false)
-                //{
-                //    // 중복 키, 키 재설정 팝업창 출력
-                //    return;
-                //}
+    //public void ResisterMacro()
+    //{
+    //    // 현재 캐시중인 정보를 저장한다. macro 변수에 생성된 macro를 참조시킨다.
+    //    if (this.macro == null)
+    //    {
+    //        if (this.command != null && this.inputHotkey.CombinationKey.Count > 0)
+    //        {
+    //            //if (this.bitmexMain.Macro.IsEqualKeys(this.inputHotkey.CombinationKey) == false)
+    //            //{
+    //            //    // 중복 키, 키 재설정 팝업창 출력
+    //            //    return;
+    //            //}
 
-                this.macro = this.bitmexMain.Macro.Resister(this.inputHotkey.CombinationKey, this.command);
-            }
-        }
-    }
+    //            this.macro = this.bitmexMain.Macro.Resister(this.inputHotkey.CombinationKey, this.command);
+    //        }
+    //    }
+    //}
 }

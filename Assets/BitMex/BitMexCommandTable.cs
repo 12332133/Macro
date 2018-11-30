@@ -67,8 +67,7 @@ namespace Assets.BitMex
 
         public bool Remove(IBitMexCommand command)
         {
-            if (command.CommandType == BitMexCommandType.None ||
-                command.CommandType == BitMexCommandType.OrderCommandCreate)
+            if (command.CommandType == BitMexCommandType.None)
             {
                 return false;
             }
@@ -140,8 +139,7 @@ namespace Assets.BitMex
                     var commandType = (BitMexCommandType)((ushort)jobjectCommand["CommandType"]);
                     var commandIndex = (int)jobjectCommand["CommandIndex"];
 
-                    if (commandType == BitMexCommandType.None || 
-                        commandType == BitMexCommandType.OrderCommandCreate)
+                    if (commandType == BitMexCommandType.None)
                     {
                         continue;
                     }

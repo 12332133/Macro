@@ -55,7 +55,7 @@ public class ContentsMacro : ContentsBase
         public Button btnPopup;
         public Action<string> complete;
 
-        public MacroPopupDropdown(Transform root)
+        public MacroPopupDropdown(Transform root, BitMexCoinTable coinTable)
         {
             this.Root = root.gameObject;
             this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
@@ -64,21 +64,40 @@ public class ContentsMacro : ContentsBase
 
             this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
             this.btnPopup.onClick.AddListener(OnClickPopupOK);
+
+            foreach (var coin in coinTable.Coins)
+            {
+                this.dropPopup.options.Add(new Dropdown.OptionData(coin.Value.CoinName));
+            }
         }
 
-        public void OnEnablePopup(string original, Action<string> complete)
+        public void OnEnablePopup(string coinName, Action<string> complete)
         {
+            this.dropPopup.value = 0;
+            this.dropPopup.captionText.text = string.Empty;
+
+            for (int i = 0; i < this.dropPopup.options.Count; i++)
+            {
+                if (this.dropPopup.options[i].text.Equals(coinName) == true)
+                {
+                    this.dropPopup.value = i;
+                    this.dropPopup.captionText.text = this.dropPopup.options[i].text;
+                }
+            }
+
             this.complete = complete;
             this.Root.SetActive(true);
         }
 
         private void OnClickPopupBack()
         {
+            this.complete(this.dropPopup.options[this.dropPopup.value].text);
             this.Root.SetActive(false);
         }
 
         private void OnClickPopupOK()
         {
+            this.complete(this.dropPopup.options[this.dropPopup.value].text);
             this.Root.SetActive(false);
         }
     }
@@ -178,7 +197,7 @@ public class ContentsMacro : ContentsBase
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
 
         this.macroPopupInput = new MacroPopupInput(this.goPopup.transform.GetChild(0));
-        this.macroPopupDropdown = new MacroPopupDropdown(this.goPopup.transform.GetChild(1));
+        this.macroPopupDropdown = new MacroPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
         this.macroPopupMessage = new MacroPopupMessage(this.goPopup.transform.GetChild(2));
 
         OnRefreshMacroItem(BitMexCommandTableType.Percent);
@@ -263,28 +282,12 @@ public class ContentsMacro : ContentsBase
 
     private int ConvertTypeToIndex(BitMexCommandTableType type)
     {
-        switch (type)
-        {
-            case BitMexCommandTableType.Percent:
-                return 0;
-            case BitMexCommandTableType.Quantity:
-                return 1;
-        }
-
-        throw new Exception();
+        return (int)type;
     }
 
-    private BitMexCommandTableType ConvertIndexToType(int toggleIndex)
+    private BitMexCommandTableType ConvertIndexToType(int index)
     {
-        switch (toggleIndex)
-        {
-            case 0:
-                return BitMexCommandTableType.Percent;
-            case 1:
-                return BitMexCommandTableType.Quantity;
-        }
-
-        throw new Exception();
+        return (BitMexCommandTableType)index;
     }
 
     private void OnRefreshDropdown(BitMexCommandTableType type)
@@ -320,9 +323,9 @@ public class ContentsMacro : ContentsBase
     {
         switch (command.CommandType)
         {
-            case BitMexCommandType.ChangeCoinTap: // 드랍박스 팝업창으로 -> 현재 서비스 중인 코인 리스트업
-                this.macroPopupInput.OnEnablePopup(command.Parameters[0].ToString(), (value) => {
-                    // 현재 서비스중인 코인 이름
+            case BitMexCommandType.ChangeCoinTap: 
+                this.macroPopupDropdown.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
+                {
                     command.Parameters.Clear();
                     command.Parameters.Add(value);
                     complete();
@@ -363,13 +366,13 @@ public class ContentsMacro : ContentsBase
 
     private void OnClickSave()
     {
-        foreach (var item in this.svHotKeys[GetActivateToggleIndex()].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
-        {
-            item.ResisterMacro();
-        }
+        //foreach (var item in this.svHotKeys[GetActivateToggleIndex()].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
+        //{
+        //    item.ResisterMacro();
+        //}
 
-        this.bitmexMain.CommandTable.SaveLocalCache();
-        this.bitmexMain.Macro.SaveLocalCache();
+        //this.bitmexMain.CommandTable.SaveLocalCache();
+        //this.bitmexMain.Macro.SaveLocalCache();
 
         Debug.Log("ContentsMacro.OnClickSave()");
     }
