@@ -323,7 +323,7 @@ namespace Assets.BitMex
                     if (xbt == 0)
                     {
                         var elementRemainXBT = driver.SafeFindElement(By.XPath("//*[@id=\"header\"]/div[2]/a[1]/span/table/tbody/tr[2]/td[2]"));
-                        xbt = decimal.Parse(elementRemainXBT.Text.Split(' ')[0]);
+                        xbt = decimal.Parse(elementRemainXBT.Text.Split(' ')[0], System.Globalization.NumberStyles.Any);
                     }
 
                     //교차 선택

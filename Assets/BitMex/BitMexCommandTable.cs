@@ -148,7 +148,7 @@ namespace Assets.BitMex
                     var jelementParameters = jobjectCommand["Parameters"].ToString();
                     foreach (var parameter in JArray.Parse(jelementParameters))
                     {
-                        parameters.Add(parameter);
+                        parameters.Add(parameter.ToObject<object>());
                     }
 
                     var command = FindCommand(tableType, commandIndex);

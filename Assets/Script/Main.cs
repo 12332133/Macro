@@ -403,7 +403,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             {
                 if (this.inputRawKeys.SequenceEqual(macro.Keys) == true)
                 {
-                    if (this.service.Executor.AddCommand(macro.Command) == false)
+                    if (this.service.Executor.AddCommand(macro.Command.Clone()) == false)
                     {
                         Debug.Log("executor add command timeout");
                     }
