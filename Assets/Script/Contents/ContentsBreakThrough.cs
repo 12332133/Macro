@@ -46,8 +46,33 @@ public class ContentsBreakThrough : ContentsBase
         }
     }
 
+    [SerializeField] private Text txtCurrentTitle;
+    [SerializeField] private Text txtCurrentValue;
+
+    [SerializeField] private Button btnAdd;
+    [SerializeField] private Text txtAdd;
+
+    [SerializeField] private ScrollRect svBreakThrough;
+    [SerializeField] private GameObject goBreakThroughItem;
+    
+    [SerializeField] private GameObject goPopup;
+
+    private ContentsPopupInput popupInput;
+    private ContentsPopupDropdown popupDropdown;
+    private ContentsPopupMessage popupMessage;
+
     private void Reset()
     {
+        this.txtCurrentTitle = transform.Find("Panel/Current/Title").GetComponent<Text>();
+        this.txtCurrentValue = transform.Find("Panel/Current/Value").GetComponent<Text>();
+
+        this.btnAdd = transform.Find("Panel/List/Add").GetComponent<Button>();
+        this.txtAdd = transform.Find("Panel/List/Add/Text").GetComponent<Text>();
+
+        this.svBreakThrough = transform.Find("Panel/List/Scroll View").GetComponent<ScrollRect>();
+        this.goBreakThroughItem = Resources.Load<GameObject>("MacroBreakThroughItem");
+
+        this.goPopup = transform.Find("Panel/Popup").gameObject;
     }
 
     private void Awake()
@@ -79,6 +104,12 @@ public class ContentsBreakThrough : ContentsBase
             IsBackground = true,
         }.Start();
         */
+
+        this.popupInput = new ContentsPopupInput(this.goPopup.transform.GetChild(0));
+        this.popupDropdown = new ContentsPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
+
+        btnAdd.onClick.AddListener(OnClickAdd);
     }
 
     //private void Produce() 
@@ -174,4 +205,11 @@ public class ContentsBreakThrough : ContentsBase
 
     //    AddTrade("XBTUSD", TradeType.Over, 2556.1M, BitMexCommandType.MarketSpecified10PriceSell);
     //}
+
+    private void OnClickAdd()
+    {
+        var go = Instantiate(this.goBreakThroughItem);
+        var item = go.GetComponent<ContentsMacroBreakThroughItem>().Initialized();
+        go.transform.SetParent(this.svBreakThrough.content.transform);
+    }
 }

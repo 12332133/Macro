@@ -9,134 +9,6 @@ using UnityEngine.UI;
 
 public class ContentsMacro : ContentsBase
 {
-    public class MacroPopupInput
-    {
-        public GameObject Root;
-        public Button btnPopupBack;
-        public InputField inputPopup;
-        public Button btnPopup;
-        public Action<string> complete;
-
-        public MacroPopupInput(Transform root)
-        {
-            this.Root = root.gameObject;
-            this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
-            this.inputPopup = root.Find("InputField").GetComponent<InputField>();
-            this.btnPopup = root.Find("Button").GetComponent<Button>();
-
-            this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
-            this.btnPopup.onClick.AddListener(OnClickPopupOK);
-        }
-
-        public void OnEnablePopup(string original, Action<string> complete)
-        {
-            this.inputPopup.text = original;
-            this.complete = complete;
-            this.Root.SetActive(true);
-        }
-
-        private void OnClickPopupBack()
-        {
-            this.complete(this.inputPopup.text);
-            this.Root.SetActive(false);
-        }
-
-        private void OnClickPopupOK()
-        {
-            this.complete(this.inputPopup.text);
-            this.Root.SetActive(false);
-        }
-    }
-    public class MacroPopupDropdown
-    {
-        public GameObject Root;
-        public Button btnPopupBack;
-        public Dropdown dropPopup;
-        public Button btnPopup;
-        public Action<string> complete;
-
-        public MacroPopupDropdown(Transform root, BitMexCoinTable coinTable)
-        {
-            this.Root = root.gameObject;
-            this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
-            this.dropPopup = root.Find("Dropdown").GetComponent<Dropdown>();
-            this.btnPopup = root.Find("Button").GetComponent<Button>();
-
-            this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
-            this.btnPopup.onClick.AddListener(OnClickPopupOK);
-
-            foreach (var coin in coinTable.Coins)
-            {
-                this.dropPopup.options.Add(new Dropdown.OptionData(coin.Value.CoinName));
-            }
-        }
-
-        public void OnEnablePopup(string coinName, Action<string> complete)
-        {
-            this.dropPopup.value = 0;
-            this.dropPopup.captionText.text = string.Empty;
-
-            for (int i = 0; i < this.dropPopup.options.Count; i++)
-            {
-                if (this.dropPopup.options[i].text.Equals(coinName) == true)
-                {
-                    this.dropPopup.value = i;
-                    this.dropPopup.captionText.text = this.dropPopup.options[i].text;
-                }
-            }
-
-            this.complete = complete;
-            this.Root.SetActive(true);
-        }
-
-        private void OnClickPopupBack()
-        {
-            this.complete(this.dropPopup.options[this.dropPopup.value].text);
-            this.Root.SetActive(false);
-        }
-
-        private void OnClickPopupOK()
-        {
-            this.complete(this.dropPopup.options[this.dropPopup.value].text);
-            this.Root.SetActive(false);
-        }
-    }
-    public class MacroPopupMessage
-    {
-        public GameObject Root;
-        public Button btnPopupBack;
-        public Text txtPopup;
-        public Button btnPopup;
-        public Action<string> complete;
-
-        public MacroPopupMessage(Transform root)
-        {
-            this.Root = root.gameObject;
-            this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
-            this.txtPopup = root.Find("Text").GetComponent<Text>();
-            this.btnPopup = root.Find("Button").GetComponent<Button>();
-
-            this.btnPopupBack.onClick.AddListener(OnClickPopupBack);
-            this.btnPopup.onClick.AddListener(OnClickPopupOK);
-        }
-
-        public void OnEnablePopup(string original, Action<string> complete)
-        {
-            this.complete = complete;
-            this.Root.SetActive(true);
-        }
-
-        private void OnClickPopupBack()
-        {   
-            this.Root.SetActive(false);
-        }
-
-        private void OnClickPopupOK()
-        {
-            this.Root.SetActive(false);
-        }
-    }
-
     [SerializeField] private Text[] txtTabs;
     [SerializeField] private Toggle[] toggleTabs;
     [SerializeField] private Button btnAddMacro;
@@ -156,9 +28,9 @@ public class ContentsMacro : ContentsBase
 
     [SerializeField] private Button btnSave;
 
-    private MacroPopupInput macroPopupInput;
-    private MacroPopupDropdown macroPopupDropdown;
-    private MacroPopupMessage macroPopupMessage;
+    private ContentsPopupInput popupInput;
+    private ContentsPopupDropdown popupDropdown;
+    private ContentsPopupMessage popupMessage;
 
     private void Reset()
     {
@@ -196,9 +68,9 @@ public class ContentsMacro : ContentsBase
 
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
 
-        this.macroPopupInput = new MacroPopupInput(this.goPopup.transform.GetChild(0));
-        this.macroPopupDropdown = new MacroPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
-        this.macroPopupMessage = new MacroPopupMessage(this.goPopup.transform.GetChild(2));
+        this.popupInput = new ContentsPopupInput(this.goPopup.transform.GetChild(0));
+        this.popupDropdown = new ContentsPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
         OnRefreshMacroItem(BitMexCommandTableType.Percent);
         OnRefreshMacroItem(BitMexCommandTableType.Quantity);
@@ -320,7 +192,7 @@ public class ContentsMacro : ContentsBase
         switch (command.CommandType)
         {
             case BitMexCommandType.ChangeCoinTap: 
-                this.macroPopupDropdown.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
+                this.popupDropdown.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
                 {
                     command.Parameters.Clear();
                     command.Parameters.Add(value);
@@ -328,7 +200,7 @@ public class ContentsMacro : ContentsBase
                 });
                 break;
             default:
-                this.macroPopupInput.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
+                this.popupInput.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
                 {
                     command.Parameters.Clear();
                     command.Parameters.Add(Int32.Parse(value));

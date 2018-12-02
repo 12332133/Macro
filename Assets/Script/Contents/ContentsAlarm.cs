@@ -51,8 +51,27 @@ public class ContentsAlarm : ContentsBase
         }
     }
 
+    [SerializeField] private Button btnAdd;
+    [SerializeField] private Text txtAdd;
+
+    [SerializeField] private ScrollRect svAlarm;
+    [SerializeField] private GameObject goAlarmItem;
+
+    [SerializeField] private GameObject goPopup;
+
+    private ContentsPopupInput popupInput;
+    private ContentsPopupDropdown popupDropdown;
+    private ContentsPopupMessage popupMessage;
+
     private void Reset()
     {
+        this.btnAdd = transform.Find("Panel/List/Add").GetComponent<Button>();
+        this.txtAdd = transform.Find("Panel/List/Add/Text").GetComponent<Text>();
+
+        this.svAlarm = transform.Find("Panel/List/Scroll View").GetComponent<ScrollRect>();
+        this.goAlarmItem = Resources.Load<GameObject>("MacroAlarmItem");
+
+        this.goPopup = transform.Find("Panel/Popup").gameObject;
     }
 
     private void Awake()
@@ -80,6 +99,12 @@ public class ContentsAlarm : ContentsBase
             IsBackground = true,
         }.Start();
         */
+
+        this.popupInput = new ContentsPopupInput(this.goPopup.transform.GetChild(0));
+        this.popupDropdown = new ContentsPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
+
+        btnAdd.onClick.AddListener(OnClickAdd);
     }
 
     public void AddSchedule(BitMexCoin coin, ExecuteType type, decimal price, int alramCount)
@@ -94,5 +119,12 @@ public class ContentsAlarm : ContentsBase
         };
 
         this.bitmexMain.ResisterSchedule(schedule);
+    }
+
+    private void OnClickAdd()
+    {
+        var go = Instantiate(this.goAlarmItem);
+        var item = go.GetComponent<ContentsMacroAlarmItem>().Initialized();
+        go.transform.SetParent(this.svAlarm.content.transform);
     }
 }
