@@ -13,7 +13,6 @@ namespace Assets.BitMex
 {
     public class Macro
     {
-        public int Index;
         public List<RawKey> Keys = new List<RawKey>();
         public IBitMexCommand Command;
     }
@@ -44,7 +43,7 @@ namespace Assets.BitMex
         public Macro Resister(List<RawKey> keys, IBitMexCommand command)
         {
             var macro = new Macro();
-            macro.Index = this.macros[command.CommandTableType].Count;
+            //macro.Index = this.macros[command.CommandTableType].Count;
             macro.Keys.AddRange(keys);
             macro.Command = command;
 
@@ -52,44 +51,28 @@ namespace Assets.BitMex
             return macro;
         }
 
-        /// <summary>
-        /// 인덱스 재 배치
-        /// </summary>
-        private void Restore(BitMexCommandTableType type)
+        public bool Remove(BitMexCommandTableType type, Macro macro)
         {
-            for (int i = 0; i < this.macros[type].Count; i++)
-            {
-                this.macros[type][i].Index = i;
-            }
-        }
-
-        public bool RemoveAt(BitMexCommandTableType type, int index)
-        {
-            if (this.macros[type][index] == null)
-            {
-                return false;
-            }
-
-            this.macros[type].RemoveAt(index);
-
-            Restore(type);
-            return true;
+            return this.macros[type].Remove(macro);
         }
 
         public bool RemoveByCommand(IBitMexCommand command)
         {
-            bool bRemoved = false;
+            var removes = new List<Macro>();
             foreach (var macro in this.macros[command.CommandTableType])
             {
                 if (macro.Command == command)
                 {
-                    this.macros[command.CommandTableType].RemoveAt(macro.Index);
-                    bRemoved = true;
+                    removes.Add(macro);
                 }
             }
 
-            Restore(command.CommandTableType);
-            return bRemoved;
+            foreach (var macro in removes)
+            {
+                this.macros[command.CommandTableType].Remove(macro);
+            }
+
+            return removes.Count > 0;
         }
 
         public bool ModifyRawKeys(Macro macro, List<RawKey> keys)
@@ -101,32 +84,6 @@ namespace Assets.BitMex
 
             macro.Keys.Clear();
             macro.Keys.AddRange(keys);
-            return true;
-        }
-
-        public bool ModifyRawKeys(BitMexCommandTableType type, int index, List<RawKey> keys)
-        {
-            if (IsEqualKeys(keys) == false)
-            {
-                return false;
-            }
-
-            var macro = macros[type][index];
-            macro.Keys.Clear();
-            macro.Keys.AddRange(keys);
-
-            return true;
-        }
-
-        public bool ModifyCommand(BitMexCommandTableType type, int index, IBitMexCommand command)
-        {
-            var macro = macros[type][index];
-            if (macro == null)
-            {
-                return false;
-            }
-
-            macro.Command = command;
             return true;
         }
 

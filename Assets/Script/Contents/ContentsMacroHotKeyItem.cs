@@ -66,9 +66,9 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
             this.inputHotkey.CombinationKey.AddRange(this.macro.Keys);
             this.inputHotkey.RefreshCombinationString();
         }
-        else 
+        else
         {
-            if (this.tempCommand != null) 
+            if (this.tempCommand != null)
             {
                 this.dropdown.value = this.tempCommand.RefCommandTableIndex;
                 this.dropdown.captionText.text = this.dropdown.options[this.tempCommand.RefCommandTableIndex].text;
@@ -89,7 +89,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
                 if (this.tempCommand != null) // 매크로 키 채크 + 기존에 선택한 커맨드가 있으면 매크로 등록
                 {
                     this.macro = this.macroTable.Resister(keys, this.tempCommand);
-                    this.tempCommand = null; 
+                    this.tempCommand = null;
                 }
                 return true;
             }
@@ -139,7 +139,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
     {
         if (this.macro != null) // 기존 등록된 매크로 삭제
         {
-            this.macroTable.RemoveAt(this.commandTableType, this.macro.Index);
+            this.macroTable.Remove(this.commandTableType, this.macro);
         }
 
         Destroy(this.gameObject);
