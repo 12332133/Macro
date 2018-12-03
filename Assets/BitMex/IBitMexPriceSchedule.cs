@@ -14,6 +14,6 @@ namespace Assets.BitMex
 
     public interface IBitMexSchedule
     {
-        bool Execute();
+        bool IsCompletePriceConditions(decimal marketPrice);
     }
 }

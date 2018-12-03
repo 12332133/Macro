@@ -25,9 +25,16 @@ namespace Assets.BitMex.Commands
 
         /// <summary>
         /// Parameter[0] : 거래 퍼센트
+        /// Parameter[1] : 거래 지정 대표 코인 이름 (탭을 강재로 변경 해줘야함)
+        /// Parameter[2] : 거래 지정 코인 이름 (탭을 강재로 변경 해줘야함)
         /// </summary>
         public override void Execute()
         {
+            if (Parameters.Count > 1)
+            {
+                BitMexMain.DriverService.HandleChangeCoinTab(Parameters[1].ToString(), Parameters[2].ToString());
+            }
+
             var coinName = BitMexMain.DriverService.HandleGetCurrentSymbol();
             var coin = BitMexMain.DriverService.CoinTable.GetCoin(coinName);
 

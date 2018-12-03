@@ -13,7 +13,10 @@ public class ContentsBase : MonoBehaviour
         public Button btnAdd;
         public Button btnEdit;
         public Button btnDel;
-        public Action<string> complete;
+
+        public Action<string> add;
+        public Action<string> edit;
+        public Action<string> del;
 
         public ContentsPopupInput(Transform root)
         {
@@ -30,37 +33,40 @@ public class ContentsBase : MonoBehaviour
             this.btnDel.onClick.AddListener(OnClickDel);
         }
 
-        public void OnEnablePopup(string original, Action<string> complete)
+        public void OnEnablePopup(string original, Action<string> add, Action<string> edit, Action<string> del)
         {
+            this.add = add;
+            this.edit = edit;
+            this.del = del;
+
             this.inputPopup.text = original;
-            this.complete = complete;
             this.Root.SetActive(true);
         }
 
         private void OnClickPopupBack()
         {
-            this.complete(this.inputPopup.text);
             this.Root.SetActive(false);
         }
 
         private void OnClickAdd()
         {
-            this.complete(this.inputPopup.text);
+            this.add(this.inputPopup.text);
             this.Root.SetActive(false);
         }
 
         private void OnClickEdit()
         {
-            this.complete(this.inputPopup.text);
+            this.edit(this.inputPopup.text);
             this.Root.SetActive(false);
         }
 
         private void OnClickDel()
         {
-            this.complete(this.inputPopup.text);
+            this.del(this.inputPopup.text);
             this.Root.SetActive(false);
         }
     }
+
     public class ContentsPopupDropdown
     {
         public GameObject Root;
@@ -69,7 +75,10 @@ public class ContentsBase : MonoBehaviour
         public Button btnAdd;
         public Button btnEdit;
         public Button btnDel;
-        public Action<string> complete;
+
+        public Action<string> add;
+        public Action<string> edit;
+        public Action<string> del;
 
         public ContentsPopupDropdown(Transform root, BitMexCoinTable coinTable)
         {
@@ -91,8 +100,12 @@ public class ContentsBase : MonoBehaviour
             }
         }
 
-        public void OnEnablePopup(string coinName, Action<string> complete)
+        public void OnEnablePopup(string coinName, Action<string> add, Action<string> edit, Action<string> del)
         {
+            this.add = add;
+            this.edit = edit;
+            this.del = del;
+
             this.dropPopup.value = 0;
             this.dropPopup.captionText.text = string.Empty;
 
@@ -105,34 +118,33 @@ public class ContentsBase : MonoBehaviour
                 }
             }
 
-            this.complete = complete;
             this.Root.SetActive(true);
         }
 
         private void OnClickPopupBack()
         {
-            this.complete(this.dropPopup.options[this.dropPopup.value].text);
             this.Root.SetActive(false);
         }
 
         private void OnClickAdd()
         {
-            this.complete(this.dropPopup.options[this.dropPopup.value].text);
+            this.add(this.dropPopup.options[this.dropPopup.value].text);
             this.Root.SetActive(false);
         }
 
         private void OnClickEdit()
         {
-            this.complete(this.dropPopup.options[this.dropPopup.value].text);
+            this.edit(this.dropPopup.options[this.dropPopup.value].text);
             this.Root.SetActive(false);
         }
 
         private void OnClickDel()
         {
-            this.complete(this.dropPopup.options[this.dropPopup.value].text);
+            this.del(this.dropPopup.options[this.dropPopup.value].text);
             this.Root.SetActive(false);
         }
     }
+
     public class ContentsPopupMessage
     {
         public GameObject Root;

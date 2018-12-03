@@ -16,39 +16,51 @@ public class ContentsAlarm : ContentsBase
         public ExecuteType ExecuteType { get; set; }
         public decimal Price { get; set; }
         public int AlramCount { get; set; }
-        public BitMexCoin Coin { get; set; }
-        public IBitMexMainAdapter BitmexMain { get; set; }
+        public string CoinName { get; set; }
+        public bool IsStart { get; set; }
 
-        public bool IsCompletePriceConditions
+        public bool IsCompletePriceConditions(decimal marketPrice)
         {
-            get
+            switch (this.ExecuteType)
             {
-                switch (this.ExecuteType)
-                {
-                    case ExecuteType.PriceOver:
-                        return this.Price > this.Coin.MarketPrice;
-                    case ExecuteType.PriceUnder:
-                        return this.Price < this.Coin.MarketPrice;
-                }
-                return false;
-            }
-        }
-
-        public bool Execute()
-        {
-            if (IsCompletePriceConditions == true)
-            {
-                Task.Run(() => 
-                {
-                    for (int i = 0; i < this.AlramCount; i++)
-                    {
-                        EditorApplication.Beep();
-                        Thread.Sleep(300);
-                    }
-                });
+                case ExecuteType.PriceOver:
+                    return this.Price > marketPrice;
+                case ExecuteType.PriceUnder:
+                    return this.Price < marketPrice;
             }
             return false;
         }
+
+        //public bool IsCompletePriceConditions
+        //{
+        //    get
+        //    {
+        //        switch (this.ExecuteType)
+        //        {
+        //            case ExecuteType.PriceOver:
+        //                return this.Price > this.Coin.MarketPrice;
+        //            case ExecuteType.PriceUnder:
+        //                return this.Price < this.Coin.MarketPrice;
+        //        }
+        //        return false;
+        //    }
+        //}
+
+        //public bool Execute()
+        //{
+        //    if (IsCompletePriceConditions == true)
+        //    {
+        //        Task.Run(() => 
+        //        {
+        //            for (int i = 0; i < this.AlramCount; i++)
+        //            {
+        //                EditorApplication.Beep();
+        //                Thread.Sleep(300);
+        //            }
+        //        });
+        //    }
+        //    return false;
+        //}
     }
 
     [SerializeField] private Button btnAdd;
@@ -107,18 +119,16 @@ public class ContentsAlarm : ContentsBase
         btnAdd.onClick.AddListener(OnClickAdd);
     }
 
-    public void AddSchedule(BitMexCoin coin, ExecuteType type, decimal price, int alramCount)
+    public void AddSchedule(string coinName, ExecuteType type, decimal price, int alramCount)
     {
         var schedule = new MarketPriceAlram()
         {
-            Coin = coin,
+            CoinName = coinName,
             ExecuteType = type,
             Price = price,
             AlramCount = alramCount,
-            BitmexMain = bitmexMain,
+            IsStart = false,
         };
-
-        this.bitmexMain.ResisterSchedule(schedule);
     }
 
     private void OnClickAdd()
@@ -126,5 +136,9 @@ public class ContentsAlarm : ContentsBase
         var go = Instantiate(this.goAlarmItem);
         var item = go.GetComponent<ContentsMacroAlarmItem>().Initialized();
         go.transform.SetParent(this.svAlarm.content.transform);
+    }
+
+    public void UpdateSchedules()
+    {
     }
 }

@@ -32,16 +32,7 @@ namespace Assets.BitMex
         private string url;
         private IWebDriver driver;
         private BitMexCommandExecutor executor;
-        private BitMexCommandTable repository;
         private BitMexCoinTable coinTable;
-
-        public BitMexCommandTable CommandTable
-        {
-            get
-            {
-                return this.repository;
-            }
-        }
 
         public BitMexCommandExecutor Executor
         {
@@ -63,7 +54,6 @@ namespace Assets.BitMex
         {
             this.executor = new BitMexCommandExecutor();
             this.coinTable = new BitMexCoinTable();
-            this.repository = new BitMexCommandTable();
         }
 
         public void SetDriver(IWebDriver driver, string url)
@@ -473,10 +463,17 @@ namespace Assets.BitMex
         public bool IsAuthenticatedAccount(string email)
         {
             var elementEmail = this.driver.SafeFindElement(By.CssSelector("span.visible-lg-inline-block.visible-sm-inline-block"), false);
+
+            if (email.Equals(string.Empty) == true && elementEmail != null)
+            {
+                return true;
+            }
+
             if (elementEmail == null)
             {
                 return false;
             }
+
             return elementEmail.Text.Equals(email);
         }
 

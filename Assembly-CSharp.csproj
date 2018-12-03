@@ -66,7 +66,7 @@
     <Compile Include="Assets\BitMex\BitMexCommandTable.cs" />
     <Compile Include="Assets\BitMex\BitMexDriverService.cs" />
     <Compile Include="Assets\BitMex\BitMexDriverServiceException.cs" />
-    <Compile Include="Assets\BitMex\BitMexMacro.cs" />
+    <Compile Include="Assets\BitMex\BitMexMacroTable.cs" />
     <Compile Include="Assets\BitMex\BitMexSession.cs" />
     <Compile Include="Assets\BitMex\Commands\BitMexCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\BitMexCommandType.cs" />
@@ -104,9 +104,13 @@
     <Compile Include="Assets\Script\Contents\ContentsBreakThrough.cs" />
     <Compile Include="Assets\Script\Contents\ContentsCoinSetting.cs" />
     <Compile Include="Assets\Script\Contents\ContentsMacro.cs" />
+    <Compile Include="Assets\Script\Contents\ContentsMacroAlarmItem.cs" />
+    <Compile Include="Assets\Script\Contents\ContentsMacroBreakThroughItem.cs" />
     <Compile Include="Assets\Script\Contents\ContentsMacroCoinItem.cs" />
     <Compile Include="Assets\Script\Contents\ContentsMacroHotKeyItem.cs" />
     <Compile Include="Assets\Script\Contents\ContentsMacroLogItem.cs" />
+    <Compile Include="Assets\Script\Contents\ContentsOption.cs" />
+    <Compile Include="Assets\Script\Contents\ContentsWeb.cs" />
     <Compile Include="Assets\Script\Contents\MacroInputField.cs" />
     <Compile Include="Assets\Script\Main.cs" />
     <Compile Include="Assets\Script\Title.cs" />

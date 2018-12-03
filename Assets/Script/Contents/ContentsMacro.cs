@@ -3,7 +3,7 @@ using Assets.BitMex.Commands;
 using Assets.CombinationKey;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,6 +32,9 @@ public class ContentsMacro : ContentsBase
     private ContentsPopupDropdown popupDropdown;
     private ContentsPopupMessage popupMessage;
 
+    private BitMexCommandTable commandTable;
+    private BitMexMacroTable macroTable;
+
     private void Reset()
     {
         this.txtTabs = transform.Find("Panel/Tab").GetComponentsInChildren<Text>();
@@ -55,6 +58,12 @@ public class ContentsMacro : ContentsBase
         this.btnSave = transform.Find("Panel/btnSave").GetComponent<Button>();
     }
 
+    private void OnApplicationQuit()
+    {
+        this.commandTable.SaveLocalCache();
+        this.macroTable.SaveLocalCache();
+    }
+
     public override void Initialize(IBitMexMainAdapter bitmexMain)
     {
         base.Initialize(bitmexMain);
@@ -72,6 +81,9 @@ public class ContentsMacro : ContentsBase
         this.popupDropdown = new ContentsPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
         this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
+        SetCommand();
+        SetMacro();
+
         OnRefreshMacroItem(BitMexCommandTableType.Percent);
         OnRefreshMacroItem(BitMexCommandTableType.Quantity);
         OnRefreshMacroItem(BitMexCommandTableType.Etc);
@@ -84,6 +96,116 @@ public class ContentsMacro : ContentsBase
 
         this.btnSave.onClick.AddListener(OnClickSave);
         //this.btnSave.interactable = false;
+    }
+
+    private void SetCommand()
+    {
+        this.commandTable = new BitMexCommandTable("macro_commands");
+
+        //퍼센트
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
+
+        // 수량 
+        this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketPriceSpecifiedQuantityBuy,
+            new MarketPriceSpecifiedQuantityBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(0); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketPriceSpecifiedQuantitySell,
+            new MarketPriceSpecifiedQuantitySellCommand(this.bitmexMain, (parameters) => { parameters.Add(0); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketSpecifiedQuantityBuy,
+            new MarketSpecifiedQuantityBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(0); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketSpecifiedQuantitySell,
+            new MarketSpecifiedQuantitySellCommand(this.bitmexMain, (parameters) => { parameters.Add(0); }));
+
+        // 기타
+        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ChangeCoinTap,
+            new ChangeCoinTapCommand(this.bitmexMain, (parameters) => { parameters.Add("XBTUSD"); }));
+        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ChangeCoinTap,
+            new ChangeCoinTapCommand(this.bitmexMain, (parameters) => { parameters.Add("ETHXBT"); }));
+        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ChangeCoinTap,
+            new ChangeCoinTapCommand(this.bitmexMain, (parameters) => { parameters.Add("XRPZ18"); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ClearPosition,
+            new PositionClearCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.CancleTopActivateOrder,
+            new TopActivateOrderCancleCommand(this.bitmexMain));
+
+        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.CancleAllActivateOrder,
+            new ActivateOrderCancleCommand(this.bitmexMain));
+
+        this.commandTable.LoadLocalCache();
+    }
+
+    private void SetMacro()
+    {
+        this.macroTable = new BitMexMacroTable();
+        this.macroTable.LoadLocalCache(this.commandTable);
     }
 
     private void OnToggleTab(bool state)
@@ -110,10 +232,9 @@ public class ContentsMacro : ContentsBase
 
         var item = go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
                         type,
-                        OnModifyCommandParameters,
-                        OnRefreshDropdown,
-                        OnRefreshMacroItem,
-                        bitmexMain,
+                        OnCommandChange,
+                        commandTable,
+                        macroTable,
                         macro);
 
         go.transform.SetParent(this.svHotKeys[(ushort)type].content.transform);
@@ -173,39 +294,93 @@ public class ContentsMacro : ContentsBase
             Destroy(item.gameObject);
         }
 
-        foreach (var macro in bitmexMain.Macro.GetMacros(type))
+        foreach (var macro in this.macroTable.GetMacros(type))
         {
             CreateHotKeyItem(type, macro);
         }
 
-        if (bitmexMain.Macro.GetMacros(type).Count < 5)
+        if (this.macroTable.GetMacros(type).Count < 5)
         {
-            for (int i = 0; i < 5 - bitmexMain.Macro.GetMacros(type).Count; i++)
+            for (int i = 0; i < 5 - this.macroTable.GetMacros(type).Count; i++)
             {
                 CreateHotKeyItem(type, null);
             }
         }
     }
 
-    private void OnModifyCommandParameters(IBitMexCommand command, Action complete)
+    private void OnCommandChange(IBitMexCommand command, Action<IBitMexCommand> modify)
     {
         switch (command.CommandType)
         {
-            case BitMexCommandType.ChangeCoinTap: 
-                this.popupDropdown.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
-                {
-                    command.Parameters.Clear();
-                    command.Parameters.Add(value);
-                    complete();
-                });
+            case BitMexCommandType.ChangeCoinTap:
+                this.popupDropdown.OnEnablePopup(command.Parameters[0].ToString(), 
+                    (value) => //add
+                    {
+                        var newCommand = command.Clone();
+                        newCommand.Parameters.Clear();
+                        newCommand.Parameters.Add(value);
+                        this.commandTable.InsertAt(newCommand);
+                        modify(newCommand);
+
+                        OnRefreshDropdown(command.CommandTableType);
+                    },
+                    (value) => //edit
+                    {
+                        command.Parameters.Clear();
+                        command.Parameters.Add(value);
+                        modify(command);
+
+                        OnRefreshDropdown(command.CommandTableType);
+                    },
+                    (value) => //del
+                    {
+                        // CommandTable의 커스텀 커맨드만 삭제한다.
+                        if (this.commandTable.Remove(command) == false)
+                        {
+                            // 삭제 불가능한 커맨드 팝업창 출력.
+                            return;
+                        }
+
+                        // Macro에서 커맨드를 참조중인놈을 찾아서 삭제한다.
+                        this.macroTable.RemoveByCommand(command);
+
+                        OnRefreshMacroItem(command.CommandTableType);
+                    });
                 break;
             default:
-                this.popupInput.OnEnablePopup(command.Parameters[0].ToString(), (value) =>
-                {
-                    command.Parameters.Clear();
-                    command.Parameters.Add(Int32.Parse(value));
-                    complete();
-                });
+                this.popupInput.OnEnablePopup(command.Parameters[0].ToString(), 
+                    (value) => //add
+                    {
+                        var newCommand = command.Clone();
+                        newCommand.Parameters.Clear();
+                        newCommand.Parameters.Add(Int32.Parse(value));
+                        this.commandTable.InsertAt(newCommand);
+                        modify(newCommand);
+
+                        OnRefreshDropdown(command.CommandTableType);
+                    }, 
+                    (value) => //edit
+                    {
+                        command.Parameters.Clear();
+                        command.Parameters.Add(Int32.Parse(value));
+                        modify(command);
+
+                        OnRefreshDropdown(command.CommandTableType);
+                    },
+                    (value) => //del
+                    {
+                        // CommandTable의 커스텀 커맨드만 삭제한다.
+                        if (this.commandTable.Remove(command) == false)
+                        {
+                            // 삭제 불가능한 커맨드 팝업창 출력.
+                            return;
+                        }
+
+                        // Macro에서 커맨드를 참조중인놈을 찾아서 삭제한다.
+                        this.macroTable.RemoveByCommand(command);
+
+                        OnRefreshMacroItem(command.CommandTableType);
+                    });
                 break;
         }
     }
@@ -240,8 +415,27 @@ public class ContentsMacro : ContentsBase
         //}
 
         //this.bitmexMain.CommandTable.SaveLocalCache();
-        //this.bitmexMain.Macro.SaveLocalCache();
+        //this.this.macro.SaveLocalCache();
 
         Debug.Log("ContentsMacro.OnClickSave()");
+    }
+
+    public void ExecuteMacro(List<RawKey> input)
+    {
+        foreach (var table in this.macroTable.GetMacroTable())
+        {
+            foreach (var macro in table.Value)
+            {
+                if (input.SequenceEqual(macro.Keys) == true)
+                {
+                    if (this.bitmexMain.CommandExecutor.AddCommand(macro.Command.Clone()) == false)
+                    {
+                        Debug.Log("executor add command timeout");
+                    }
+                    Debug.Log("executor add command complete");
+                    break;
+                }
+            }
+        }
     }
 }

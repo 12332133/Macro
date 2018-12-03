@@ -11,37 +11,24 @@ using UnityEngine.UI;
 
 public class ContentsBreakThrough : ContentsBase
 {
-    public class BreakThroughTrade : IBitMexSchedule
+    public class ReservationTrade : IBitMexSchedule
     {
         public decimal Price { get; set; }
-        public ExecuteType ExecuteType { get; set; }
         public IBitMexCommand Command { get; set; }
-        public IBitMexMainAdapter BitmexMain { get; set; }
-        public BitMexCoin Coin { get; set; }
+        public string CoinName { get; set; }
+        public bool IsStart { get; set; }
 
-        public bool IsCompletePriceConditions
+        public bool IsCompletePriceConditions(decimal marketPrice)
         {
-            get
-            {
-                switch (this.ExecuteType)
-                {
-                    case ExecuteType.PriceOver:
-                        return this.Price > this.Coin.MarketPrice;
-                    case ExecuteType.PriceUnder:
-                        return this.Price < this.Coin.MarketPrice;
-                }
-                return false;
-            }
-        }
+            //if (this.Price > marketPrice)
 
-        public bool Execute()
-        {
-            if (IsCompletePriceConditions)
-            {
-                return true;
-                //return BitmexMain.CommandExecutor.AddCommand(Command);
-            }
-
+            //switch (this.ExecuteType)
+            //{
+            //    case ExecuteType.PriceOver:
+            //        return this.Price > marketPrice;
+            //    case ExecuteType.PriceUnder:
+            //        return this.Price < marketPrice;
+            //}
             return false;
         }
     }
@@ -60,6 +47,9 @@ public class ContentsBreakThrough : ContentsBase
     private ContentsPopupInput popupInput;
     private ContentsPopupDropdown popupDropdown;
     private ContentsPopupMessage popupMessage;
+
+    private BitMexCommandTable commandTable;
+    private ConcurrentQueue<ReservationTrade> schedules;
 
     private void Reset()
     {
@@ -86,6 +76,7 @@ public class ContentsBreakThrough : ContentsBase
     public override void Initialize(IBitMexMainAdapter bitmexMain)
     {
         base.Initialize(bitmexMain);
+        this.schedules = new ConcurrentQueue<ReservationTrade>();
 
         /*
         new Thread(e => {
@@ -109,107 +100,177 @@ public class ContentsBreakThrough : ContentsBase
         this.popupDropdown = new ContentsPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
         this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
+        SetCommand();
+
+        OnRefreshMacroItem();
+
         btnAdd.onClick.AddListener(OnClickAdd);
     }
 
-    //private void Produce() 
-    //{
-    //    decimal price = decimal.Parse("5493.5", System.Globalization.NumberStyles.Any);
-
-    //    while (true)
-    //    {
-    //        try
-    //        {
-    //            if (this.bitmexMain.DriverService.IsDriverOpen() == true &&
-    //                this.bitmexMain.DriverService.IsTradingPage() == true)
-    //            {
-    //                //var wc = new System.Diagnostics.Stopwatch();
-    //                //wc.Start();
-
-    //                foreach (var coin in this.bitmexMain.CoinTable.Coins)
-    //                {
-    //                    if (coin.Key.Equals("XBTUSD") == true)
-    //                    {
-    //                        if (coin.Value.MarketPrice == price)
-    //                        {
-    //                            break;
-    //                        }
-
-    //                        if (coin.Value.MarketPrice > price)
-    //                        {
-    //                            var commandType = this.underCommands[0];
-    //                            AddTrade(coin.Value, TradeType.Under, price, commandType);
-
-    //                        }
-    //                        else
-    //                        {
-    //                            var commandType = this.overCommands[0];
-    //                            AddTrade(coin.Value, TradeType.Over, price, commandType);
-    //                        }
-    //                    }
-    //                }
-
-    //                //wc.Stop();
-    //                //Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
-    //            }
-    //        }
-    //        catch (Exception e)
-    //        {
-    //        }
-
-    //        System.Threading.Thread.Sleep(300);
-    //    }
-    //}
-
-    public void AddSchedule(BitMexCoin coin, ExecuteType type, decimal price, IBitMexCommand command)
+    private void SetCommand()
     {
-        if (command.CommandType == BitMexCommandType.None)
-        {
-            return;
-        }
+        this.commandTable = new BitMexCommandTable("schedule_commands");
 
-        var schedule = new BreakThroughTrade()
-        {
-            Coin = coin,
-            ExecuteType = type,
-            Price = price,
-            Command = command,
-            BitmexMain = bitmexMain,
-        };
+        //퍼센트
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.None,
+            new NoneCommand(this.bitmexMain));
 
-        this.bitmexMain.ResisterSchedule(schedule);
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
+
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
+        this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
+
+        this.commandTable.LoadLocalCache();
     }
 
-    //public void Test()
-    //{
-    //    AddTrade("XBTUSD", TradeType.Over, 2556.1M, BitMexCommandType.MarketSpecified10PriceSell);
-    //}
+    private ContentsMacroBreakThroughItem CreateHotKeyItem(ReservationTrade trade)
+    {
+        var go = Instantiate(this.goBreakThroughItem);
 
-    //public void Test()
-    //{
-    //    if (this.marketPrice == this.inputPrice)
-    //    {
-    //        return;
-    //    }
+        var item = go.GetComponent<ContentsMacroBreakThroughItem>().Initialized(
+            BitMexCommandTableType.Percent,
+            OnCommandChange,
+            OnResisterSchedule,
+            this.commandTable, 
+            trade);
 
-    //    if (this.marketPrice > this.inputPrice)
-    //    {
-    //        var commandType = this.underCommandTypes[0];
-    //        AddTrade(TradeType.Under, this.inputPrice, commandType);
-    //    }
-    //    else
-    //    {
-    //        var commandType = this.overCommandTypes[0];
-    //        AddTrade(TradeType.Over, this.inputPrice, commandType);
-    //    }
-
-    //    AddTrade("XBTUSD", TradeType.Over, 2556.1M, BitMexCommandType.MarketSpecified10PriceSell);
-    //}
+        go.transform.SetParent(this.svBreakThrough.content.transform);
+        return item;
+    }
 
     private void OnClickAdd()
     {
-        var go = Instantiate(this.goBreakThroughItem);
-        var item = go.GetComponent<ContentsMacroBreakThroughItem>().Initialized();
-        go.transform.SetParent(this.svBreakThrough.content.transform);
+        CreateHotKeyItem(null);
+    }
+
+    private void OnRefreshMacroItem()
+    {
+        foreach (var item in this.svBreakThrough.content.transform.GetComponentsInChildren<ContentsMacroBreakThroughItem>())
+        {
+            Destroy(item.gameObject);
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            CreateHotKeyItem(null);
+        }
+    }
+
+    public ReservationTrade OnResisterSchedule(string coinName, decimal price, IBitMexCommand command)
+    {
+        var schedule = new ReservationTrade()
+        {
+            CoinName = coinName,
+            Price = price,
+            Command = command,
+            IsStart = true,
+        };
+
+        this.schedules.Enqueue(schedule);
+
+        return schedule;
+    }
+
+    private void OnRefreshDropdown()
+    {
+        foreach (var item in this.svBreakThrough.content.transform.GetComponentsInChildren<ContentsMacroBreakThroughItem>())
+        {
+            item.RefreshCommandDropdown();
+        }
+    }
+
+    private void OnCommandChange(IBitMexCommand command, Action<IBitMexCommand> modify)
+    {
+        this.popupInput.OnEnablePopup(command.Parameters[0].ToString(),
+                   (value) => //add
+                    {
+                       var newCommand = command.Clone();
+                       newCommand.Parameters.Clear();
+                       newCommand.Parameters.Add(Int32.Parse(value));
+                       this.commandTable.InsertAt(newCommand);
+                       modify(newCommand);
+
+                       OnRefreshDropdown();
+                   },
+                   (value) => //edit
+                    {
+                       command.Parameters.Clear();
+                       command.Parameters.Add(Int32.Parse(value));
+                       modify(command);
+
+                       OnRefreshDropdown();
+                   },
+                   (value) => //del
+                    {
+                        // CommandTable의 커스텀 커맨드만 삭제한다.
+                       if (this.commandTable.Remove(command) == false)
+                       {
+                            // 삭제 불가능한 커맨드 팝업창 출력.
+                            return;
+                       }
+
+                        // Macro에서 커맨드를 참조중인놈을 찾아서 삭제한다.
+                        // this.macroTable.RemoveByCommand(command);
+
+                       OnRefreshMacroItem();
+                   });
+    }
+
+    public void UpdateSchedules()
+    {
+        foreach (var schedule in this.schedules)
+        {
+            if (schedule.IsStart == true)
+            {
+                var coin = this.bitmexMain.CoinTable.GetCoin(schedule.CoinName);
+
+                if (schedule.IsCompletePriceConditions(coin.MarketPrice) == true)
+                {
+                    ReservationTrade outTrade;
+                    if (this.schedules.TryDequeue(out outTrade) == true)
+                    {
+                        var newCommand = outTrade.Command.Clone();
+                        newCommand.Parameters.Add(coin.RootCoinName);
+                        newCommand.Parameters.Add(coin.CoinName);
+
+                        if (this.bitmexMain.CommandExecutor.AddCommand(newCommand) == true)
+                        {
+                            Debug.Log(string.Format("execute price schedule"));
+                        }
+                    }
+                }
+            }
+        }
     }
 }

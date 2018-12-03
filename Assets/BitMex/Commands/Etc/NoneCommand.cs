@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assets.BitMex.Commands
 {
-    public class NoneCommand : BitMexCommand<OderCommandCreator>
+    public class NoneCommand : BitMexCommand<NoneCommand>
     {
         public NoneCommand(IBitMexMainAdapter bitmexMain) : base(bitmexMain)
         {
@@ -26,9 +26,9 @@ namespace Assets.BitMex.Commands
             return string.Empty;
         }
 
-        protected override OderCommandCreator Create()
+        protected override NoneCommand Create()
         {
-            throw new NotImplementedException();
+            return new NoneCommand(this);
         }
     }
 }

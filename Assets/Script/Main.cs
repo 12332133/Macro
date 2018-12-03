@@ -27,7 +27,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private BitMexSession session;
     private BitMexDriverService service;
-    private ConcurrentQueue<IBitMexSchedule> schedules;
 
     private const string BitMexDomain = "https://testnet.bitmex.com";
     //private const string BitMexDomain = "https://www.bitmex.com/";
@@ -55,8 +54,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         KeyboardHooker.Stop();
 
-        this.service.CommandTable.SaveLocalCache();
-        this.session.Macro.SaveLocalCache();
         this.service.CoinTable.SaveLocalCache();
 
         this.service.CloseDriver();
@@ -77,88 +74,8 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void SetBitMexService()
     {
-        this.schedules = new ConcurrentQueue<IBitMexSchedule>();
         this.service = new BitMexDriverService();
         this.service.CoinTable.LoadActiveCoins(BitMexDomain);
-        
-        //퍼센트
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.None,
-            new NoneCommand(this));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification, 
-            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(100); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
-            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(80); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
-            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(50); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
-            new MarketPriceBuyCommand(this, (parameters) => { parameters.Add(20); }));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification, 
-            new MarketPriceSellCommand(this, (parameters) => { parameters.Add(100); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
-            new MarketPriceSellCommand(this, (parameters) => { parameters.Add(80); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
-            new MarketPriceSellCommand(this, (parameters) => { parameters.Add(50); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
-            new MarketPriceSellCommand(this, (parameters) => { parameters.Add(20); }));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy, 
-            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(100); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
-            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(80); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
-            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(50); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
-            new MarketSpecifiedBuyCommand(this, (parameters) => { parameters.Add(20); }));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell, 
-            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(100); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
-            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(80); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
-            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(50); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
-            new MarketSpecifiedSellCommand(this, (parameters) => { parameters.Add(20); }));
-
-        // 수량 
-        this.service.CommandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.None,
-            new NoneCommand(this));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketPriceSpecifiedQuantityBuy,
-            new MarketPriceSpecifiedQuantityBuyCommand(this, (parameters) => { parameters.Add(0); }));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketPriceSpecifiedQuantitySell,
-            new MarketPriceSpecifiedQuantitySellCommand(this, (parameters) => { parameters.Add(0); }));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketSpecifiedQuantityBuy,
-            new MarketSpecifiedQuantityBuyCommand(this, (parameters) => { parameters.Add(0); }));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketSpecifiedQuantitySell,
-            new MarketSpecifiedQuantitySellCommand(this, (parameters) => { parameters.Add(0); }));
-
-        // 기타
-        this.service.CommandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.None,
-            new NoneCommand(this));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ChangeCoinTap,
-            new ChangeCoinTapCommand(this, (parameters) => { parameters.Add("XBTUSD"); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ChangeCoinTap,
-            new ChangeCoinTapCommand(this, (parameters) => { parameters.Add("ETHXBT"); }));
-        this.service.CommandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ChangeCoinTap,
-            new ChangeCoinTapCommand(this, (parameters) => { parameters.Add("XRPZ18"); }));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ClearPosition,
-            new PositionClearCommand(this));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.CancleTopActivateOrder,
-            new TopActivateOrderCancleCommand(this));
-
-        this.service.CommandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.CancleAllActivateOrder,
-            new ActivateOrderCancleCommand(this));
-
-        this.service.CommandTable.LoadLocalCache();
-        this.session.Macro.LoadLocalCache(this.service.CommandTable);
     }
 
     private void SetInputKey()
@@ -257,22 +174,25 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             try
             {
-                if (this.service.IsTradingPage() == true)
+                if (this.service.IsAuthenticatedAccount(string.Empty) == true)
                 {
                     //var wc = new System.Diagnostics.Stopwatch();
                     //wc.Start();
 
                     this.service.HandleSyncCointPrices();
 
-                    foreach (var schedule in this.schedules)
-                    {
-                        if (schedule.Execute() == true)
-                        {
-                            IBitMexSchedule outi;
-                            this.schedules.TryDequeue(out outi);
-                            //Debug.Log(string.Format("execute price schedule"));
-                        }
-                    }
+                    GetContent<ContentsBreakThrough>(1).UpdateSchedules();
+                    GetContent<ContentsAlarm>(2).UpdateSchedules();
+
+                    //foreach (var schedule in this.schedules)
+                    //{
+                    //    if (schedule.Execute() == true)
+                    //    {
+                    //        IBitMexSchedule outi;
+                    //        this.schedules.TryDequeue(out outi);
+                    //        //Debug.Log(string.Format("execute price schedule"));
+                    //    }
+                    //}
 
                     //wc.Stop();
                     //Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
@@ -396,37 +316,20 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             Debug.Log("over fast macro input");
             return;
         }
- 
-        foreach (var table in Macro.GetMacroTable())
-        {
-            foreach (var macro in table.Value)
-            {
-                if (this.inputRawKeys.SequenceEqual(macro.Keys) == true)
-                {
-                    if (this.service.Executor.AddCommand(macro.Command.Clone()) == false)
-                    {
-                        Debug.Log("executor add command timeout");
-                    }
-                    Debug.Log("executor add command complete");
-                    break;
-                }
-            }
-        }
+
+        GetContent<ContentsMacro>(0).ExecuteMacro(this.inputRawKeys);
 
         this.time = DateTime.Now;
         this.inputRawKeys.Clear();
         this.isCombination = false;
     }
 
-    //bitmexmainadapter impl
-    public BitMexMacro Macro
+    private T GetContent<T>(int index) where T : ContentsBase
     {
-        get
-        {
-            return this.session.Macro;
-        }
+        return this.contents[index] as T;
     }
 
+    //bitmexmainadapter impl
 
     public BitMexCoinTable CoinTable
     {
@@ -458,24 +361,5 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             return this.service;
         }
-    }
-
-    public BitMexCommandTable CommandTable
-    {
-        get
-        {
-            return this.service.CommandTable;
-        }
-    }
-
-    public void ResisterSchedule(IBitMexSchedule schedule)
-    {
-        this.schedules.Enqueue(schedule);
-    }
-
-    public void WriteMacroLog(string log)
-    {
-        var content = this.contents[0] as ContentsMacro;
-        content.WriteMacroLog(log);
     }
 }

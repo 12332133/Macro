@@ -14,14 +14,20 @@ namespace Assets.BitMex
         private Dictionary<BitMexCommandType, IBitMexCommand> factory;
         private readonly string dir = Resource.Dir + "commandtable.json";
 
+        public BitMexCommandTable(string name)
+            :this()
+        {
+            this.dir = Resource.Dir + name + ".json";
+        }
+
         public BitMexCommandTable()
         {
+            this.factory = new Dictionary<BitMexCommandType, IBitMexCommand>();
+
             this.commands = new Dictionary<BitMexCommandTableType, List<IBitMexCommand>>();
             commands.Add(BitMexCommandTableType.Etc, new List<IBitMexCommand>());
             commands.Add(BitMexCommandTableType.Percent, new List<IBitMexCommand>());
             commands.Add(BitMexCommandTableType.Quantity, new List<IBitMexCommand>());
-
-            this.factory = new Dictionary<BitMexCommandType, IBitMexCommand>();
         }
 
         public void Resister(BitMexCommandTableType tableType, BitMexCommandType commandType, IBitMexCommand command)
@@ -72,6 +78,11 @@ namespace Assets.BitMex
                 return false;
             }
 
+            if (GetCommandCount(command.CommandTableType, command.CommandType) == 1)
+            {
+                return false;
+            }
+
             this.commands[command.CommandTableType].RemoveAt(command.RefCommandTableIndex);
 
             // 인덱스 재 배치
@@ -96,9 +107,6 @@ namespace Assets.BitMex
         public IBitMexCommand FindCommand(BitMexCommandTableType tableType, int index)
         {
             var command = this.commands[tableType][index];
-            //if (command.CommandType == BitMexCommandType.OrderCommandCreate ||
-            //    command.CommandType == BitMexCommandType.None)
-            //    return null;
             return command;
         }
 
@@ -115,12 +123,28 @@ namespace Assets.BitMex
             return null;
         }
 
-        public IBitMexCommand Create(BitMexCommandType commandType)
+        public int GetCommandCount(BitMexCommandTableType tableType, BitMexCommandType type)
+        {
+            int count = 0;
+
+            foreach (var command in this.commands[tableType])
+            {
+                if (command.CommandType == type)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        public IBitMexCommand CreateCommand(BitMexCommandType commandType)
         {
             if (this.factory.ContainsKey(commandType) == true)
             {
                 var command = this.factory[commandType].Clone();
                 command.Parameters.Clear();
+                return command;
             }
             return null;
         }
@@ -131,6 +155,11 @@ namespace Assets.BitMex
             {
                 var loadCommands = new List<IBitMexCommand>();
 
+                foreach (var commandTable in this.commands)
+                {
+                    commandTable.Value.Clear();
+                }
+
                 foreach (var item in JArray.Parse(File.ReadAllText(this.dir)))
                 {
                     var jobjectCommand = JObject.Parse(item.ToString());
@@ -139,11 +168,6 @@ namespace Assets.BitMex
                     var commandType = (BitMexCommandType)((ushort)jobjectCommand["CommandType"]);
                     var commandIndex = (int)jobjectCommand["CommandIndex"];
 
-                    if (commandType == BitMexCommandType.None)
-                    {
-                        continue;
-                    }
-
                     var parameters = new List<object>();
                     var jelementParameters = jobjectCommand["Parameters"].ToString();
                     foreach (var parameter in JArray.Parse(jelementParameters))
@@ -151,20 +175,10 @@ namespace Assets.BitMex
                         parameters.Add(parameter.ToObject<object>());
                     }
 
-                    var command = FindCommand(tableType, commandIndex);
-                    if (command == null)
-                    {
-                        var newCommand = Create(commandType);
-                        newCommand.Parameters.Clear();
-                        newCommand.Parameters.AddRange(parameters);
-                        newCommand.RefCommandTableIndex = commandIndex;
-                        this.commands[tableType].Insert(newCommand.RefCommandTableIndex, newCommand);
-                    }
-                    else
-                    {
-                        command.Parameters.Clear();
-                        command.Parameters.AddRange(parameters);
-                    }
+                    var command = CreateCommand(commandType);
+                    command.Parameters.AddRange(parameters);
+
+                    Resister(tableType, commandType, command);
                 }
             }
         }
