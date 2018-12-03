@@ -7,12 +7,14 @@ using static ContentsBreakThrough;
 
 public class ContentsMacroBreakThroughItem : MonoBehaviour
 {
-    [SerializeField] private Button btnStop;
-    [SerializeField] private Text txtStop;
+    [SerializeField] private Button btnEnable;
+    [SerializeField] private Text txtEnable;
 
-    [SerializeField] private Text txtBreakThrough;
+    [SerializeField] private Dropdown dropName;
 
-    [SerializeField] private Dropdown dropBreakthrough;
+    [SerializeField] private InputField inputValue;
+
+    [SerializeField] private Dropdown dropCommand;
 
     [SerializeField] private Button btnDelete;
 
@@ -33,12 +35,14 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
 
     private void Reset()
     {
-        this.btnStop = transform.Find("btnStop").GetComponent<Button>();
-        this.txtStop = transform.Find("btnStop/Text").GetComponent<Text>();
+        this.btnEnable = transform.Find("btnEnable").GetComponent<Button>();
+        this.txtEnable = transform.Find("btnEnable/Text").GetComponent<Text>();
 
-        this.txtBreakThrough = transform.Find("Text").GetComponent<Text>();
+        this.dropName = transform.Find("dropName").GetComponent<Dropdown>();
 
-        this.dropBreakthrough = transform.Find("Dropdown").GetComponent<Dropdown>();
+        this.inputValue = transform.Find("inputValue").GetComponent<InputField>();
+
+        this.dropCommand = transform.Find("downCommand").GetComponent<Dropdown>();
 
         this.btnDelete = transform.Find("btnDelete").GetComponent<Button>();
     }
@@ -62,7 +66,7 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
 
 
         btnDelete.onClick.AddListener(OnClickDelete);
-        btnStop.onClick.AddListener(OnClickStop);
+        btnEnable.onClick.AddListener(OnClickStop);
 
         RefreshCommandDropdown();
 
@@ -71,27 +75,27 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
 
     public void RefreshCommandDropdown()
     {
-        this.dropBreakthrough.onValueChanged.RemoveAllListeners();
-        this.dropBreakthrough.ClearOptions();
-        this.dropBreakthrough.value = 0;
+        this.dropCommand.onValueChanged.RemoveAllListeners();
+        this.dropCommand.ClearOptions();
+        this.dropCommand.value = 0;
 
         foreach (var command in this.commandTable.GetCommands(BitMexCommandTableType.Percent))
         {
-            this.dropBreakthrough.options.Add(new Dropdown.OptionData(command.GetCommandText()));
+            this.dropCommand.options.Add(new Dropdown.OptionData(command.GetCommandText()));
         }
 
         if (this.trade != null)
         {
-            this.dropBreakthrough.value = this.trade.Command.RefCommandTableIndex;
-            this.dropBreakthrough.captionText.text = this.dropBreakthrough.options[this.trade.Command.RefCommandTableIndex].text;
-            this.txtStop.text = this.trade.IsStart == true ? "Stop" : "Start";
+            this.dropCommand.value = this.trade.Command.RefCommandTableIndex;
+            this.dropCommand.captionText.text = this.dropCommand.options[this.trade.Command.RefCommandTableIndex].text;
+            this.txtEnable.text = this.trade.IsStart == true ? "Stop" : "Start";
         }
         else
         {
-            this.txtStop.text = "Start";
+            this.txtEnable.text = "Start";
         }
     
-        this.dropBreakthrough.onValueChanged.AddListener(OnCommandValueChanged);
+        this.dropCommand.onValueChanged.AddListener(OnCommandValueChanged);
 
         Debug.Log("RefreshCommandDopdown");
     }

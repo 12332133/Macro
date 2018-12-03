@@ -5,13 +5,16 @@ using UnityEngine.UI;
 
 public class ContentsMacroAlarmItem : MonoBehaviour
 {
-    [SerializeField] private Button btnStop;
-    [SerializeField] private Text txtStop;
+    [SerializeField] private Button btnEnable;
+    [SerializeField] private Text txtEnable;
 
-    [SerializeField] private Text txtAlarm;
+    [SerializeField] private Dropdown dropName;
 
-    [SerializeField] private Dropdown dropdownLeft;
-    [SerializeField] private Dropdown dropdownRight;
+    [SerializeField] private InputField inputValue;
+
+    [SerializeField] private Dropdown dropCommand;
+
+    [SerializeField] private Dropdown dropCount;
 
     [SerializeField] private Button btnDelete;
 
@@ -21,22 +24,25 @@ public class ContentsMacroAlarmItem : MonoBehaviour
 
     private void Reset()
     {
-        this.btnStop = transform.Find("btnStop").GetComponent<Button>();
-        this.txtStop = transform.Find("btnStop/Text").GetComponent<Text>();
+        this.btnEnable = transform.Find("btnEnable").GetComponent<Button>();
+        this.txtEnable = transform.Find("btnEnable/Text").GetComponent<Text>();
 
-        this.txtAlarm = transform.Find("Text").GetComponent<Text>();
+        this.dropCommand = transform.Find("dropName").GetComponent<Dropdown>();
 
-        this.dropdownLeft = transform.Find("DropdownL").GetComponent<Dropdown>();
-        this.dropdownRight = transform.Find("DropdownR").GetComponent<Dropdown>();
+        this.inputValue = transform.Find("inputValue").GetComponent<InputField>();
+
+        this.dropCommand = transform.Find("dropCommand").GetComponent<Dropdown>();
+
+        this.dropCount = transform.Find("dorpCount").GetComponent<Dropdown>();
 
         this.btnDelete = transform.Find("btnDelete").GetComponent<Button>();
     }
 
     public ContentsMacroAlarmItem Initialized()
     {
-        btnStop.onClick.AddListener(OnClickStop);
-        dropdownLeft.onValueChanged.AddListener(OnValueChangedAlarmLeft);
-        dropdownRight.onValueChanged.AddListener(OnValueChangedAlarmRight);
+        btnEnable.onClick.AddListener(OnClickStop);
+        dropCommand.onValueChanged.AddListener(OnValueChangedAlarmLeft);
+        dropCount.onValueChanged.AddListener(OnValueChangedAlarmRight);
         btnDelete.onClick.AddListener(OnClickDelete);
         return this;
     }

@@ -5,8 +5,13 @@ using UnityEngine.UI;
 
 public class ContentsMacroCoinItem : MonoBehaviour
 {
-    [SerializeField] private Button btnCoin;
     [SerializeField] private Text txtCoin;
+
+    [SerializeField] private Text txtSetAmount;
+    [SerializeField] private InputField inputSetAmount;
+
+    [SerializeField] private Text txtFixAmount;
+    [SerializeField] private InputField inputFixAmount;
 
     private BitMexCoin coin;
 
@@ -16,8 +21,13 @@ public class ContentsMacroCoinItem : MonoBehaviour
 
     private void Reset()
     {
-        this.btnCoin = transform.Find("Button").GetComponent<Button>();
-        this.txtCoin = transform.Find("Button/Text").GetComponent<Text>();
+        this.txtCoin = transform.Find("CoinName/Text").GetComponent<Text>();
+
+        this.txtSetAmount = transform.Find("SetAmount/Text").GetComponent<Text>();
+        this.inputSetAmount = transform.Find("SetAmount/InputField").GetComponent<InputField>();
+
+        this.txtFixAmount = transform.Find("FixAmount/Text").GetComponent<Text>();
+        this.inputFixAmount = transform.Find("FixAmount/InputField").GetComponent<InputField>();
     }
 
     //public ContentsMacroCoinItem Initialized(BitMexCoin coin, UnityEngine.Events.UnityAction callBack)
@@ -26,7 +36,6 @@ public class ContentsMacroCoinItem : MonoBehaviour
         this.coin = coin;
 
         this.txtCoin.text = this.coin.CoinName;
-        this.btnCoin.onClick.AddListener(() => { callBack(this.coin); });
 
         return this;
     }
