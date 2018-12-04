@@ -19,11 +19,8 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
     [SerializeField] private Button btnDelete;
 
 
-    private Action<IBitMexCommand, Action<IBitMexCommand>> commandChange;
-    private Func<string, decimal, IBitMexCommand, ReservationTrade> resisterTrade;
-
     private BitMexCommandTableType commandTableType;
-    private BitMexCommandTable commandTable;
+    private IContentsReservation content;
 
     private IBitMexCommand tempCommand;
 
@@ -47,28 +44,21 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
         this.btnDelete = transform.Find("btnDelete").GetComponent<Button>();
     }
 
-    private void OnApplicationQuit()
-    {
-        this.commandTable.SaveLocalCache();
-    }
-
     public ContentsMacroBreakThroughItem Initialized(
         BitMexCommandTableType commandTableType,
-        Action<IBitMexCommand, Action<IBitMexCommand>> commandChange,
-        Func<string, decimal, IBitMexCommand, ReservationTrade> resisterTrade,
-        BitMexCommandTable commandTable, 
+        IContentsReservation content,
         ReservationTrade trade)
     {
         this.commandTableType = commandTableType;
-        this.commandTable = commandTable;
-        this.trade = trade;
-        this.resisterTrade = resisterTrade;
-
+        this.content = content;
 
         btnDelete.onClick.AddListener(OnClickDelete);
         btnEnable.onClick.AddListener(OnClickStop);
 
         RefreshCommandDropdown();
+        RefreshCoinDropdown();
+        RefreshMarketPrice();
+        RefreshStart();
 
         return this;
     }
@@ -76,10 +66,9 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
     public void RefreshCommandDropdown()
     {
         this.dropCommand.onValueChanged.RemoveAllListeners();
-        this.dropCommand.ClearOptions();
+        this.dropCommand.options.Clear();
         this.dropCommand.value = 0;
-
-        foreach (var command in this.commandTable.GetCommands(BitMexCommandTableType.Percent))
+        foreach (var command in this.content.CommandTable.GetCommands(BitMexCommandTableType.Percent))
         {
             this.dropCommand.options.Add(new Dropdown.OptionData(command.GetCommandText()));
         }
@@ -87,61 +76,192 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
         if (this.trade != null)
         {
             this.dropCommand.value = this.trade.Command.RefCommandTableIndex;
-            this.dropCommand.captionText.text = this.dropCommand.options[this.trade.Command.RefCommandTableIndex].text;
-            this.txtEnable.text = this.trade.IsStart == true ? "Stop" : "Start";
+            this.dropCommand.Select();
+            this.dropCommand.RefreshShownValue();
         }
         else
         {
-            this.txtEnable.text = "Start";
+            if (this.tempCommand != null)
+            {
+                this.dropCommand.value = this.tempCommand.RefCommandTableIndex;
+                this.dropCommand.Select();
+                this.dropCommand.RefreshShownValue();
+            }
         }
-    
+
         this.dropCommand.onValueChanged.AddListener(OnCommandValueChanged);
 
         Debug.Log("RefreshCommandDopdown");
     }
 
+    public void RefreshCoinDropdown()
+    {
+        this.dropName.options.Add(new Dropdown.OptionData(string.Empty));
+        foreach (var coin in this.content.CoinTable.Coins)
+        {
+            this.dropName.options.Add(new Dropdown.OptionData(coin.Key));
+        }
+
+        this.dropCommand.onValueChanged.AddListener(OnCoinValueChanged);
+    }
+
+    public void RefreshMarketPrice()
+    {
+        this.inputValue.text = "시장가 입력";
+        this.inputValue.onEndEdit.AddListener(OnMarketPriceChanged);
+    }
+
+    public void RefreshStart()
+    {
+        this.txtEnable.text = "시작";
+    }
+
     private void OnClickStop()
     {
-        if (this.trade == null)
+        if (this.trade != null)
         {
-            this.trade = this.resisterTrade(string.Empty, 0, this.tempCommand);
-            this.tempCommand = null;
-        }
-        else
-        {
-       
+            this.txtEnable.text = "정지";
+            this.trade.IsStart = true;
         }
 
         Debug.Log("ContentsMacroBreakThroughItem.OnClickStop()");
     }
 
+    private void OnMarketPriceChanged(string price)
+    {
+        if (this.trade == null)
+        {
+            if (this.tempCommand != null && this.dropName.value > 0) // 코인 선택 + 커맨드 선택
+            {
+                this.trade = this.content.ResisterTrade(
+                    this.dropName.captionText.text,
+                    decimal.Parse(this.inputValue.text, System.Globalization.NumberStyles.Any), 
+                    this.tempCommand,
+                    this);
+            }
+        }
+        else
+        {
+            this.trade.TargetPrice = decimal.Parse(this.inputValue.text, System.Globalization.NumberStyles.Any);
+        }
+    }
+
+    private void OnCoinValueChanged(int index)
+    {
+        if (index == 0)
+        {
+            return;
+        }
+
+        if (this.trade == null)
+        {
+            if (this.inputValue.text.Equals("시장가 입력") == false && this.tempCommand != null) // 시장가 입력 + 커맨드 선택 이면 스퀘쥴 등록
+            {
+                this.trade = this.content.ResisterTrade(
+                    this.dropName.captionText.text,
+                    decimal.Parse(this.inputValue.text, System.Globalization.NumberStyles.Any), 
+                    this.tempCommand,
+                    this);
+            }
+        }
+        else
+        {
+            this.trade.CoinName = this.dropName.captionText.text;
+        }
+    }
+
     private void OnCommandValueChanged(int index)
     {
-        var command = this.commandTable.FindCommand(BitMexCommandTableType.Percent, index);
+        var command = this.content.CommandTable.FindCommand(this.commandTableType, index); // 선택한 커맨드
 
         if (command.CommandType == BitMexCommandType.None)
         {
             return;
         }
 
-        this.commandChange(command, (modifyedCommand) => {
+        this.content.PopupInput.OnEnablePopup(
+                      command,
+                      command.Parameters[0].ToString(),
+                      OnAddCommand,
+                      OnModifyCommand,
+                      OnRemoveCommand);
 
-            if (this.trade == null) // 최초 생성이면 
+        Debug.Log(command.CommandType);
+    }
+
+    private void SetCommand(IBitMexCommand command)
+    {
+        if (this.trade == null) // 최초 생성이면 
+        {
+            if (this.inputValue.text.Equals("시장가 입력") == false && this.dropName.value > 0) // 시장가 입력 + 코인 선택이면 추가
+            {
+                this.trade = this.content.ResisterTrade(
+                    this.dropName.captionText.text, 
+                    decimal.Parse(this.inputValue.text, System.Globalization.NumberStyles.Any), 
+                    command,
+                    this);
+            }
+            else // 완성 조합키 없이 커맨드만 선택 했으면 
             {
                 this.tempCommand = command;
             }
-            else // 기존 매크로 수정이면 새로 선택/수정 한 커맨드를 바로 참조
-            {
-                this.trade.Command = command;
-            }
-
-        });
-
-        Debug.Log("ContentsMacroBreakThroughItem.OnValueChangedBreakThrough(" + index + ")");
+        }
+        else // 기존 매크로 수정이면 새로 선택/수정 한 커맨드를 바로 참조
+        {
+            this.trade.Command = command;
+        }
     }
 
-    private void OnClickDelete()
+    private void OnAddCommand(IBitMexCommand command, string value)
     {
+        var newCommand = command.Clone();
+        newCommand.Parameters.Clear();
+        newCommand.Parameters.Add(value);
+
+        this.content.CommandTable.InsertAt(newCommand);
+
+        SetCommand(newCommand);
+
+        this.content.OnRefreshDropdown();
+    }
+
+    private void OnModifyCommand(IBitMexCommand command, string value)
+    {
+        command.Parameters.Clear();
+        command.Parameters.Add(value);
+
+        this.content.CommandTable.ModifyCommand(command);
+
+        SetCommand(command);
+
+        this.content.OnRefreshDropdown();
+    }
+
+    private void OnRemoveCommand(IBitMexCommand command, string value)
+    {
+        // CommandTable의 커스텀 커맨드만 삭제한다.
+        if (this.content.CommandTable.Remove(command) == false)
+        {
+            // 삭제 불가능한 커맨드 팝업창 출력.
+            this.content.PopupAlret.OnEnablePopup("삭제 불가능한 명령");
+            return;
+        }
+
+        // Macro에서 커맨드를 참조중인놈을 찾아서 삭제한다.
+        // this.content.MacroTable.RemoveByCommand(command);
+        this.content.RemoveTradeByCommand(command);
+
+        this.content.OnRefreshReservationItem();
+    }
+
+
+    public void OnClickDelete()
+    {
+        if (this.trade != null)
+        {
+            this.content.RemoveTrade(this.trade);
+        }
+
         Destroy(this.gameObject);
         Debug.Log("ContentsMacroBreakThroughItem.OnClickDelete()");
     }

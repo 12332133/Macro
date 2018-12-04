@@ -9,26 +9,42 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ContentsBreakThrough : ContentsBase
+public interface IContentsReservation
+{
+    BitMexCommandTable CommandTable { get; }
+    BitMexCoinTable CoinTable { get; }
+    ContentsBase.ContentsPopupInput<IBitMexCommand> PopupInput { get; }
+    ContentsBase.ContentsPopupDropdown<IBitMexCommand> PopupDropdown { get; }
+    ContentsBase.ContentsPopupMessage PopupAlret { get; }
+    ContentsBreakThrough.ReservationTrade ResisterTrade(string coinName, decimal price, IBitMexCommand command, ContentsMacroBreakThroughItem item);
+    void RemoveTradeByCommand(IBitMexCommand command);
+    void RemoveTrade(ContentsBreakThrough.ReservationTrade trade);
+    void OnRefreshDropdown();
+    void OnRefreshReservationItem();
+}
+
+public class ContentsBreakThrough : ContentsBase, IContentsReservation
 {
     public class ReservationTrade : IBitMexSchedule
     {
-        public decimal Price { get; set; }
+        public decimal TargetPrice { get; set; }
+        public decimal CurrentPrice { get; set; }
         public IBitMexCommand Command { get; set; }
+        public ExecuteType ExecuteType { get; set; }
         public string CoinName { get; set; }
         public bool IsStart { get; set; }
+        public bool IsRemove { get; set; }
+        public ContentsMacroBreakThroughItem Item { get; set; }
 
         public bool IsCompletePriceConditions(decimal marketPrice)
         {
-            //if (this.Price > marketPrice)
-
-            //switch (this.ExecuteType)
-            //{
-            //    case ExecuteType.PriceOver:
-            //        return this.Price > marketPrice;
-            //    case ExecuteType.PriceUnder:
-            //        return this.Price < marketPrice;
-            //}
+            switch (this.ExecuteType)
+            {
+                case ExecuteType.PriceOver:
+                    return this.TargetPrice >= marketPrice;
+                case ExecuteType.PriceUnder:
+                    return this.TargetPrice <= marketPrice;
+            }
             return false;
         }
     }
@@ -44,12 +60,20 @@ public class ContentsBreakThrough : ContentsBase
     
     [SerializeField] private GameObject goPopup;
 
-    private ContentsPopupInput popupInput;
-    private ContentsPopupDropdown popupDropdown;
+    private ContentsPopupInput<IBitMexCommand> popupInput;
+    private ContentsPopupDropdown<IBitMexCommand> popupDropdown;
     private ContentsPopupMessage popupMessage;
 
     private BitMexCommandTable commandTable;
     private ConcurrentQueue<ReservationTrade> schedules;
+    private object locked;
+
+    // interface impl
+    public BitMexCommandTable CommandTable { get { return this.commandTable; } }
+    public BitMexCoinTable CoinTable { get { return this.bitmexMain.CoinTable; } }
+    public ContentsPopupInput<IBitMexCommand> PopupInput { get { return this.popupInput; } }
+    public ContentsPopupDropdown<IBitMexCommand> PopupDropdown { get { return this.popupDropdown; } }
+    public ContentsPopupMessage PopupAlret { get { return this.popupMessage; } }
 
     private void Reset()
     {
@@ -77,6 +101,16 @@ public class ContentsBreakThrough : ContentsBase
     {
         base.Initialize(bitmexMain);
         this.schedules = new ConcurrentQueue<ReservationTrade>();
+        
+        this.popupInput = new ContentsPopupInput<IBitMexCommand>(this.goPopup.transform.GetChild(0));
+        this.popupDropdown = new ContentsPopupDropdown<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
+
+        SetCommand();
+
+        OnRefreshReservationItem();
+
+        btnAdd.onClick.AddListener(OnClickAdd);
 
         /*
         new Thread(e => {
@@ -95,16 +129,6 @@ public class ContentsBreakThrough : ContentsBase
             IsBackground = true,
         }.Start();
         */
-
-        this.popupInput = new ContentsPopupInput(this.goPopup.transform.GetChild(0));
-        this.popupDropdown = new ContentsPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
-        this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
-
-        SetCommand();
-
-        OnRefreshMacroItem();
-
-        btnAdd.onClick.AddListener(OnClickAdd);
     }
 
     private void SetCommand()
@@ -160,11 +184,14 @@ public class ContentsBreakThrough : ContentsBase
 
         var item = go.GetComponent<ContentsMacroBreakThroughItem>().Initialized(
             BitMexCommandTableType.Percent,
-            OnCommandChange,
-            OnResisterSchedule,
-            this.commandTable, 
+            this,
             trade);
 
+        if (trade != null)
+        {
+            trade.Item = item;
+        }
+        
         go.transform.SetParent(this.svBreakThrough.content.transform);
         return item;
     }
@@ -174,35 +201,31 @@ public class ContentsBreakThrough : ContentsBase
         CreateHotKeyItem(null);
     }
 
-    private void OnRefreshMacroItem()
+    public void OnRefreshReservationItem()
     {
         foreach (var item in this.svBreakThrough.content.transform.GetComponentsInChildren<ContentsMacroBreakThroughItem>())
         {
             Destroy(item.gameObject);
         }
 
-        for (int i = 0; i < 5; i++)
+        foreach (var trade in this.schedules)
         {
-            CreateHotKeyItem(null);
+            if (trade.IsRemove == false)
+            {
+                CreateHotKeyItem(trade);
+            }
+        }
+
+        if (this.schedules.Count < 5)
+        {
+            for (int i = 0; i < 5 - this.schedules.Count; i++)
+            {
+                CreateHotKeyItem(null);
+            }
         }
     }
 
-    public ReservationTrade OnResisterSchedule(string coinName, decimal price, IBitMexCommand command)
-    {
-        var schedule = new ReservationTrade()
-        {
-            CoinName = coinName,
-            Price = price,
-            Command = command,
-            IsStart = true,
-        };
-
-        this.schedules.Enqueue(schedule);
-
-        return schedule;
-    }
-
-    private void OnRefreshDropdown()
+    public void OnRefreshDropdown()
     {
         foreach (var item in this.svBreakThrough.content.transform.GetComponentsInChildren<ContentsMacroBreakThroughItem>())
         {
@@ -210,67 +233,85 @@ public class ContentsBreakThrough : ContentsBase
         }
     }
 
-    private void OnCommandChange(IBitMexCommand command, Action<IBitMexCommand> modify)
+    public ReservationTrade ResisterTrade(string coinName, decimal price, IBitMexCommand command, ContentsMacroBreakThroughItem item)
     {
-        this.popupInput.OnEnablePopup(command.Parameters[0].ToString(),
-                   (value) => //add
-                    {
-                       var newCommand = command.Clone();
-                       newCommand.Parameters.Clear();
-                       newCommand.Parameters.Add(Int32.Parse(value));
-                       this.commandTable.InsertAt(newCommand);
-                       modify(newCommand);
+        var coin = this.bitmexMain.CoinTable.GetCoin(coinName);
+        
+        if (coin.MarketPrice == 0)
+        {
+            this.PopupAlret.OnEnablePopup("Chrome 비트맥스가 실행중이 아닙니다.");
+            return null;
+        }
 
-                       OnRefreshDropdown();
-                   },
-                   (value) => //edit
-                    {
-                       command.Parameters.Clear();
-                       command.Parameters.Add(Int32.Parse(value));
-                       modify(command);
+        var schedule = new ReservationTrade()
+        {
+            ExecuteType = price > coin.MarketPrice ? ExecuteType.PriceOver : ExecuteType.PriceUnder,
+            CoinName = coinName,
+            TargetPrice = price,
+            Command = command,
+            IsStart = false,
+            Item = item,
+        };
 
-                       OnRefreshDropdown();
-                   },
-                   (value) => //del
-                    {
-                        // CommandTable의 커스텀 커맨드만 삭제한다.
-                       if (this.commandTable.Remove(command) == false)
-                       {
-                            // 삭제 불가능한 커맨드 팝업창 출력.
-                            return;
-                       }
+        Debug.Log(string.Format("resister trade marketprice {0}", coin.MarketPrice.ToString()));
+        Debug.Log(string.Format("resister trade executeType {0}", schedule.ExecuteType.ToString()));
 
-                        // Macro에서 커맨드를 참조중인놈을 찾아서 삭제한다.
-                        // this.macroTable.RemoveByCommand(command);
+        this.schedules.Enqueue(schedule);
 
-                       OnRefreshMacroItem();
-                   });
+        return schedule;
+    }
+
+    public void RemoveTrade(ReservationTrade trade)
+    {
+        trade.IsStart = false;
+        trade.IsRemove = true;
+        Debug.Log(string.Format("remove schedule"));
+    }
+
+    public void RemoveTradeByCommand(IBitMexCommand command)
+    {
+        foreach (var schedule in this.schedules)
+        {
+            if (schedule.Command == command)
+            {
+                RemoveTrade(schedule);
+            }
+        }
     }
 
     public void UpdateSchedules()
     {
         foreach (var schedule in this.schedules)
         {
-            if (schedule.IsStart == true)
+            if (schedule.IsStart == true && schedule.IsRemove == false)
             {
                 var coin = this.bitmexMain.CoinTable.GetCoin(schedule.CoinName);
 
                 if (schedule.IsCompletePriceConditions(coin.MarketPrice) == true)
                 {
-                    ReservationTrade outTrade;
-                    if (this.schedules.TryDequeue(out outTrade) == true)
-                    {
-                        var newCommand = outTrade.Command.Clone();
-                        newCommand.Parameters.Add(coin.RootCoinName);
-                        newCommand.Parameters.Add(coin.CoinName);
+                    var newCommand = schedule.Command.Clone();
+                    newCommand.Parameters.Add(coin.RootCoinName);
+                    newCommand.Parameters.Add(coin.CoinName);
 
-                        if (this.bitmexMain.CommandExecutor.AddCommand(newCommand) == true)
-                        {
-                            Debug.Log(string.Format("execute price schedule"));
-                        }
-                    }
+                    //if (this.bitmexMain.CommandExecutor.AddCommand(newCommand) == true)
+                    //{
+                    //    Debug.Log(string.Format("execute price schedule"));
+                    //}
+
+                    schedule.Item.OnClickDelete();
+
+                    Debug.Log(string.Format("execute price schedule"));
                 }
             }
         }
+    }
+
+    private void SaveLocalCache()
+    {
+        //isremove == true not save
+    }
+
+    private void LoadLocalCache()
+    {
     }
 }

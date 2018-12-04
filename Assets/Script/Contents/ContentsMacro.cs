@@ -7,7 +7,18 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ContentsMacro : ContentsBase
+public interface IContentsMacro
+{
+    BitMexCommandTable CommandTable { get; }
+    BitMexMacroTable MacroTable { get; }
+    ContentsBase.ContentsPopupInput<IBitMexCommand> PopupInput { get; }
+    ContentsBase.ContentsPopupDropdown<IBitMexCommand> PopupDropdown { get; }
+    ContentsBase.ContentsPopupMessage PopupAlret { get; }
+    void OnRefreshDropdown(BitMexCommandTableType type);
+    void OnRefreshMacroItem(BitMexCommandTableType type);
+}
+
+public class ContentsMacro : ContentsBase, IContentsMacro
 {
     [SerializeField] private Text[] txtTabs;
     [SerializeField] private Toggle[] toggleTabs;
@@ -28,12 +39,19 @@ public class ContentsMacro : ContentsBase
 
     [SerializeField] private Button btnSave;
 
-    private ContentsPopupInput popupInput;
-    private ContentsPopupDropdown popupDropdown;
+    private ContentsPopupInput<IBitMexCommand> popupInput;
+    private ContentsPopupDropdown<IBitMexCommand> popupDropdown;
     private ContentsPopupMessage popupMessage;
 
     private BitMexCommandTable commandTable;
     private BitMexMacroTable macroTable;
+
+    // interface impl
+    public BitMexCommandTable CommandTable { get { return this.commandTable; } }
+    public BitMexMacroTable MacroTable { get { return this.macroTable; } }
+    public ContentsPopupInput<IBitMexCommand> PopupInput { get { return this.popupInput; } }
+    public ContentsPopupDropdown<IBitMexCommand> PopupDropdown { get { return this.popupDropdown; } }
+    public ContentsPopupMessage PopupAlret { get { return this.popupMessage; } }
 
     private void Reset()
     {
@@ -77,8 +95,8 @@ public class ContentsMacro : ContentsBase
 
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
 
-        this.popupInput = new ContentsPopupInput(this.goPopup.transform.GetChild(0));
-        this.popupDropdown = new ContentsPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        this.popupInput = new ContentsPopupInput<IBitMexCommand>(this.goPopup.transform.GetChild(0));
+        this.popupDropdown = new ContentsPopupDropdown<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
         this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
         SetCommand();
@@ -94,7 +112,7 @@ public class ContentsMacro : ContentsBase
         this.btnAddLog.onClick.AddListener(OnClickAddLog);
         this.btnDelLog.onClick.AddListener(OnClickDelLog);
 
-        this.btnSave.onClick.AddListener(OnClickSave);
+        //this.btnSave.onClick.AddListener(OnClickSave);
         //this.btnSave.interactable = false;
     }
 
@@ -232,9 +250,7 @@ public class ContentsMacro : ContentsBase
 
         var item = go.GetComponent<ContentsMacroHotKeyItem>().Initialized(
                         type,
-                        OnCommandChange,
-                        commandTable,
-                        macroTable,
+                        this,
                         macro);
 
         go.transform.SetParent(this.svHotKeys[(ushort)type].content.transform);
@@ -279,7 +295,7 @@ public class ContentsMacro : ContentsBase
         return (BitMexCommandTableType)index;
     }
 
-    private void OnRefreshDropdown(BitMexCommandTableType type)
+    public void OnRefreshDropdown(BitMexCommandTableType type)
     {
         foreach (var item in this.svHotKeys[(ushort)type].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
@@ -287,7 +303,7 @@ public class ContentsMacro : ContentsBase
         }
     }
 
-    private void OnRefreshMacroItem(BitMexCommandTableType type)
+    public void OnRefreshMacroItem(BitMexCommandTableType type)
     {
         foreach (var item in this.svHotKeys[(ushort)type].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
         {
@@ -308,95 +324,6 @@ public class ContentsMacro : ContentsBase
         }
     }
 
-    private void OnCommandChange(IBitMexCommand command, Action<IBitMexCommand> modify)
-    {
-        switch (command.CommandType)
-        {
-            case BitMexCommandType.ChangeCoinTap:
-                this.popupDropdown.OnEnablePopup(command.Parameters[0].ToString(), 
-                    (value) => //add
-                    {
-                        var newCommand = command.Clone();
-                        newCommand.Parameters.Clear();
-                        newCommand.Parameters.Add(value);
-                        this.commandTable.InsertAt(newCommand);
-                        modify(newCommand);
-
-                        OnRefreshDropdown(command.CommandTableType);
-                    },
-                    (value) => //edit
-                    {
-                        command.Parameters.Clear();
-                        command.Parameters.Add(value);
-                        modify(command);
-
-                        OnRefreshDropdown(command.CommandTableType);
-                    },
-                    (value) => //del
-                    {
-                        // CommandTable의 커스텀 커맨드만 삭제한다.
-                        if (this.commandTable.Remove(command) == false)
-                        {
-                            // 삭제 불가능한 커맨드 팝업창 출력.
-                            return;
-                        }
-
-                        // Macro에서 커맨드를 참조중인놈을 찾아서 삭제한다.
-                        this.macroTable.RemoveByCommand(command);
-
-                        OnRefreshMacroItem(command.CommandTableType);
-                    });
-                break;
-            default:
-                this.popupInput.OnEnablePopup(command.Parameters[0].ToString(), 
-                    (value) => //add
-                    {
-                        var newCommand = command.Clone();
-                        newCommand.Parameters.Clear();
-                        newCommand.Parameters.Add(Int32.Parse(value));
-                        this.commandTable.InsertAt(newCommand);
-                        modify(newCommand);
-
-                        OnRefreshDropdown(command.CommandTableType);
-                    }, 
-                    (value) => //edit
-                    {
-                        command.Parameters.Clear();
-                        command.Parameters.Add(Int32.Parse(value));
-                        modify(command);
-
-                        OnRefreshDropdown(command.CommandTableType);
-                    },
-                    (value) => //del
-                    {
-                        // CommandTable의 커스텀 커맨드만 삭제한다.
-                        if (this.commandTable.Remove(command) == false)
-                        {
-                            // 삭제 불가능한 커맨드 팝업창 출력.
-                            return;
-                        }
-
-                        // Macro에서 커맨드를 참조중인놈을 찾아서 삭제한다.
-                        this.macroTable.RemoveByCommand(command);
-
-                        OnRefreshMacroItem(command.CommandTableType);
-                    });
-                break;
-        }
-    }
-
-    //private void OnClickPopupBack()
-    //{
-    //    Debug.Log("ContentsMacro.OnClickPopupBack()");
-    //    this.goPopup.SetActive(false);
-    //}
-
-    //private void OnClickPopupOK()
-    //{
-    //    Debug.Log("ContentsMacro.OnClickPopupOK()");
-    //    this.goPopup.SetActive(false);
-    //}
-
     private void OnClickAddLog()
     {
         Debug.Log("ContentsMacro.OnClickAdd()");
@@ -405,19 +332,6 @@ public class ContentsMacro : ContentsBase
     private void OnClickDelLog()
     {
         Debug.Log("ContentsMacro.OnClickDel()");
-    }
-
-    private void OnClickSave()
-    {
-        //foreach (var item in this.svHotKeys[GetActivateToggleIndex()].content.transform.GetComponentsInChildren<ContentsMacroHotKeyItem>())
-        //{
-        //    item.ResisterMacro();
-        //}
-
-        //this.bitmexMain.CommandTable.SaveLocalCache();
-        //this.this.macro.SaveLocalCache();
-
-        Debug.Log("ContentsMacro.OnClickSave()");
     }
 
     public void ExecuteMacro(List<RawKey> input)

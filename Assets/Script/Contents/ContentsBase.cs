@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ContentsBase : MonoBehaviour
 {
-    public class ContentsPopupInput
+    public class ContentsPopupInput<T>
     {
         public GameObject Root;
         public Button btnPopupBack;
@@ -14,9 +14,10 @@ public class ContentsBase : MonoBehaviour
         public Button btnEdit;
         public Button btnDel;
 
-        public Action<string> add;
-        public Action<string> edit;
-        public Action<string> del;
+        private Action<T, string> add;
+        private Action<T, string> modify;
+        private Action<T, string> remove;
+        private T obj;
 
         public ContentsPopupInput(Transform root)
         {
@@ -33,13 +34,14 @@ public class ContentsBase : MonoBehaviour
             this.btnDel.onClick.AddListener(OnClickDel);
         }
 
-        public void OnEnablePopup(string original, Action<string> add, Action<string> edit, Action<string> del)
+        public void OnEnablePopup(T obj, string input, Action<T, string> add, Action<T, string> modify, Action<T, string> remove)
         {
+            this.obj = obj;
             this.add = add;
-            this.edit = edit;
-            this.del = del;
+            this.modify = modify;
+            this.remove = remove;
 
-            this.inputPopup.text = original;
+            this.inputPopup.text = input;
             this.Root.SetActive(true);
         }
 
@@ -50,24 +52,24 @@ public class ContentsBase : MonoBehaviour
 
         private void OnClickAdd()
         {
-            this.add(this.inputPopup.text);
+            this.add(this.obj, this.inputPopup.text);
             this.Root.SetActive(false);
         }
 
         private void OnClickEdit()
         {
-            this.edit(this.inputPopup.text);
+            this.modify(this.obj, this.inputPopup.text);
             this.Root.SetActive(false);
         }
 
         private void OnClickDel()
         {
-            this.del(this.inputPopup.text);
+            this.remove(this.obj, this.inputPopup.text);
             this.Root.SetActive(false);
         }
     }
 
-    public class ContentsPopupDropdown
+    public class ContentsPopupDropdown<T>
     {
         public GameObject Root;
         public Button btnPopupBack;
@@ -76,9 +78,10 @@ public class ContentsBase : MonoBehaviour
         public Button btnEdit;
         public Button btnDel;
 
-        public Action<string> add;
-        public Action<string> edit;
-        public Action<string> del;
+        private Action<T, string> add;
+        private Action<T, string> modify;
+        private Action<T, string> remove;
+        private T obj;
 
         public ContentsPopupDropdown(Transform root, BitMexCoinTable coinTable)
         {
@@ -100,18 +103,19 @@ public class ContentsBase : MonoBehaviour
             }
         }
 
-        public void OnEnablePopup(string coinName, Action<string> add, Action<string> edit, Action<string> del)
+        public void OnEnablePopup(T obj, string input, Action<T, string> add, Action<T, string> modify, Action<T, string> remove)
         {
+            this.obj = obj;
             this.add = add;
-            this.edit = edit;
-            this.del = del;
+            this.modify = modify;
+            this.remove = remove;
 
             this.dropPopup.value = 0;
             this.dropPopup.captionText.text = string.Empty;
 
             for (int i = 0; i < this.dropPopup.options.Count; i++)
             {
-                if (this.dropPopup.options[i].text.Equals(coinName) == true)
+                if (this.dropPopup.options[i].text.Equals(input) == true)
                 {
                     this.dropPopup.value = i;
                     this.dropPopup.captionText.text = this.dropPopup.options[i].text;
@@ -128,19 +132,19 @@ public class ContentsBase : MonoBehaviour
 
         private void OnClickAdd()
         {
-            this.add(this.dropPopup.options[this.dropPopup.value].text);
+            this.add(this.obj, this.dropPopup.options[this.dropPopup.value].text);
             this.Root.SetActive(false);
         }
 
         private void OnClickEdit()
         {
-            this.edit(this.dropPopup.options[this.dropPopup.value].text);
+            this.modify(this.obj, this.dropPopup.options[this.dropPopup.value].text);
             this.Root.SetActive(false);
         }
 
         private void OnClickDel()
         {
-            this.del(this.dropPopup.options[this.dropPopup.value].text);
+            this.remove(this.obj, this.dropPopup.options[this.dropPopup.value].text);
             this.Root.SetActive(false);
         }
     }
@@ -151,7 +155,6 @@ public class ContentsBase : MonoBehaviour
         public Button btnPopupBack;
         public Text txtPopup;
         public Button btnPopup;
-        public Action<string> complete;
 
         public ContentsPopupMessage(Transform root)
         {
@@ -164,9 +167,9 @@ public class ContentsBase : MonoBehaviour
             this.btnPopup.onClick.AddListener(OnClickPopupOK);
         }
 
-        public void OnEnablePopup(string original, Action<string> complete)
+        public void OnEnablePopup(string original)
         {
-            this.complete = complete;
+            txtPopup.text = original;
             this.Root.SetActive(true);
         }
 

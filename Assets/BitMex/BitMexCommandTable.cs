@@ -48,11 +48,45 @@ namespace Assets.BitMex
         {
             this.commands[command.CommandTableType].Insert(command.RefCommandTableIndex, command);
 
+            // 정렬
+
             // 인덱스 재 배치
             for (int i = 0; i < this.commands[command.CommandTableType].Count; i++)
             {
                 this.commands[command.CommandTableType][i].RefCommandTableIndex = i;
             }
+        }
+
+        public bool Remove(IBitMexCommand command)
+        {
+            if (command.CommandType == BitMexCommandType.None)
+            {
+                return false;
+            }
+            
+            if (GetCommandCount(command.CommandTableType, command.CommandType) == 1)
+            {
+                return false;
+            }
+
+            this.commands[command.CommandTableType].RemoveAt(command.RefCommandTableIndex);
+
+            // 정렬
+
+
+            // 인덱스 재 배치
+            for (int i = 0; i < this.commands[command.CommandTableType].Count; i++)
+            {
+                this.commands[command.CommandTableType][i].RefCommandTableIndex = i;
+            }
+
+            return true;
+        }
+
+        public void ModifyCommand(IBitMexCommand command)
+        {
+            // 정렬
+
         }
 
         public IBitMexCommand CreateByCreator(BitMexCommandTableType tableType, int creatorIndex)
@@ -71,37 +105,9 @@ namespace Assets.BitMex
             return command;
         }
 
-        public bool Remove(IBitMexCommand command)
-        {
-            if (command.CommandType == BitMexCommandType.None)
-            {
-                return false;
-            }
-
-            if (GetCommandCount(command.CommandTableType, command.CommandType) == 1)
-            {
-                return false;
-            }
-
-            this.commands[command.CommandTableType].RemoveAt(command.RefCommandTableIndex);
-
-            // 인덱스 재 배치
-            for (int i = 0; i < this.commands[command.CommandTableType].Count; i++)
-            {
-                this.commands[command.CommandTableType][i].RefCommandTableIndex = i;
-            }
-
-            return true;
-        }
-
         public List<IBitMexCommand> GetCommands(BitMexCommandTableType tableType)
         {
             return this.commands[tableType];
-        }
-       
-        public bool HasCommand(BitMexCommandTableType tableType, int index)
-        {
-            return this.commands[tableType][index] != null;
         }
 
         public IBitMexCommand FindCommand(BitMexCommandTableType tableType, int index)
