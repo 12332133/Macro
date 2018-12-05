@@ -11,8 +11,8 @@ public interface IContentsMacro
 {
     BitMexCommandTable CommandTable { get; }
     BitMexMacroTable MacroTable { get; }
-    ContentsBase.ContentsPopupInput<IBitMexCommand> PopupInput { get; }
-    ContentsBase.ContentsPopupDropdown<IBitMexCommand> PopupDropdown { get; }
+    ContentsBase.ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get; }
+    ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get; }
     ContentsBase.ContentsPopupMessage PopupAlret { get; }
     void OnRefreshDropdown(BitMexCommandTableType type);
     void OnRefreshMacroItem(BitMexCommandTableType type);
@@ -39,8 +39,8 @@ public class ContentsMacro : ContentsBase, IContentsMacro
 
     [SerializeField] private Button btnSave;
 
-    private ContentsPopupInput<IBitMexCommand> popupInput;
-    private ContentsPopupDropdown<IBitMexCommand> popupDropdown;
+    private ModifyCommandPercentPopup<IBitMexCommand> popupInput;
+    private ModifyCommandCoinTypePopup<IBitMexCommand> popupDropdown;
     private ContentsPopupMessage popupMessage;
 
     private BitMexCommandTable commandTable;
@@ -49,8 +49,8 @@ public class ContentsMacro : ContentsBase, IContentsMacro
     // interface impl
     public BitMexCommandTable CommandTable { get { return this.commandTable; } }
     public BitMexMacroTable MacroTable { get { return this.macroTable; } }
-    public ContentsPopupInput<IBitMexCommand> PopupInput { get { return this.popupInput; } }
-    public ContentsPopupDropdown<IBitMexCommand> PopupDropdown { get { return this.popupDropdown; } }
+    public ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get { return this.popupInput; } }
+    public ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get { return this.popupDropdown; } }
     public ContentsPopupMessage PopupAlret { get { return this.popupMessage; } }
 
     private void Reset()
@@ -95,8 +95,8 @@ public class ContentsMacro : ContentsBase, IContentsMacro
 
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
 
-        this.popupInput = new ContentsPopupInput<IBitMexCommand>(this.goPopup.transform.GetChild(0));
-        this.popupDropdown = new ContentsPopupDropdown<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        this.popupInput = new ModifyCommandPercentPopup<IBitMexCommand>(this.goPopup.transform.GetChild(0));
+        this.popupDropdown = new ModifyCommandCoinTypePopup<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
         this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
         SetCommand();

@@ -71,8 +71,8 @@ public class ContentsAlarm : ContentsBase
 
     [SerializeField] private GameObject goPopup;
 
-    //private ContentsPopupInput popupInput;
-    //private ContentsPopupDropdown popupDropdown;
+    //private ModifyCommandPercentPopup popupInput;
+    //private ModifyCommandCoinTypePopup popupDropdown;
     //private ContentsPopupMessage popupMessage;
 
     private void Reset()
@@ -112,8 +112,8 @@ public class ContentsAlarm : ContentsBase
         }.Start();
         */
 
-        //this.popupInput = new ContentsPopupInput(this.goPopup.transform.GetChild(0));
-        //this.popupDropdown = new ContentsPopupDropdown(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        //this.popupInput = new ModifyCommandPercentPopup(this.goPopup.transform.GetChild(0));
+        //this.popupDropdown = new ModifyCommandCoinTypePopup(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
         //this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
         btnAdd.onClick.AddListener(OnClickAdd);

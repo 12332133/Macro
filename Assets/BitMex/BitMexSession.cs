@@ -14,7 +14,8 @@ namespace Assets.BitMex
     {
         public string ApiSecret;
         public string ApiKey;
-        public string Email;
+        public string Nickname;
+        public bool IsLogined;
         public string ReferrerAccount;
         public string ReferrerEmail;
         public DateTime UpdateDateTime;

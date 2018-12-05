@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ContentsBase : MonoBehaviour
 {
-    public class ContentsPopupInput<T>
+    public class ModifyCommandPercentPopup<T>
     {
         public GameObject Root;
         public Button btnPopupBack;
@@ -19,7 +19,7 @@ public class ContentsBase : MonoBehaviour
         private Action<T, string> remove;
         private T obj;
 
-        public ContentsPopupInput(Transform root)
+        public ModifyCommandPercentPopup(Transform root)
         {
             this.Root = root.gameObject;
             this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
@@ -69,7 +69,7 @@ public class ContentsBase : MonoBehaviour
         }
     }
 
-    public class ContentsPopupDropdown<T>
+    public class ModifyCommandCoinTypePopup<T>
     {
         public GameObject Root;
         public Button btnPopupBack;
@@ -83,7 +83,7 @@ public class ContentsBase : MonoBehaviour
         private Action<T, string> remove;
         private T obj;
 
-        public ContentsPopupDropdown(Transform root, BitMexCoinTable coinTable)
+        public ModifyCommandCoinTypePopup(Transform root, BitMexCoinTable coinTable)
         {
             this.Root = root.gameObject;
             this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();

@@ -30,12 +30,12 @@ public class ContentsMacroCoinItem : MonoBehaviour
         this.inputFixAmount = transform.Find("FixAmount/InputField").GetComponent<InputField>();
     }
 
-    //public ContentsMacroCoinItem Initialized(BitMexCoin coin, UnityEngine.Events.UnityAction callBack)
     public ContentsMacroCoinItem Initialized(BitMexCoin coin, Action<BitMexCoin> callBack)
     {
         this.coin = coin;
 
         this.txtCoin.text = this.coin.CoinName;
+        this.inputSetAmount.text = this.coin.SpecifiedAditional.ToString();
 
         return this;
     }

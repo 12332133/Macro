@@ -1,6 +1,7 @@
 ﻿using Assets.BitMex;
 using Assets.BitMex.Commands;
 using System;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 using static ContentsBreakThrough;
@@ -51,6 +52,7 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
     {
         this.commandTableType = commandTableType;
         this.content = content;
+        this.trade = trade;
 
         btnDelete.onClick.AddListener(OnClickDelete);
         btnEnable.onClick.AddListener(OnClickStop);
@@ -100,28 +102,69 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
         foreach (var coin in this.content.CoinTable.Coins)
         {
             this.dropName.options.Add(new Dropdown.OptionData(coin.Key));
+
+            if (this.trade != null && this.trade.CoinName == coin.Key)
+            {
+                this.dropName.value = this.dropName.options.Count - 1;
+                this.dropName.Select();
+                this.dropName.RefreshShownValue();
+            }
         }
 
-        this.dropCommand.onValueChanged.AddListener(OnCoinValueChanged);
+        this.dropName.onValueChanged.AddListener(OnCoinValueChanged);
     }
 
     public void RefreshMarketPrice()
     {
-        this.inputValue.text = "시장가 입력";
+        if (this.trade != null)
+        {
+            this.inputValue.text = this.trade.TargetPrice.ToString();
+        }
+        else
+        {
+            this.inputValue.text = "시장가 입력";
+        }
+
         this.inputValue.onEndEdit.AddListener(OnMarketPriceChanged);
     }
 
     public void RefreshStart()
     {
-        this.txtEnable.text = "시작";
+        if (this.trade != null)
+        {
+            this.txtEnable.text = this.trade.IsStart == true ? "정지" : "시작";
+        }
+        else
+        {
+            this.txtEnable.text = "시작";
+        }
     }
 
     private void OnClickStop()
     {
         if (this.trade != null)
         {
-            this.txtEnable.text = "정지";
-            this.trade.IsStart = true;
+            if (this.content.BitMexSession.IsLogined == false)
+            {
+                this.content.PopupAlret.OnEnablePopup("비트맥스에 로그인 해주세요");
+                return;
+            }
+
+            if (this.trade != null)
+            {
+                this.txtEnable.text = this.trade.IsStart == true ? "정지" : "시작";
+            }
+            else
+            {
+                //if (this.trade.IsVaildMomentPrice(1000) == false)
+                //{
+                this.content.PopupAlret.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
+                return;
+                //}
+
+                this.txtEnable.text = "정지";
+                this.trade.IsStart = true;
+            }
         }
 
         Debug.Log("ContentsMacroBreakThroughItem.OnClickStop()");
@@ -138,6 +181,11 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
                     decimal.Parse(this.inputValue.text, System.Globalization.NumberStyles.Any), 
                     this.tempCommand,
                     this);
+
+                if (this.trade != null)
+                {
+                    this.content.OnRefreshReservationItem();
+                }
             }
         }
         else
@@ -162,6 +210,11 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
                     decimal.Parse(this.inputValue.text, System.Globalization.NumberStyles.Any), 
                     this.tempCommand,
                     this);
+
+                if (this.trade != null)
+                {
+                    this.content.OnRefreshReservationItem();
+                }
             }
         }
         else
@@ -196,10 +249,16 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
             if (this.inputValue.text.Equals("시장가 입력") == false && this.dropName.value > 0) // 시장가 입력 + 코인 선택이면 추가
             {
                 this.trade = this.content.ResisterTrade(
-                    this.dropName.captionText.text, 
-                    decimal.Parse(this.inputValue.text, System.Globalization.NumberStyles.Any), 
+                    this.dropName.captionText.text,
+                    decimal.Parse(this.inputValue.text, System.Globalization.NumberStyles.Any),
                     command,
                     this);
+
+                if (this.trade != null)
+                {
+                    this.content.OnRefreshReservationItem();
+                    return;
+                }
             }
             else // 완성 조합키 없이 커맨드만 선택 했으면 
             {
@@ -210,6 +269,8 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
         {
             this.trade.Command = command;
         }
+
+        this.content.OnRefreshDropdown();
     }
 
     private void OnAddCommand(IBitMexCommand command, string value)
@@ -221,8 +282,6 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
         this.content.CommandTable.InsertAt(newCommand);
 
         SetCommand(newCommand);
-
-        this.content.OnRefreshDropdown();
     }
 
     private void OnModifyCommand(IBitMexCommand command, string value)
@@ -233,8 +292,6 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
         this.content.CommandTable.ModifyCommand(command);
 
         SetCommand(command);
-
-        this.content.OnRefreshDropdown();
     }
 
     private void OnRemoveCommand(IBitMexCommand command, string value)
@@ -247,13 +304,10 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
             return;
         }
 
-        // Macro에서 커맨드를 참조중인놈을 찾아서 삭제한다.
-        // this.content.MacroTable.RemoveByCommand(command);
         this.content.RemoveTradeByCommand(command);
 
         this.content.OnRefreshReservationItem();
     }
-
 
     public void OnClickDelete()
     {

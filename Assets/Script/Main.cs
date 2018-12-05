@@ -68,6 +68,10 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     public void Show(BitMexSession session)
     {
+        var response = BitMexApiHelper.GetAccount(session, BitMexDomain);
+        var jobject = JObject.Parse(response);
+        session.Nickname = jobject["username"].ToString();
+
         this.session = session;
         gameObject.SetActive(true);
     }
@@ -164,7 +168,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             this.service.OpenService(driver, BitMexDomain);
 
             StartCoroutine(SyncCointPrices());
-            //StartCoroutine(CheckBitmexDriverAccount());
+            StartCoroutine(CheckBitmexDriverAccount());
         }
     }
 
@@ -174,15 +178,18 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             try
             {
-                if (this.service.IsAuthenticatedAccount(string.Empty) == true)
+                if (this.service.IsTradingPage() == true)
                 {
                     //var wc = new System.Diagnostics.Stopwatch();
                     //wc.Start();
 
                     this.service.HandleSyncCointPrices();
 
-                    GetContent<ContentsBreakThrough>(1).UpdateSchedules();
-                    GetContent<ContentsAlarm>(2).UpdateSchedules();
+                    if (this.session.IsLogined == true)
+                    {
+                        GetContent<ContentsBreakThrough>(1).UpdateSchedules();
+                        GetContent<ContentsAlarm>(2).UpdateSchedules();
+                    }
 
                     //foreach (var schedule in this.schedules)
                     //{
@@ -213,9 +220,13 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             try
             {
-                if (this.service.IsAuthenticatedAccount(this.session.Email) == false)
+                if (this.service.IsAuthenticatedAccount(this.session.Nickname) == true)
                 {
-                    Debug.Log("threc account");
+                    this.session.IsLogined = true;
+                }
+                else
+                {
+                    this.session.IsLogined = false;
                 }
             }
             catch (Exception e)
@@ -223,7 +234,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                 Debug.Log(e);
             }
 
-            yield return new WaitForSeconds(5.0f);
+            yield return new WaitForSeconds(0.5f);
         }
     }
 

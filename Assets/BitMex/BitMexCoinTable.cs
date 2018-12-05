@@ -37,13 +37,22 @@ namespace Assets.BitMex
     {
         private readonly string dir = Resource.Dir + "cointable.json";
         private Dictionary<string, BitMexCoin> coins;
-        private List<string> coinOders;
+        private Dictionary<string, List<BitMexCoin>> templateSortedCoins;
 
         public BitMexCoinTable()
         {
             this.coins = new Dictionary<string, BitMexCoin>();
-            this.coinOders = new List<string>();
-            this.coinOders.Add("XBT");
+            this.templateSortedCoins = new Dictionary<string, List<BitMexCoin>>()
+            {
+                { "XBT", new List<BitMexCoin>() },
+                { "ADA", new List<BitMexCoin>() },
+                { "BCH", new List<BitMexCoin>() },
+                { "EOS", new List<BitMexCoin>() },
+                { "ETH", new List<BitMexCoin>() },
+                { "LTC", new List<BitMexCoin>() },
+                { "TRX", new List<BitMexCoin>() },
+                { "XRP", new List<BitMexCoin>() },
+            };
         }
 
         public BitMexCoin GetCoin(string coinName)
@@ -76,14 +85,14 @@ namespace Assets.BitMex
                     var rootCoinName = jobject["rootSymbol"].ToString();
                     var coinName = jobject["symbol"].ToString();
                     var tick = jobject["tickSize"].ToString();
-                    var defaultSpecifiedAditional = decimal.Parse(tick, System.Globalization.NumberStyles.Any) * 25;
+                    var marketPrice = jobject["lastPrice"].ToString();
 
                     var coin = new BitMexCoin()
                     {
                         RootCoinName = rootCoinName,
                         CoinName = coinName,
-                        SpecifiedAditional = defaultSpecifiedAditional,
-                        MarketPrice = 0,
+                        SpecifiedAditional = decimal.Parse(tick, System.Globalization.NumberStyles.Any) * 25,
+                        MarketPrice = decimal.Parse(marketPrice, System.Globalization.NumberStyles.Any),
                     };
 
                     this.coins.Add(coinName, coin);
@@ -115,17 +124,24 @@ namespace Assets.BitMex
                 SaveLocalCache();
             }
 
-            Sort();
+            SortByCoinName();
         }
 
-        private void Sort()
+        private void SortByCoinName()
         {
-            var coinGroups = this.coins.Values.GroupBy(coin => coin.RootCoinName).OrderByDescending(coin => coin.Key).ToList();
-
-            this.coins.Clear();
-            foreach (var coins in coinGroups)
+            foreach (var coin in this.coins)
             {
-                foreach (var coin in coins)
+                if (this.templateSortedCoins.ContainsKey(coin.Value.RootCoinName) == false)
+                {
+                    this.templateSortedCoins.Add(coin.Value.RootCoinName, new List<BitMexCoin>());
+                }
+                this.templateSortedCoins[coin.Value.RootCoinName].Add(coin.Value);
+            }
+            
+            this.coins.Clear();
+            foreach (var coins in this.templateSortedCoins)
+            {
+                foreach (var coin in coins.Value)
                 {
                     this.coins.Add(coin.CoinName, coin);
                 }

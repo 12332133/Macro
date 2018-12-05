@@ -88,24 +88,33 @@ public class Title : MonoBehaviour
     {
         Debug.Log("아이디 : " + this.inputID.text + "\t패스워드 : " + this.inputPW.text);
 
-        //var resp = Login("test", "test123!");
+        //var resp = Login("test", "test123!", ShareBitDomain);
         //{ "data":{ "user":{ "apiKey":"s33nLZ6j7qYFFtxPYDt0NF41","resultCode":1,"apiSecret":"5511ZeUQSZtzH4My3E76jYtXVPuNTqh8Lejg6qiGVMaNNLja","id":2,"email":"kissingsky@naver.com"} },"success":true}
         // if (success == true)
+
+        //real
+        //var session = new BitMexSession()
+        //{
+        //    ApiKey = "TE3O0NLo8pmwAkzsv66UamVr",
+        //    ApiSecret = "yVjWPBWEVmwWZ39bRJ23aLJu5h69Eq4cyQHM6utd-O7Z8qZx",
+        //    Nickname = "condemonkey@gmail.com",
+        //};
+
+        //test
         var session = new BitMexSession()
         {
-            ApiKey = "TE3O0NLo8pmwAkzsv66UamVr",
-            ApiSecret = "yVjWPBWEVmwWZ39bRJ23aLJu5h69Eq4cyQHM6utd-O7Z8qZx",
-            Email = "condemonkey@gmail.com",
+            ApiKey = "SYHilkT0Lmp4I4eHBV4woHe9",
+            ApiSecret = "xbj8CNU-uHJl2Ff2W5TPWkA4MWgAglIXJRbnxAQGpAgIBya1",
         };
 
         OnSuccessLogin(session);
     }
 
-    public string Login(string id, string pass)
+    public string Login(string id, string pass, string url)
     {
         try
         {
-            var request = (HttpWebRequest)WebRequest.Create(this.ShareBitDomain + "?id=" + id + "&pw=" + pass);
+            var request = (HttpWebRequest)WebRequest.Create(url + "?id=" + id + "&pw=" + pass);
             request.AllowAutoRedirect = false;
             request.ServicePoint.Expect100Continue = false;
             request.Proxy = null;
