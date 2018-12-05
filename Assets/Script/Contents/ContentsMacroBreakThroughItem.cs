@@ -152,18 +152,26 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
 
             if (this.trade != null)
             {
-                this.txtEnable.text = this.trade.IsStart == true ? "정지" : "시작";
+                if (this.trade.IsStart == true)
+                {
+                    this.trade.IsStart = false;
+                    this.txtEnable.text = "시작";
+                }
+                else
+                {
+                    //if (this.trade.IsVaildMomentPrice(1000) == false)
+                    //{
+                    //this.content.PopupAlret.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
+                    //return;
+                    //}
+
+                    this.trade.IsStart = true;
+                    this.txtEnable.text = "정지";
+                }
             }
             else
             {
-                //if (this.trade.IsVaildMomentPrice(1000) == false)
-                //{
-                this.content.PopupAlret.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
-                return;
-                //}
-
-                this.txtEnable.text = "정지";
-                this.trade.IsStart = true;
+                this.txtEnable.text = "시작";
             }
         }
 

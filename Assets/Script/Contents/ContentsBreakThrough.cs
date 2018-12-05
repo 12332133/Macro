@@ -42,9 +42,9 @@ public class ContentsBreakThrough : ContentsBase, IContentsReservation
             switch (this.ExecuteType)
             {
                 case ExecuteType.PriceOver:
-                    return this.TargetPrice >= marketPrice;
-                case ExecuteType.PriceUnder:
                     return this.TargetPrice <= marketPrice;
+                case ExecuteType.PriceUnder:
+                    return this.TargetPrice >= marketPrice;
             }
             return false;
         }
@@ -221,6 +221,7 @@ public class ContentsBreakThrough : ContentsBase, IContentsReservation
             Destroy(item.gameObject);
         }
 
+        int count = 0;
         foreach (var trades in this.schedules.Values)
         {
             foreach (var trade in trades)
@@ -228,16 +229,14 @@ public class ContentsBreakThrough : ContentsBase, IContentsReservation
                 if (trade.IsRemove == false)
                 {
                     CreateHotKeyItem(trade);
+                    count++;
                 }
             }
         }
 
-        if (this.svBreakThrough.content.transform.childCount < 5)
+        for (int i = 0; i < 5 - count; i++)
         {
-            for (int i = 0; i < 5 - this.svBreakThrough.content.transform.childCount; i++)
-            {
-                CreateHotKeyItem(null);
-            }
+            CreateHotKeyItem(null);
         }
     }
 
@@ -321,8 +320,18 @@ public class ContentsBreakThrough : ContentsBase, IContentsReservation
 
                 if (schedule.IsStart == true && schedule.IsRemove == false)
                 {
+                    //Debug.Log(string.Format("reservate b {0},{1},{2}",
+                    //    schedule.ExecuteType, 
+                    //    schedule.TargetPrice,
+                    //    schedule.MomentPrice));
+                    
                     if (schedule.IsCompletePriceConditions(coin.MarketPrice) == true)
                     {
+                        this.PopupAlret.OnEnablePopup("execute price schedule");
+
+                        Debug.Log(string.Format("reservate e {0}",
+                        coin.MarketPrice));
+
                         var newCommand = schedule.Command.Clone();
                         newCommand.Parameters.Add(coin.RootCoinName);
                         newCommand.Parameters.Add(coin.CoinName);
@@ -333,10 +342,6 @@ public class ContentsBreakThrough : ContentsBase, IContentsReservation
                         //}
 
                         schedule.Item.OnClickDelete();
-
-                        this.PopupAlret.OnEnablePopup("execute price schedule");
-
-                        Debug.Log(string.Format("execute price schedule"));
                     }
                 }
             }

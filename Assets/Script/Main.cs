@@ -168,7 +168,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             this.service.OpenService(driver, BitMexDomain);
 
             StartCoroutine(SyncCointPrices());
-            StartCoroutine(CheckBitmexDriverAccount());
+            //StartCoroutine(CheckBitmexDriverAccount());
         }
     }
 
@@ -176,38 +176,29 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         while (true)
         {
-            try
+            var account = this.service.GetAutthenticateAccount();
+
+            if (account.Equals(string.Empty) == false)
             {
-                if (this.service.IsTradingPage() == true)
+                //var wc = new System.Diagnostics.Stopwatch();
+                //wc.Start();
+
+                this.service.HandleSyncCointPrices();
+
+                if ("게스트".Equals(account) == true)
                 {
-                    //var wc = new System.Diagnostics.Stopwatch();
-                    //wc.Start();
+                    this.session.IsLogined = true;
 
-                    this.service.HandleSyncCointPrices();
-
-                    if (this.session.IsLogined == true)
-                    {
-                        GetContent<ContentsBreakThrough>(1).UpdateSchedules();
-                        GetContent<ContentsAlarm>(2).UpdateSchedules();
-                    }
-
-                    //foreach (var schedule in this.schedules)
-                    //{
-                    //    if (schedule.Execute() == true)
-                    //    {
-                    //        IBitMexSchedule outi;
-                    //        this.schedules.TryDequeue(out outi);
-                    //        //Debug.Log(string.Format("execute price schedule"));
-                    //    }
-                    //}
-
-                    //wc.Stop();
-                    //Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
+                    GetContent<ContentsBreakThrough>(1).UpdateSchedules();
+                    GetContent<ContentsAlarm>(2).UpdateSchedules();
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e);
+                else
+                {
+                    this.session.IsLogined = false;
+                }
+                
+                //wc.Stop();
+                //Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
             }
 
             yield return new WaitForSeconds(0.05f);
@@ -218,22 +209,16 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         while (true)
         {
-            try
+            if (this.service.IsAuthenticatedAccount(this.session.Nickname) == true)
             {
-                if (this.service.IsAuthenticatedAccount(this.session.Nickname) == true)
-                {
-                    this.session.IsLogined = true;
-                }
-                else
-                {
-                    this.session.IsLogined = false;
-                }
+                this.session.IsLogined = true;
             }
-            catch (Exception e)
+            else
             {
-                Debug.Log(e);
+                this.session.IsLogined = false;
             }
 
+            Debug.Log(string.Format("login {0}", this.session.IsLogined));
             yield return new WaitForSeconds(0.5f);
         }
     }

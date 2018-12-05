@@ -460,6 +460,17 @@ namespace Assets.BitMex
             elementOrderConfirmation.Click();
         }
 
+        public string GetAutthenticateAccount()
+        { 
+            var elementEmail = this.driver.SafeFindElement(By.CssSelector("div.optionsDropdown.mainOptionsDropdown.dropdown"), false);
+            if (elementEmail == null)
+            {
+                return string.Empty;
+            }
+
+            return elementEmail.SafeGetAttribute("textContent");
+        }
+
         public bool IsAuthenticatedAccount(string name)
         {
             var elementEmail = this.driver.SafeFindElement(By.CssSelector("span.visible-lg-inline-block.visible-sm-inline-block"), false);
