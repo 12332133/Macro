@@ -37,27 +37,27 @@ public class ContentsBreakThrough : ContentsBase, IContentsReservation
         public bool IsStart { get; set; }
         public bool IsRemove { get; set; }
 
-        public bool IsCompletePriceConditions(decimal marketPrice)
+        public bool IsCompletePriceConditions(decimal currentPrice)
         {
             switch (this.ExecuteType)
             {
                 case ExecuteType.PriceOver:
-                    return this.TargetPrice <= marketPrice;
+                    return this.TargetPrice <= currentPrice;
                 case ExecuteType.PriceUnder:
-                    return this.TargetPrice >= marketPrice;
+                    return this.TargetPrice >= currentPrice;
             }
             return false;
         }
 
         // 예약을 작성한 시점의 시장가와 실제 예약을 실행시킬 시점에서의 시장가의 위치가 맞는가
-        public bool IsVaildMomentPrice(decimal marketPrice)
+        public bool IsVaildMomentPrice(decimal currentPrice)
         {
             switch (this.ExecuteType)
             {
                 case ExecuteType.PriceOver:
-                    return this.MomentPrice >= marketPrice;
+                    return this.TargetPrice < currentPrice;
                 case ExecuteType.PriceUnder:
-                    return this.MomentPrice <= marketPrice;
+                    return this.TargetPrice > currentPrice;
             }
             return false;
         }

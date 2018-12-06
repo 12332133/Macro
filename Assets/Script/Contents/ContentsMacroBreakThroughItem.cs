@@ -159,11 +159,12 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
                 }
                 else
                 {
-                    //if (this.trade.IsVaildMomentPrice(1000) == false)
-                    //{
-                    //this.content.PopupAlret.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
-                    //return;
-                    //}
+                    var coin = content.CoinTable.GetCoin(this.trade.CoinName);
+                    if (this.trade.IsVaildMomentPrice(coin.MarketPrice) == false)
+                    {
+                        this.content.PopupAlret.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
+                        return;
+                    }
 
                     this.trade.IsStart = true;
                     this.txtEnable.text = "정지";
@@ -198,7 +199,16 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
         }
         else
         {
+            var coin = content.CoinTable.GetCoin(this.trade.CoinName);
+            if (coin.MarketPrice == 0)
+            {
+                this.content.PopupAlret.OnEnablePopup("현재 시장가 가격 정보 에러");
+                return;
+            }
+
             this.trade.TargetPrice = decimal.Parse(this.inputValue.text, System.Globalization.NumberStyles.Any);
+            this.trade.ExecuteType = this.trade.TargetPrice > coin.MarketPrice ? ExecuteType.PriceOver : ExecuteType.PriceUnder;
+            this.trade.MomentPrice = coin.MarketPrice;
         }
     }
 
