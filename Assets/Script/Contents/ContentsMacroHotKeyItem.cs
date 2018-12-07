@@ -117,17 +117,17 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
                 this.content.PopupDropdown.OnEnablePopup(
                     command,
                     command.Parameters[0].ToString(), 
-                    OnAddCommand, 
-                    OnModifyCommand, 
-                    OnRemoveCommand);
+                    OnAddCommand<string>, 
+                    OnModifyCommand<string>, 
+                    OnRemoveCommand<string>);
                 break;
             default:
                 this.content.PopupInput.OnEnablePopup(
                     command,
                     command.Parameters[0].ToString(),
-                    OnAddCommand,
-                    OnModifyCommand,
-                    OnRemoveCommand);
+                    OnAddCommand<int>,
+                    OnModifyCommand<int>,
+                    OnRemoveCommand<int>);
                 break;
         }
 
@@ -154,7 +154,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         }
     }
 
-    private void OnAddCommand(IBitMexCommand command, string value)
+    private void OnAddCommand<T>(IBitMexCommand command, T value)
     {
         var newCommand = command.Clone();
         newCommand.Parameters.Clear();
@@ -167,7 +167,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.content.OnRefreshDropdown(command.CommandTableType);
     }
 
-    private void OnModifyCommand(IBitMexCommand command, string value)
+    private void OnModifyCommand<T>(IBitMexCommand command, T value)
     {
         command.Parameters.Clear();
         command.Parameters.Add(value);
@@ -179,7 +179,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.content.OnRefreshDropdown(command.CommandTableType);
     }
 
-    private void OnRemoveCommand(IBitMexCommand command, string value)
+    private void OnRemoveCommand<T>(IBitMexCommand command, T value)
     {
         // CommandTable의 커스텀 커맨드만 삭제한다.
         if (this.content.CommandTable.Remove(command) == false)

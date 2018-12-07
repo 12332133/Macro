@@ -14,9 +14,9 @@ public class ContentsBase : MonoBehaviour
         public Button btnEdit;
         public Button btnDel;
 
-        private Action<T, string> add;
-        private Action<T, string> modify;
-        private Action<T, string> remove;
+        private Action<T, int> add;
+        private Action<T, int> modify;
+        private Action<T, int> remove;
         private T obj;
 
         public ModifyCommandPercentPopup(Transform root)
@@ -34,7 +34,7 @@ public class ContentsBase : MonoBehaviour
             this.btnDel.onClick.AddListener(OnClickDel);
         }
 
-        public void OnEnablePopup(T obj, string input, Action<T, string> add, Action<T, string> modify, Action<T, string> remove)
+        public void OnEnablePopup(T obj, string input, Action<T, int> add, Action<T, int> modify, Action<T, int> remove)
         {
             this.obj = obj;
             this.add = add;
@@ -52,19 +52,19 @@ public class ContentsBase : MonoBehaviour
 
         private void OnClickAdd()
         {
-            this.add(this.obj, this.inputPopup.text);
+            this.add(this.obj, Int32.Parse(this.inputPopup.text));
             this.Root.SetActive(false);
         }
 
         private void OnClickEdit()
         {
-            this.modify(this.obj, this.inputPopup.text);
+            this.modify(this.obj, Int32.Parse(this.inputPopup.text));
             this.Root.SetActive(false);
         }
 
         private void OnClickDel()
         {
-            this.remove(this.obj, this.inputPopup.text);
+            this.remove(this.obj, Int32.Parse(this.inputPopup.text));
             this.Root.SetActive(false);
         }
     }

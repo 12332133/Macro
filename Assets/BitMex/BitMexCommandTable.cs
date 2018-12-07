@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace Assets.BitMex
@@ -49,12 +50,64 @@ namespace Assets.BitMex
             this.commands[command.CommandTableType].Insert(command.RefCommandTableIndex, command);
 
             // 정렬
+            Sort(command);
 
             // 인덱스 재 배치
             for (int i = 0; i < this.commands[command.CommandTableType].Count; i++)
             {
                 this.commands[command.CommandTableType][i].RefCommandTableIndex = i;
             }
+        }
+
+        public void ModifyCommand(IBitMexCommand command)
+        {
+            // 정렬
+            Sort(command);
+
+            // 인덱스 재 배치
+            for (int i = 0; i < this.commands[command.CommandTableType].Count; i++)
+            {
+                this.commands[command.CommandTableType][i].RefCommandTableIndex = i;
+            }
+        }
+
+        private void Sort(IBitMexCommand command)
+        {
+            //var dict = new Dictionary<BitMexCommandType, List<IBitMexCommand>>();
+
+            //foreach (var originCommand in this.commands[command.CommandTableType])
+            //{
+            //    if (originCommand.CommandType == BitMexCommandType.None)
+            //    {
+            //        continue;
+            //    }
+
+            //    if (dict.ContainsKey(originCommand.CommandType) == false)
+            //    {
+            //        dict.Add(originCommand.CommandType, new List<IBitMexCommand>());
+            //    }
+
+            //    dict[originCommand.CommandType].Add(originCommand);
+            //}
+
+            //this.commands[command.CommandTableType].Clear();
+
+            //foreach (var originCommands in dict)
+            //{
+            //    this.commands[command.CommandTableType].Add(CreateCommand(BitMexCommandType.None).Clone());
+
+            //    switch (command.CommandTableType)
+            //    {
+            //        case BitMexCommandTableType.Percent:
+            //            var sorted = originCommands.Value.OrderByDescending(x => (int)x.Parameters[0]).ToList();
+            //            this.commands[command.CommandTableType].AddRange(sorted);
+            //            break;
+            //        case BitMexCommandTableType.Etc:
+            //            break;
+            //        case BitMexCommandTableType.Quantity:
+            //            break;
+            //    }
+            //}
         }
 
         public bool Remove(IBitMexCommand command)
@@ -71,9 +124,6 @@ namespace Assets.BitMex
 
             this.commands[command.CommandTableType].RemoveAt(command.RefCommandTableIndex);
 
-            // 정렬
-
-
             // 인덱스 재 배치
             for (int i = 0; i < this.commands[command.CommandTableType].Count; i++)
             {
@@ -81,12 +131,6 @@ namespace Assets.BitMex
             }
 
             return true;
-        }
-
-        public void ModifyCommand(IBitMexCommand command)
-        {
-            // 정렬
-
         }
 
         public IBitMexCommand CreateByCreator(BitMexCommandTableType tableType, int creatorIndex)
