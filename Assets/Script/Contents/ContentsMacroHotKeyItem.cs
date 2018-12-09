@@ -49,7 +49,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.dropdown.options.Clear();
         this.dropdown.value = 0;
 
-        foreach (var command in this.content.CommandTable.GetCommands(this.commandTableType))
+        foreach (var command in this.content.CommandTable.GetCommandsByTableType(this.commandTableType))
         {
             this.dropdown.options.Add(new Dropdown.OptionData(command.GetCommandText()));
         }
@@ -160,7 +160,7 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         newCommand.Parameters.Clear();
         newCommand.Parameters.Add(value);
 
-        this.content.CommandTable.InsertAt(newCommand);
+        this.content.CommandTable.Insert(newCommand);
 
         SetCommand(newCommand);
 

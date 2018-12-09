@@ -25,9 +25,9 @@ namespace Assets.BitMex
         public BitMexMacroTable()
         {
             macros = new Dictionary<BitMexCommandTableType, List<Macro>>();
-            macros.Add(BitMexCommandTableType.Etc, new List<Macro>());
             macros.Add(BitMexCommandTableType.Percent, new List<Macro>());
             macros.Add(BitMexCommandTableType.Quantity, new List<Macro>());
+            macros.Add(BitMexCommandTableType.Etc, new List<Macro>());
         }
 
         public Dictionary<BitMexCommandTableType, List<Macro>> GetMacroTable()
@@ -43,7 +43,6 @@ namespace Assets.BitMex
         public Macro Resister(List<RawKey> keys, IBitMexCommand command)
         {
             var macro = new Macro();
-            //macro.Index = this.macros[command.CommandTableType].Count;
             macro.Keys.AddRange(keys);
             macro.Command = command;
 

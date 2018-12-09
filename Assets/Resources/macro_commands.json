@@ -1,280 +1,288 @@
 [
   {
-    "TableType": 2,
-    "CommandIndex": 0,
+    "TableType": 0,
     "CommandType": 0,
+    "CommandIndex": 0,
+    "Parameters": []
+  },
+  {
+    "TableType": 0,
+    "CommandType": 1,
+    "CommandIndex": 1,
+    "Parameters": [
+      100
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 1,
+    "CommandIndex": 2,
+    "Parameters": [
+      80
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 1,
+    "CommandIndex": 3,
+    "Parameters": [
+      50
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 1,
+    "CommandIndex": 4,
+    "Parameters": [
+      20
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 0,
+    "CommandIndex": 5,
+    "Parameters": []
+  },
+  {
+    "TableType": 0,
+    "CommandType": 2,
+    "CommandIndex": 6,
+    "Parameters": [
+      100
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 2,
+    "CommandIndex": 7,
+    "Parameters": [
+      80
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 2,
+    "CommandIndex": 8,
+    "Parameters": [
+      50
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 2,
+    "CommandIndex": 9,
+    "Parameters": [
+      20
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 0,
+    "CommandIndex": 10,
+    "Parameters": []
+  },
+  {
+    "TableType": 0,
+    "CommandType": 3,
+    "CommandIndex": 11,
+    "Parameters": [
+      100
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 3,
+    "CommandIndex": 12,
+    "Parameters": [
+      80
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 3,
+    "CommandIndex": 13,
+    "Parameters": [
+      50
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 3,
+    "CommandIndex": 14,
+    "Parameters": [
+      20
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 0,
+    "CommandIndex": 15,
+    "Parameters": []
+  },
+  {
+    "TableType": 0,
+    "CommandType": 4,
+    "CommandIndex": 16,
+    "Parameters": [
+      100
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 4,
+    "CommandIndex": 17,
+    "Parameters": [
+      80
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 4,
+    "CommandIndex": 18,
+    "Parameters": [
+      50
+    ]
+  },
+  {
+    "TableType": 0,
+    "CommandType": 4,
+    "CommandIndex": 19,
+    "Parameters": [
+      20
+    ]
+  },
+  {
+    "TableType": 1,
+    "CommandType": 0,
+    "CommandIndex": 0,
+    "Parameters": []
+  },
+  {
+    "TableType": 1,
+    "CommandType": 5,
+    "CommandIndex": 1,
+    "Parameters": [
+      60
+    ]
+  },
+  {
+    "TableType": 1,
+    "CommandType": 5,
+    "CommandIndex": 2,
+    "Parameters": [
+      33
+    ]
+  },
+  {
+    "TableType": 1,
+    "CommandType": 0,
+    "CommandIndex": 3,
+    "Parameters": []
+  },
+  {
+    "TableType": 1,
+    "CommandType": 6,
+    "CommandIndex": 4,
+    "Parameters": [
+      2233
+    ]
+  },
+  {
+    "TableType": 1,
+    "CommandType": 6,
+    "CommandIndex": 5,
+    "Parameters": [
+      332
+    ]
+  },
+  {
+    "TableType": 1,
+    "CommandType": 6,
+    "CommandIndex": 6,
+    "Parameters": [
+      45
+    ]
+  },
+  {
+    "TableType": 1,
+    "CommandType": 0,
+    "CommandIndex": 7,
+    "Parameters": []
+  },
+  {
+    "TableType": 1,
+    "CommandType": 7,
+    "CommandIndex": 8,
+    "Parameters": [
+      0
+    ]
+  },
+  {
+    "TableType": 1,
+    "CommandType": 0,
+    "CommandIndex": 9,
+    "Parameters": []
+  },
+  {
+    "TableType": 1,
+    "CommandType": 8,
+    "CommandIndex": 10,
+    "Parameters": [
+      0
+    ]
+  },
+  {
+    "TableType": 2,
+    "CommandType": 0,
+    "CommandIndex": 0,
     "Parameters": []
   },
   {
     "TableType": 2,
-    "CommandIndex": 1,
     "CommandType": 12,
+    "CommandIndex": 1,
     "Parameters": [
       "XBTUSD"
     ]
   },
   {
     "TableType": 2,
-    "CommandIndex": 2,
     "CommandType": 12,
+    "CommandIndex": 2,
     "Parameters": [
       "ETHXBT"
     ]
   },
   {
     "TableType": 2,
-    "CommandIndex": 3,
     "CommandType": 12,
+    "CommandIndex": 3,
     "Parameters": [
       "XRPZ18"
     ]
   },
   {
     "TableType": 2,
-    "CommandIndex": 4,
     "CommandType": 0,
+    "CommandIndex": 4,
     "Parameters": []
   },
   {
     "TableType": 2,
-    "CommandIndex": 5,
     "CommandType": 9,
+    "CommandIndex": 5,
     "Parameters": []
   },
   {
     "TableType": 2,
-    "CommandIndex": 6,
     "CommandType": 10,
+    "CommandIndex": 6,
     "Parameters": []
   },
   {
     "TableType": 2,
-    "CommandIndex": 7,
     "CommandType": 11,
-    "Parameters": []
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 0,
-    "CommandType": 0,
-    "Parameters": []
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 1,
-    "CommandType": 1,
-    "Parameters": [
-      100
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 2,
-    "CommandType": 1,
-    "Parameters": [
-      77
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 3,
-    "CommandType": 1,
-    "Parameters": [
-      64
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 4,
-    "CommandType": 1,
-    "Parameters": [
-      80
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 5,
-    "CommandType": 1,
-    "Parameters": [
-      50
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 6,
-    "CommandType": 1,
-    "Parameters": [
-      20
-    ]
-  },
-  {
-    "TableType": 0,
     "CommandIndex": 7,
-    "CommandType": 0,
     "Parameters": []
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 8,
-    "CommandType": 2,
-    "Parameters": [
-      100
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 9,
-    "CommandType": 2,
-    "Parameters": [
-      80
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 10,
-    "CommandType": 2,
-    "Parameters": [
-      50
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 11,
-    "CommandType": 2,
-    "Parameters": [
-      20
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 12,
-    "CommandType": 0,
-    "Parameters": []
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 13,
-    "CommandType": 3,
-    "Parameters": [
-      100
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 14,
-    "CommandType": 3,
-    "Parameters": [
-      80
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 15,
-    "CommandType": 3,
-    "Parameters": [
-      50
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 16,
-    "CommandType": 3,
-    "Parameters": [
-      20
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 17,
-    "CommandType": 0,
-    "Parameters": []
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 18,
-    "CommandType": 4,
-    "Parameters": [
-      100
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 19,
-    "CommandType": 4,
-    "Parameters": [
-      80
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 20,
-    "CommandType": 4,
-    "Parameters": [
-      50
-    ]
-  },
-  {
-    "TableType": 0,
-    "CommandIndex": 21,
-    "CommandType": 4,
-    "Parameters": [
-      20
-    ]
-  },
-  {
-    "TableType": 1,
-    "CommandIndex": 0,
-    "CommandType": 0,
-    "Parameters": []
-  },
-  {
-    "TableType": 1,
-    "CommandIndex": 1,
-    "CommandType": 5,
-    "Parameters": [
-      0
-    ]
-  },
-  {
-    "TableType": 1,
-    "CommandIndex": 2,
-    "CommandType": 0,
-    "Parameters": []
-  },
-  {
-    "TableType": 1,
-    "CommandIndex": 3,
-    "CommandType": 6,
-    "Parameters": [
-      0
-    ]
-  },
-  {
-    "TableType": 1,
-    "CommandIndex": 4,
-    "CommandType": 0,
-    "Parameters": []
-  },
-  {
-    "TableType": 1,
-    "CommandIndex": 5,
-    "CommandType": 7,
-    "Parameters": [
-      0
-    ]
-  },
-  {
-    "TableType": 1,
-    "CommandIndex": 6,
-    "CommandType": 0,
-    "Parameters": []
-  },
-  {
-    "TableType": 1,
-    "CommandIndex": 7,
-    "CommandType": 8,
-    "Parameters": [
-      0
-    ]
   }
 ]

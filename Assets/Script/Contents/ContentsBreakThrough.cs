@@ -200,7 +200,7 @@ public class ContentsBreakThrough : ContentsBase
         item.OnChangeCommand = OnChangeCommand;
         item.OnRemoveItem = OnRemoveItem;
 
-        item.RefreshCommandDropdown(this.CommandTable.GetCommands(BitMexCommandTableType.Percent));
+        item.RefreshCommandDropdown(this.CommandTable.GetCommandsByTableType(BitMexCommandTableType.Percent));
         item.RefreshCoinDropdown(this.bitmexMain.CoinTable.Coins);
         item.RefreshMarketPrice();
         item.RefreshStart();
@@ -244,7 +244,7 @@ public class ContentsBreakThrough : ContentsBase
     {
         foreach (var item in this.svBreakThrough.content.transform.GetComponentsInChildren<ContentsMacroBreakThroughItem>())
         {
-            item.RefreshCommandDropdown(this.CommandTable.GetCommands(BitMexCommandTableType.Percent));
+            item.RefreshCommandDropdown(this.CommandTable.GetCommandsByTableType(BitMexCommandTableType.Percent));
         }
     }
 
@@ -433,7 +433,7 @@ public class ContentsBreakThrough : ContentsBase
                   newCommand.Parameters.Clear();
                   newCommand.Parameters.Add(v);
 
-                  this.commandTable.InsertAt(newCommand);
+                  this.commandTable.Insert(newCommand);
 
                   SetCommand(item, newCommand);
               },

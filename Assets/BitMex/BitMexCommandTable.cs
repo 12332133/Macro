@@ -26,9 +26,9 @@ namespace Assets.BitMex
             this.factory = new Dictionary<BitMexCommandType, IBitMexCommand>();
 
             this.commands = new Dictionary<BitMexCommandTableType, List<IBitMexCommand>>();
-            commands.Add(BitMexCommandTableType.Etc, new List<IBitMexCommand>());
             commands.Add(BitMexCommandTableType.Percent, new List<IBitMexCommand>());
             commands.Add(BitMexCommandTableType.Quantity, new List<IBitMexCommand>());
+            commands.Add(BitMexCommandTableType.Etc, new List<IBitMexCommand>());
         }
 
         public void Resister(BitMexCommandTableType tableType, BitMexCommandType commandType, IBitMexCommand command)
@@ -45,18 +45,17 @@ namespace Assets.BitMex
             this.commands[tableType].Add(command);
         }
 
-        public void InsertAt(IBitMexCommand command)
+        public void Insert(IBitMexCommand command)
         {
-            this.commands[command.CommandTableType].Insert(command.RefCommandTableIndex, command);
+            this.commands[command.CommandTableType].Add(command);
+
+            //this.commands[command.CommandTableType].Insert(command.RefCommandTableIndex, command);
 
             // 정렬
             Sort(command);
 
-            // 인덱스 재 배치
-            for (int i = 0; i < this.commands[command.CommandTableType].Count; i++)
-            {
-                this.commands[command.CommandTableType][i].RefCommandTableIndex = i;
-            }
+            // 인덱스 재배치
+            SortIndex(command);
         }
 
         public void ModifyCommand(IBitMexCommand command)
@@ -64,6 +63,12 @@ namespace Assets.BitMex
             // 정렬
             Sort(command);
 
+            // 인덱스 재배치
+            SortIndex(command);
+        }
+
+        private void SortIndex(IBitMexCommand command)
+        {
             // 인덱스 재 배치
             for (int i = 0; i < this.commands[command.CommandTableType].Count; i++)
             {
@@ -73,41 +78,44 @@ namespace Assets.BitMex
 
         private void Sort(IBitMexCommand command)
         {
-            //var dict = new Dictionary<BitMexCommandType, List<IBitMexCommand>>();
+            var dict = new Dictionary<BitMexCommandType, List<IBitMexCommand>>();
 
-            //foreach (var originCommand in this.commands[command.CommandTableType])
-            //{
-            //    if (originCommand.CommandType == BitMexCommandType.None)
-            //    {
-            //        continue;
-            //    }
+            foreach (var originCommand in this.commands[command.CommandTableType])
+            {
+                if (originCommand.CommandType == BitMexCommandType.None)
+                {
+                    continue;
+                }
 
-            //    if (dict.ContainsKey(originCommand.CommandType) == false)
-            //    {
-            //        dict.Add(originCommand.CommandType, new List<IBitMexCommand>());
-            //    }
+                if (dict.ContainsKey(originCommand.CommandType) == false)
+                {
+                    dict.Add(originCommand.CommandType, new List<IBitMexCommand>());
+                }
 
-            //    dict[originCommand.CommandType].Add(originCommand);
-            //}
+                dict[originCommand.CommandType].Add(originCommand);
+            }
 
-            //this.commands[command.CommandTableType].Clear();
+            this.commands[command.CommandTableType].Clear();
 
-            //foreach (var originCommands in dict)
-            //{
-            //    this.commands[command.CommandTableType].Add(CreateCommand(BitMexCommandType.None).Clone());
+            foreach (var originCommands in dict)
+            {
+                var noneCommand = CreateCommand(BitMexCommandType.None).Clone();
+                noneCommand.CommandTableType = command.CommandTableType;
 
-            //    switch (command.CommandTableType)
-            //    {
-            //        case BitMexCommandTableType.Percent:
-            //            var sorted = originCommands.Value.OrderByDescending(x => (int)x.Parameters[0]).ToList();
-            //            this.commands[command.CommandTableType].AddRange(sorted);
-            //            break;
-            //        case BitMexCommandTableType.Etc:
-            //            break;
-            //        case BitMexCommandTableType.Quantity:
-            //            break;
-            //    }
-            //}
+                this.commands[command.CommandTableType].Add(noneCommand);
+
+                switch (command.CommandTableType)
+                {
+                    case BitMexCommandTableType.Percent:
+                    case BitMexCommandTableType.Quantity:
+                        var sorted = originCommands.Value.OrderByDescending(x => (int)x.Parameters[0]).ToList();
+                        this.commands[command.CommandTableType].AddRange(sorted);
+                        break;
+                    case BitMexCommandTableType.Etc:
+                        this.commands[command.CommandTableType].AddRange(originCommands.Value);
+                        break;
+                }
+            }
         }
 
         public bool Remove(IBitMexCommand command)
@@ -122,34 +130,18 @@ namespace Assets.BitMex
                 return false;
             }
 
-            this.commands[command.CommandTableType].RemoveAt(command.RefCommandTableIndex);
+            this.commands[command.CommandTableType].Remove(command);
 
-            // 인덱스 재 배치
-            for (int i = 0; i < this.commands[command.CommandTableType].Count; i++)
-            {
-                this.commands[command.CommandTableType][i].RefCommandTableIndex = i;
-            }
+            // 정렬
+            Sort(command);
+
+            // 인덱스 재배치
+            SortIndex(command);
 
             return true;
         }
 
-        public IBitMexCommand CreateByCreator(BitMexCommandTableType tableType, int creatorIndex)
-        {
-            var original = this.commands[tableType][creatorIndex - 1];
-            var command = original.Clone();
-            command.RefCommandTableIndex += 1;
-            return command;
-        }
-
-        public IBitMexCommand CreateByCreator(IBitMexCommand creatorCommand)
-        {
-            var original = this.commands[creatorCommand.CommandTableType][creatorCommand.RefCommandTableIndex - 1];
-            var command = original.Clone();
-            command.RefCommandTableIndex += 1;
-            return command;
-        }
-
-        public List<IBitMexCommand> GetCommands(BitMexCommandTableType tableType)
+        public List<IBitMexCommand> GetCommandsByTableType(BitMexCommandTableType tableType)
         {
             return this.commands[tableType];
         }
@@ -214,7 +206,7 @@ namespace Assets.BitMex
                 {
                     var jobjectCommand = JObject.Parse(item.ToString());
 
-                    var tableType = (BitMexCommandTableType)((ushort)jobjectCommand["TableType"]);
+                    var commandTableType = (BitMexCommandTableType)((ushort)jobjectCommand["TableType"]);
                     var commandType = (BitMexCommandType)((ushort)jobjectCommand["CommandType"]);
                     var commandIndex = (int)jobjectCommand["CommandIndex"];
 
@@ -227,8 +219,11 @@ namespace Assets.BitMex
 
                     var command = CreateCommand(commandType);
                     command.Parameters.AddRange(parameters);
+                    command.RefCommandTableIndex = commandIndex;
+                    command.CommandType = commandType;
+                    command.CommandTableType = commandTableType;
 
-                    Resister(tableType, commandType, command);
+                    this.commands[commandTableType].Add(command);
                 }
             }
         }
@@ -243,8 +238,8 @@ namespace Assets.BitMex
                 {
                     var jobjectCommand = new JObject();
                     jobjectCommand.Add("TableType", (ushort)command.CommandTableType);
-                    jobjectCommand.Add("CommandIndex", command.RefCommandTableIndex);
                     jobjectCommand.Add("CommandType", (ushort)command.CommandType);
+                    jobjectCommand.Add("CommandIndex", command.RefCommandTableIndex);
 
                     var jarrayParameters = new JArray();
                     foreach (var parameter in command.Parameters)
