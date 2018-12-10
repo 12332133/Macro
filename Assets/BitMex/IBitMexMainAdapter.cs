@@ -14,5 +14,9 @@ namespace Assets.BitMex
         BitMexDriverService DriverService { get; }
         BitMexCommandExecutor CommandExecutor { get; }
         BitMexCoinTable CoinTable { get; }
+
+        ContentsBase.ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get; }
+        ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get; }
+        ContentsBase.ContentsPopupMessage PopupMessage { get; }
     }
 }

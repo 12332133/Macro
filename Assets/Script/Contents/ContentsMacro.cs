@@ -27,7 +27,7 @@ public class ContentsMacro : ContentsBase, IContentsMacro
     [SerializeField] private ScrollRect[] svHotKeys;
     [SerializeField] private GameObject goHotKeyItem;
 
-    [SerializeField] private GameObject goPopup;
+    //[SerializeField] private GameObject goPopup;
     //[SerializeField] private Button btnPopupBack;
     //[SerializeField] private InputField inputPopup;
     //[SerializeField] private Button btnPopup;
@@ -39,9 +39,9 @@ public class ContentsMacro : ContentsBase, IContentsMacro
 
     [SerializeField] private Button btnSave;
 
-    private ModifyCommandPercentPopup<IBitMexCommand> popupInput;
-    private ModifyCommandCoinTypePopup<IBitMexCommand> popupDropdown;
-    private ContentsPopupMessage popupMessage;
+    //private ModifyCommandPercentPopup<IBitMexCommand> popupInput;
+    //private ModifyCommandCoinTypePopup<IBitMexCommand> popupDropdown;
+    //private ContentsPopupMessage popupMessage;
 
     private BitMexCommandTable commandTable;
     private BitMexMacroTable macroTable;
@@ -49,9 +49,9 @@ public class ContentsMacro : ContentsBase, IContentsMacro
     // interface impl
     public BitMexCommandTable CommandTable { get { return this.commandTable; } }
     public BitMexMacroTable MacroTable { get { return this.macroTable; } }
-    public ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get { return this.popupInput; } }
-    public ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get { return this.popupDropdown; } }
-    public ContentsPopupMessage PopupAlret { get { return this.popupMessage; } }
+    public ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get { return this.bitmexMain.PopupInput; } }
+    public ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get { return this.bitmexMain.PopupDropdown; } }
+    public ContentsPopupMessage PopupAlret { get { return this.bitmexMain.PopupMessage; } }
 
     private void Reset()
     {
@@ -63,7 +63,7 @@ public class ContentsMacro : ContentsBase, IContentsMacro
         this.svHotKeys = transform.Find("Panel/HotKeys").GetComponentsInChildren<ScrollRect>();
         this.goHotKeyItem = Resources.Load<GameObject>("MacroHotKeyItem");
 
-        this.goPopup = transform.Find("Panel/Popup").gameObject;
+        //this.goPopup = transform.Find("Panel/Popup").gameObject;
         //this.btnPopupBack = transform.Find("Panel/Popup/BackPanel").GetComponent<Button>();
         //this.inputPopup = transform.Find("Panel/Popup/InputField").GetComponent<InputField>();
         //this.btnPopup = transform.Find("Panel/Popup/Button").GetComponent<Button>();
@@ -95,9 +95,9 @@ public class ContentsMacro : ContentsBase, IContentsMacro
 
         this.btnAddMacro.onClick.AddListener(OnClickAddMacro);
 
-        this.popupInput = new ModifyCommandPercentPopup<IBitMexCommand>(this.goPopup.transform.GetChild(0));
-        this.popupDropdown = new ModifyCommandCoinTypePopup<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
-        this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
+        //this.popupInput = new ModifyCommandPercentPopup<IBitMexCommand>(this.goPopup.transform.GetChild(0));
+        //this.popupDropdown = new ModifyCommandCoinTypePopup<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        //this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
         SetCommand();
         SetMacro();

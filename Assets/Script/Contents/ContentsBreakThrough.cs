@@ -57,11 +57,11 @@ public class ContentsBreakThrough : ContentsBase
     [SerializeField] private ScrollRect svBreakThrough;
     [SerializeField] private GameObject goBreakThroughItem;
     
-    [SerializeField] private GameObject goPopup;
+    //[SerializeField] private GameObject goPopup;
 
-    private ModifyCommandPercentPopup<IBitMexCommand> popupInput;
-    private ModifyCommandCoinTypePopup<IBitMexCommand> popupDropdown;
-    private ContentsPopupMessage popupMessage;
+    //private ModifyCommandPercentPopup<IBitMexCommand> popupInput;
+    //private ModifyCommandCoinTypePopup<IBitMexCommand> popupDropdown;
+    //private ContentsPopupMessage popupMessage;
 
     private BitMexCommandTable commandTable;
     private Dictionary<string, List<ReservationTrade>> schedules;
@@ -77,7 +77,7 @@ public class ContentsBreakThrough : ContentsBase
         this.svBreakThrough = transform.Find("Panel/List/Scroll View").GetComponent<ScrollRect>();
         this.goBreakThroughItem = Resources.Load<GameObject>("MacroBreakThroughItem");
 
-        this.goPopup = transform.Find("Panel/Popup").gameObject;
+        //this.goPopup = transform.Find("Panel/Popup").gameObject;
     }
 
     private void Awake()
@@ -97,9 +97,9 @@ public class ContentsBreakThrough : ContentsBase
     {
         base.Initialize(bitmexMain);
         
-        this.popupInput = new ModifyCommandPercentPopup<IBitMexCommand>(this.goPopup.transform.GetChild(0));
-        this.popupDropdown = new ModifyCommandCoinTypePopup<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
-        this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
+        //this.popupInput = new ModifyCommandPercentPopup<IBitMexCommand>(this.goPopup.transform.GetChild(0));
+        //this.popupDropdown = new ModifyCommandCoinTypePopup<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        //this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
         SetSchedule();
         SetCommand();
@@ -319,7 +319,7 @@ public class ContentsBreakThrough : ContentsBase
         {
             if (this.bitmexMain.Session.IsLogined == false)
             {
-                this.popupMessage.OnEnablePopup("비트맥스에 로그인 해주세요");
+                this.bitmexMain.PopupMessage.OnEnablePopup("비트맥스에 로그인 해주세요");
                 return;
             }
 
@@ -333,7 +333,7 @@ public class ContentsBreakThrough : ContentsBase
                 var coin = this.bitmexMain.CoinTable.GetCoin(item.RefTrade.CoinName);
                 if (item.RefTrade.IsVaildMomentPrice(coin.MarketPrice) == false)
                 {
-                    this.popupMessage.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
+                    this.bitmexMain.PopupMessage.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
                     return;
                 }
 
@@ -421,7 +421,7 @@ public class ContentsBreakThrough : ContentsBase
             return;
         }
 
-        this.popupInput.OnEnablePopup(
+        this.bitmexMain.PopupInput.OnEnablePopup(
               command,
               command.Parameters[0].ToString(),
               (e, v) => 
@@ -449,7 +449,7 @@ public class ContentsBreakThrough : ContentsBase
                   if (this.commandTable.Remove(command) == false)
                   {
                       // 삭제 불가능한 커맨드 팝업창 출력.
-                      this.popupMessage.OnEnablePopup("삭제 불가능한 명령");
+                      this.bitmexMain.PopupMessage.OnEnablePopup("삭제 불가능한 명령");
                       return;
                   }
 
@@ -505,7 +505,7 @@ public class ContentsBreakThrough : ContentsBase
                 {
                     if (schedule.IsCompletePriceConditions(coin.MarketPrice) == true)
                     {
-                        this.popupMessage.OnEnablePopup("execute price schedule");
+                        this.bitmexMain.PopupMessage.OnEnablePopup("execute price schedule");
 
                         Debug.Log(string.Format("reservate e {0}", coin.MarketPrice));
 

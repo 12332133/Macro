@@ -25,6 +25,11 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     [SerializeField] private ContentsBase[] contents;
 
+    [SerializeField] private GameObject goPopup;
+
+    [SerializeField] private CanvasGroup cgFadePanel;
+    [SerializeField] private Text txtFadePanel;
+
     private BitMexSession session;
     private BitMexDriverService service;
 
@@ -35,6 +40,12 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     private bool isEnableMacro = false;
     private List<RawKey> inputRawKeys;
     private DateTime time = DateTime.Now;
+
+    private ContentsBase.ModifyCommandPercentPopup<IBitMexCommand> popupInput;
+    private ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand> popupDropdown;
+    private ContentsBase.ContentsPopupMessage popupMessage;
+
+    private Coroutine coroutineFade;
 
     private void Reset()
     {
@@ -48,6 +59,11 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.toggleTabs = transform.Find("Canvas/Tab").GetComponentsInChildren<Toggle>();
 
         this.contents = transform.Find("Canvas/Contents").GetComponentsInChildren<ContentsBase>();
+
+        this.goPopup = transform.Find("Canvas/Popup").gameObject;
+
+        this.cgFadePanel = transform.Find("Canvas/FadePanel").GetComponent<CanvasGroup>();
+        this.txtFadePanel = transform.Find("Canvas/FadePanel/Text").GetComponent<Text>();
     }
 
     private void OnApplicationQuit()
@@ -89,6 +105,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void SetContents()
     {
+        this.cgFadePanel.gameObject.SetActive(false);
         this.btnBitMex.onClick.AddListener(OnOpenBitMex);
         this.btnMacro.onClick.AddListener(OnEnableMacro);
 
@@ -96,6 +113,10 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             this.toggleTabs[i].onValueChanged.AddListener(OnToggleTab);
         }
+
+        this.popupInput = new ContentsBase.ModifyCommandPercentPopup<IBitMexCommand>(this.goPopup.transform.GetChild(0));
+        this.popupDropdown = new ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.CoinTable);
+        this.popupMessage = new ContentsBase.ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
         foreach (var content in this.contents)
         {
@@ -247,6 +268,13 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             KeyboardHooker.OnKeyDown -= OnKeyDown;
             this.isEnableMacro = false;
             this.txtMacro.text = "MACRO DISABLE";
+
+            if (coroutineFade != null)
+            {
+                StopCoroutine(coroutineFade);
+                coroutineFade = null;
+            }
+            coroutineFade = StartCoroutine(FadeAction(false));
         }
         else
         {
@@ -282,7 +310,34 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
             this.isEnableMacro = true;
             this.txtMacro.text = "MACRO ENABLE";
+
+            if (coroutineFade != null)
+            {
+                StopCoroutine(coroutineFade);
+                coroutineFade = null;
+            }
+            coroutineFade = StartCoroutine(FadeAction(true));
         }
+    }
+
+    private IEnumerator FadeAction(bool state)
+    {
+        cgFadePanel.gameObject.SetActive(true);
+
+        txtFadePanel.text = state ? "MACRO ENABLE" : "MACRO DISABLE";
+
+        cgFadePanel.alpha = 0.01f;
+        float fadeValue = 0.01f;
+        while (cgFadePanel.alpha > 0)
+        {
+            yield return new WaitForEndOfFrame();
+
+            cgFadePanel.alpha += fadeValue;
+
+            if (cgFadePanel.alpha >= 1.0f) fadeValue *= -1f;
+        }
+
+        cgFadePanel.gameObject.SetActive(false);
     }
 
     private void OnKeyDown(RawKey key)
@@ -356,6 +411,30 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         get
         {
             return this.service;
+        }
+    }
+
+    public ContentsBase.ModifyCommandPercentPopup<IBitMexCommand> PopupInput
+    {
+        get
+        {
+            return this.popupInput;
+        }
+    }
+
+    public ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown
+    {
+        get
+        {
+            return this.popupDropdown;
+        }
+    }
+
+    public ContentsBase.ContentsPopupMessage PopupMessage
+    {
+        get
+        {
+            return this.popupMessage;
         }
     }
 }
