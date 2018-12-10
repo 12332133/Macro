@@ -66,14 +66,6 @@ public class ContentsBreakThrough : ContentsBase
     private BitMexCommandTable commandTable;
     private Dictionary<string, List<ReservationTrade>> schedules;
 
-    // interface impl
-    public BitMexCommandTable CommandTable { get { return this.commandTable; } }
-    public BitMexCoinTable CoinTable { get { return this.bitmexMain.CoinTable; } }
-    public BitMexSession BitMexSession { get { return this.bitmexMain.Session; } }
-    public ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get { return this.popupInput; } }
-    public ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get { return this.popupDropdown; } }
-    public ContentsPopupMessage PopupAlret { get { return this.popupMessage; } }
-
     private void Reset()
     {
         this.txtCurrentTitle = transform.Find("Panel/Current/Title").GetComponent<Text>();
@@ -94,6 +86,11 @@ public class ContentsBreakThrough : ContentsBase
 
     private void OnEnable()
     {
+    }
+
+    private void OnApplicationQuit()
+    {
+        this.commandTable.SaveLocalCache();
     }
 
     public override void Initialize(IBitMexMainAdapter bitmexMain)
@@ -200,7 +197,7 @@ public class ContentsBreakThrough : ContentsBase
         item.OnChangeCommand = OnChangeCommand;
         item.OnRemoveItem = OnRemoveItem;
 
-        item.RefreshCommandDropdown(this.CommandTable.GetCommandsByTableType(BitMexCommandTableType.Percent));
+        item.RefreshCommandDropdown(this.commandTable.GetCommandsByTableType(BitMexCommandTableType.Percent));
         item.RefreshCoinDropdown(this.bitmexMain.CoinTable.Coins);
         item.RefreshMarketPrice();
         item.RefreshStart();
@@ -244,7 +241,7 @@ public class ContentsBreakThrough : ContentsBase
     {
         foreach (var item in this.svBreakThrough.content.transform.GetComponentsInChildren<ContentsMacroBreakThroughItem>())
         {
-            item.RefreshCommandDropdown(this.CommandTable.GetCommandsByTableType(BitMexCommandTableType.Percent));
+            item.RefreshCommandDropdown(this.commandTable.GetCommandsByTableType(BitMexCommandTableType.Percent));
         }
     }
 
@@ -320,9 +317,9 @@ public class ContentsBreakThrough : ContentsBase
     {
         if (item.RefTrade != null)
         {
-            if (this.BitMexSession.IsLogined == false)
+            if (this.bitmexMain.Session.IsLogined == false)
             {
-                this.PopupAlret.OnEnablePopup("비트맥스에 로그인 해주세요");
+                this.popupMessage.OnEnablePopup("비트맥스에 로그인 해주세요");
                 return;
             }
 
@@ -333,10 +330,10 @@ public class ContentsBreakThrough : ContentsBase
             }
             else
             {
-                var coin = this.CoinTable.GetCoin(item.RefTrade.CoinName);
+                var coin = this.bitmexMain.CoinTable.GetCoin(item.RefTrade.CoinName);
                 if (item.RefTrade.IsVaildMomentPrice(coin.MarketPrice) == false)
                 {
-                    this.PopupAlret.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
+                    this.popupMessage.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
                     return;
                 }
 
@@ -417,14 +414,14 @@ public class ContentsBreakThrough : ContentsBase
     /// <param name="commandIndex"></param>
     private void OnChangeCommand(ContentsMacroBreakThroughItem item, int commandIndex)
     {
-        var command = this.CommandTable.FindCommand(BitMexCommandTableType.Percent, commandIndex); // 선택한 커맨드
+        var command = this.commandTable.FindCommand(BitMexCommandTableType.Percent, commandIndex); // 선택한 커맨드
 
         if (command.CommandType == BitMexCommandType.None)
         {
             return;
         }
 
-        this.PopupInput.OnEnablePopup(
+        this.popupInput.OnEnablePopup(
               command,
               command.Parameters[0].ToString(),
               (e, v) => 
@@ -452,7 +449,7 @@ public class ContentsBreakThrough : ContentsBase
                   if (this.commandTable.Remove(command) == false)
                   {
                       // 삭제 불가능한 커맨드 팝업창 출력.
-                      this.PopupAlret.OnEnablePopup("삭제 불가능한 명령");
+                      this.popupMessage.OnEnablePopup("삭제 불가능한 명령");
                       return;
                   }
 
@@ -508,7 +505,7 @@ public class ContentsBreakThrough : ContentsBase
                 {
                     if (schedule.IsCompletePriceConditions(coin.MarketPrice) == true)
                     {
-                        this.PopupAlret.OnEnablePopup("execute price schedule");
+                        this.popupMessage.OnEnablePopup("execute price schedule");
 
                         Debug.Log(string.Format("reservate e {0}", coin.MarketPrice));
 

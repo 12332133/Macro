@@ -3,6 +3,7 @@ using Assets.BitMex.Commands;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -11,56 +12,41 @@ using UnityEngine.UI;
 
 public class ContentsAlarm : ContentsBase
 {
-    public class MarketPriceAlram : IBitMexSchedule
+    public class ReservationAlram : IBitMexSchedule
     {
+        public ContentsMacroAlarmItem Item { get; set; }
+        public decimal TargetPrice { get; set; }
+        public decimal MomentPrice { get; set; }
         public ExecuteType ExecuteType { get; set; }
-        public decimal Price { get; set; }
-        public int AlramCount { get; set; }
         public string CoinName { get; set; }
+        public int AlramCount { get; set; }
         public bool IsStart { get; set; }
+        public bool IsRemove { get; set; }
 
-        public bool IsCompletePriceConditions(decimal marketPrice)
+        public bool IsCompletePriceConditions(decimal currentPrice)
         {
             switch (this.ExecuteType)
             {
                 case ExecuteType.PriceOver:
-                    return this.Price > marketPrice;
+                    return this.TargetPrice <= currentPrice;
                 case ExecuteType.PriceUnder:
-                    return this.Price < marketPrice;
+                    return this.TargetPrice >= currentPrice;
             }
             return false;
         }
 
-        //public bool IsCompletePriceConditions
-        //{
-        //    get
-        //    {
-        //        switch (this.ExecuteType)
-        //        {
-        //            case ExecuteType.PriceOver:
-        //                return this.Price > this.Coin.MarketPrice;
-        //            case ExecuteType.PriceUnder:
-        //                return this.Price < this.Coin.MarketPrice;
-        //        }
-        //        return false;
-        //    }
-        //}
-
-        //public bool Execute()
-        //{
-        //    if (IsCompletePriceConditions == true)
-        //    {
-        //        Task.Run(() => 
-        //        {
-        //            for (int i = 0; i < this.AlramCount; i++)
-        //            {
-        //                EditorApplication.Beep();
-        //                Thread.Sleep(300);
-        //            }
-        //        });
-        //    }
-        //    return false;
-        //}
+        // 예약을 작성한 시점의 시장가와 실제 예약을 실행시킬 시점에서의 시장가의 위치가 맞는가
+        public bool IsVaildMomentPrice(decimal currentPrice)
+        {
+            switch (this.ExecuteType)
+            {
+                case ExecuteType.PriceOver:
+                    return this.TargetPrice < currentPrice;
+                case ExecuteType.PriceUnder:
+                    return this.TargetPrice > currentPrice;
+            }
+            return false;
+        }
     }
 
     [SerializeField] private Button btnAdd;
@@ -71,9 +57,10 @@ public class ContentsAlarm : ContentsBase
 
     [SerializeField] private GameObject goPopup;
 
-    //private ModifyCommandPercentPopup popupInput;
-    //private ModifyCommandCoinTypePopup popupDropdown;
-    //private ContentsPopupMessage popupMessage;
+    private ModifyCommandCoinTypePopup<object> popupDropdown;
+    private ContentsPopupMessage popupMessage;
+
+    private Dictionary<string, List<ReservationAlram>> schedules;
 
     private void Reset()
     {
@@ -90,55 +77,315 @@ public class ContentsAlarm : ContentsBase
     {
     }
 
+    private void OnEnable()
+    {
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveLocalCache();
+    }
+
     public override void Initialize(IBitMexMainAdapter bitmexMain)
     {
         base.Initialize(bitmexMain);
 
-        /*
-        new Thread(e => {
+        this.popupDropdown = new ModifyCommandCoinTypePopup<object>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
-            var commands = this.bitmexMain.CommandTable.GetCommands(BitMexCommandTableType.Percent);
-            var command = commands[3];
-            var coin = this.bitmexMain.CoinTable.GetCoin("XBTUSD");
+        SetSchedule();
 
-            while (true)
-            {
-                AddSchedule(coin, ExecuteType.PriceUnder, 0, 3);
-                Thread.Sleep(1000);
-            }
-        })
-        {
-            IsBackground = true,
-        }.Start();
-        */
-
-        //this.popupInput = new ModifyCommandPercentPopup(this.goPopup.transform.GetChild(0));
-        //this.popupDropdown = new ModifyCommandCoinTypePopup(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
-        //this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
+        OnRefreshReservationItem();
 
         btnAdd.onClick.AddListener(OnClickAdd);
     }
 
-    public void AddSchedule(string coinName, ExecuteType type, decimal price, int alramCount)
+    private void SetSchedule()
     {
-        var schedule = new MarketPriceAlram()
+        this.schedules = new Dictionary<string, List<ReservationAlram>>()
+        {
+            { "XBT", new List<ReservationAlram>() },
+            { "ADA", new List<ReservationAlram>() },
+            { "BCH", new List<ReservationAlram>() },
+            { "EOS", new List<ReservationAlram>() },
+            { "ETH", new List<ReservationAlram>() },
+            { "LTC", new List<ReservationAlram>() },
+            { "TRX", new List<ReservationAlram>() },
+            { "XRP", new List<ReservationAlram>() },
+        };
+
+        LoadLocalCache(); 
+    }
+
+    private ContentsMacroAlarmItem CreateHotKeyItem(ReservationAlram alram)
+    {
+        var go = Instantiate(this.goAlarmItem);
+
+        var item = go.GetComponent<ContentsMacroAlarmItem>().Initialized();
+
+        item.RefAlram = alram;
+        if (alram != null) alram.Item = item;
+
+        item.OnChangePrice = OnChangePrice;
+        item.OnChangeRunning = OnChangeRunning;
+        item.OnChangeCoinType = OnChangeCoinType;
+        item.OnChangeAlramCount = OnChangeAlramCount;
+        item.OnRemoveItem = OnRemoveItem;
+
+        item.RefreshCoinDropdown(this.bitmexMain.CoinTable.Coins);
+        item.RefreshMarketPrice();
+        item.RefreshAlramCountDropdown(5);
+        item.RefreshStart();
+
+        go.transform.SetParent(this.svAlarm.content.transform);
+        return item;
+    }
+
+    public void AddSchedule(ReservationAlram alram)
+    {
+        var coin = this.bitmexMain.CoinTable.GetCoin(alram.CoinName);
+
+        if (this.schedules.ContainsKey(coin.RootCoinName) == false)
+        {
+            this.schedules.Add(coin.RootCoinName, new List<ReservationAlram>());
+        }
+
+        this.schedules[coin.RootCoinName].Add(alram);
+    }
+
+    public ReservationAlram ResisterAlram(string coinName, decimal targetPrice, decimal marketPrice, int alramCount, ContentsMacroAlarmItem item)
+    {
+        var schedule = new ReservationAlram()
         {
             CoinName = coinName,
-            ExecuteType = type,
-            Price = price,
+            ExecuteType = targetPrice > marketPrice ? ExecuteType.PriceOver : ExecuteType.PriceUnder,
+            MomentPrice = marketPrice,
+            TargetPrice = targetPrice,
             AlramCount = alramCount,
             IsStart = false,
+            Item = item,
         };
+
+        Debug.Log(string.Format("resister alram marketprice {0}", marketPrice.ToString()));
+        Debug.Log(string.Format("resister alram executeType {0}", schedule.ExecuteType.ToString()));
+
+        AddSchedule(schedule);
+
+        return schedule;
     }
 
     private void OnClickAdd()
     {
-        var go = Instantiate(this.goAlarmItem);
-        var item = go.GetComponent<ContentsMacroAlarmItem>().Initialized();
-        go.transform.SetParent(this.svAlarm.content.transform);
+        CreateHotKeyItem(null);
+        Debug.Log(string.Format("OnClickAdd"));
+    }
+
+    public void OnRefreshReservationItem()
+    {
+        foreach (var item in this.svAlarm.content.transform.GetComponentsInChildren<ContentsMacroAlarmItem>())
+        {
+            Destroy(item.gameObject);
+        }
+
+        int count = 0;
+        foreach (var alrams in this.schedules.Values)
+        {
+            foreach (var alram in alrams)
+            {
+                if (alram.IsRemove == false)
+                {
+                    CreateHotKeyItem(alram);
+                    count++;
+                }
+            }
+        }
+
+        for (int i = 0; i < 5 - count; i++)
+        {
+            CreateHotKeyItem(null);
+        }
+    }
+
+    public void RemoveAlram(ReservationAlram alram)
+    {
+        alram.IsStart = false;
+        alram.IsRemove = true;
+        Debug.Log(string.Format("remove alram"));
+    }
+
+    private void OnRemoveItem(ContentsMacroAlarmItem item)
+    {
+        if (item.RefAlram != null)
+        {
+            RemoveAlram(item.RefAlram);
+        }
+
+        Destroy(item.gameObject);
+    }
+
+    /// <summary>
+    /// 시작/정지
+    /// </summary>
+    /// <param name="item"></param>
+    private void OnChangeRunning(ContentsMacroAlarmItem item)
+    {
+        if (item.RefAlram != null)
+        {
+            if (this.bitmexMain.Session.IsLogined == false)
+            {
+                this.popupMessage.OnEnablePopup("비트맥스에 로그인 해주세요");
+                return;
+            }
+
+            if (item.RefAlram.IsStart == true)
+            {
+                item.RefAlram.IsStart = false;
+                item.RunningState = "시작";
+            }
+            else
+            {
+                var coin = this.bitmexMain.CoinTable.GetCoin(item.RefAlram.CoinName);
+                if (item.RefAlram.IsVaildMomentPrice(coin.MarketPrice) == false)
+                {
+                    this.popupMessage.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
+                    return;
+                }
+
+                item.RefAlram.IsStart = true;
+                item.RunningState = "정지";
+            }
+        }
+        else
+        {
+            item.RunningState = "시작";
+        }
+    }
+
+    /// <summary>
+    /// 시장가 설정 
+    /// </summary>
+    /// <param name="item"></param>
+    private void OnChangePrice(ContentsMacroAlarmItem item)
+    {
+        var coin = this.bitmexMain.CoinTable.GetCoin(item.CoinName);
+
+        if (item.RefAlram == null)
+        {
+            // 커맨드 선택, 코인 선택이 끝났으면
+            if (item.CoinName.Equals(string.Empty) == false)
+            {
+                item.RefAlram = ResisterAlram(
+                    item.CoinName,
+                    decimal.Parse(item.Price, System.Globalization.NumberStyles.Any),
+                    coin.MarketPrice,
+                    item.AlramCount,
+                    item);
+
+                OnRefreshReservationItem();
+            }
+        }
+        else
+        {
+            item.RefAlram.TargetPrice = decimal.Parse(item.Price, System.Globalization.NumberStyles.Any);
+            item.RefAlram.ExecuteType = item.RefAlram.TargetPrice > coin.MarketPrice ? ExecuteType.PriceOver : ExecuteType.PriceUnder;
+            item.RefAlram.MomentPrice = coin.MarketPrice;
+        }
+    }
+
+    /// <summary>
+    /// 코인 타입 변경
+    /// </summary>
+    /// <param name="item"></param>
+    private void OnChangeCoinType(ContentsMacroAlarmItem item)
+    {
+        if (item.RefAlram == null)
+        {
+            var coin = this.bitmexMain.CoinTable.GetCoin(item.CoinName);
+
+            // 시장가 입력, 커맨드 선택 완료 
+            if (item.Price.Equals("시장가 입력") == false)
+            {
+                item.RefAlram = ResisterAlram(
+                    item.CoinName,
+                    decimal.Parse(item.Price, System.Globalization.NumberStyles.Any),
+                    coin.MarketPrice,
+                    item.AlramCount,
+                    item);
+
+                OnRefreshReservationItem();
+            }
+        }
+        else
+        {
+            item.RefAlram.CoinName = item.CoinName;
+        }
+    }
+
+    /// <summary>
+    /// 알랏 횟수 수정
+    /// </summary>
+    /// <param name="item"></param>
+    private void OnChangeAlramCount(ContentsMacroAlarmItem item)
+    {
+        if (item.RefAlram == null)
+        {
+            var coin = this.bitmexMain.CoinTable.GetCoin(item.CoinName);
+
+            // 시장가 입력, 커맨드 선택 완료 
+            if (item.Price.Equals("시장가 입력") == false)
+            {
+                item.RefAlram = ResisterAlram(
+                    item.CoinName,
+                    decimal.Parse(item.Price, System.Globalization.NumberStyles.Any),
+                    coin.MarketPrice,
+                    item.AlramCount,
+                    item);
+
+                OnRefreshReservationItem();
+            }
+        }
+        else
+        {
+            item.RefAlram.AlramCount = item.AlramCount;
+        }
     }
 
     public void UpdateSchedules()
+    {
+        foreach (var schedules in this.schedules.Values)
+        {
+            foreach (var schedule in schedules)
+            {
+                var coin = this.bitmexMain.CoinTable.GetCoin(schedule.CoinName);
+
+                if (schedule.IsStart == true && schedule.IsRemove == false)
+                {
+                    if (schedule.IsCompletePriceConditions(coin.MarketPrice) == true)
+                    {
+                        this.popupMessage.OnEnablePopup("execute alram schedule");
+
+                        Task.Run(() =>
+                        {
+                            for (int i = 0; i < schedule.AlramCount; i++)
+                            {
+                                EditorApplication.Beep();
+                                Thread.Sleep(300);
+                            }
+                        });
+
+                        schedule.Item.OnClickDelete();
+                    }
+                }
+            }
+        }
+    }
+
+    private void SaveLocalCache()
+    {
+        //isremove == true not save
+    }
+
+    private void LoadLocalCache()
     {
     }
 }
