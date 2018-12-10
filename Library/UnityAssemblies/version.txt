@@ -1,2 +1,0 @@
-2018.2.8f1:2.8.0.0
-StandaloneWindows64
