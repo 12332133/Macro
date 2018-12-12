@@ -70,6 +70,11 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         KeyboardHooker.Stop();
 
+        foreach (var content in this.contents)
+        {
+            content.Save();
+        }
+
         this.service.CoinTable.SaveLocalCache();
 
         this.service.CloseDriver();
@@ -267,7 +272,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             KeyboardHooker.OnKeyUp -= OnKeyUp;
             KeyboardHooker.OnKeyDown -= OnKeyDown;
             this.isEnableMacro = false;
-            this.txtMacro.text = "MACRO DISABLE";
+            this.txtMacro.text = "매크로 시작";
 
             if (coroutineFade != null)
             {
@@ -281,12 +286,14 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             if (this.service.IsDriverOpen() == false)
             {
                 Debug.Log("not found chrome driver");
+                this.PopupMessage.OnEnablePopup("비트맥스를 실행 해주세요");
                 return;
             }
 
             if (this.service.IsTradingPage() == false)
             {
                 Debug.Log("invaild page");
+                this.PopupMessage.OnEnablePopup("거래 페이지로 이동하세요");
                 return;
             }
 
@@ -300,7 +307,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             {
                 if (KeyboardHooker.Start() == false)
                 {
-                    Debug.Log("hotkey resister failed");
                     return;
                 }
             }
@@ -309,7 +315,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             KeyboardHooker.OnKeyDown += OnKeyDown;
 
             this.isEnableMacro = true;
-            this.txtMacro.text = "MACRO ENABLE";
+            this.txtMacro.text = "매크로 정지";
 
             if (coroutineFade != null)
             {
@@ -324,7 +330,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         cgFadePanel.gameObject.SetActive(true);
 
-        txtFadePanel.text = state ? "MACRO ENABLE" : "MACRO DISABLE";
+        txtFadePanel.text = state ? "매크로 시작" : "매크로 정지";
 
         cgFadePanel.alpha = 0.01f;
         float fadeValue = 0.01f;

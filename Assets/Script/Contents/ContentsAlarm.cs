@@ -57,8 +57,8 @@ public class ContentsAlarm : ContentsBase
 
     [SerializeField] private GameObject goPopup;
 
-    private ModifyCommandCoinTypePopup<object> popupDropdown;
-    private ContentsPopupMessage popupMessage;
+    //private ModifyCommandCoinTypePopup<object> popupDropdown;
+    //private ContentsPopupMessage popupMessage;
 
     private Dictionary<string, List<ReservationAlram>> schedules;
 
@@ -83,15 +83,18 @@ public class ContentsAlarm : ContentsBase
 
     private void OnApplicationQuit()
     {
-        SaveLocalCache();
+    }
+
+    public override void Save()
+    {
     }
 
     public override void Initialize(IBitMexMainAdapter bitmexMain)
     {
         base.Initialize(bitmexMain);
 
-        this.popupDropdown = new ModifyCommandCoinTypePopup<object>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
-        this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
+        //this.popupDropdown = new ModifyCommandCoinTypePopup<object>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
+        //this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
         SetSchedule();
 
@@ -233,7 +236,7 @@ public class ContentsAlarm : ContentsBase
         {
             if (this.bitmexMain.Session.IsLogined == false)
             {
-                this.popupMessage.OnEnablePopup("비트맥스에 로그인 해주세요");
+                this.bitmexMain.PopupMessage.OnEnablePopup("비트맥스에 로그인 해주세요");
                 return;
             }
 
@@ -247,7 +250,7 @@ public class ContentsAlarm : ContentsBase
                 var coin = this.bitmexMain.CoinTable.GetCoin(item.RefAlram.CoinName);
                 if (item.RefAlram.IsVaildMomentPrice(coin.MarketPrice) == false)
                 {
-                    this.popupMessage.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
+                    this.bitmexMain.PopupMessage.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
                     return;
                 }
 
@@ -362,13 +365,11 @@ public class ContentsAlarm : ContentsBase
                 {
                     if (schedule.IsCompletePriceConditions(coin.MarketPrice) == true)
                     {
-                        this.popupMessage.OnEnablePopup("execute alram schedule");
-
                         Task.Run(() =>
                         {
                             for (int i = 0; i < schedule.AlramCount; i++)
                             {
-                                EditorApplication.Beep();
+                                this.bitmexMain.PopupMessage.OnEnablePopup("execute alram schedule");
                                 Thread.Sleep(300);
                             }
                         });

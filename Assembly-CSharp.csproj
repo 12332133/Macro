@@ -114,7 +114,6 @@
     <Compile Include="Assets\Script\Contents\MacroInputField.cs" />
     <Compile Include="Assets\Script\Main.cs" />
     <Compile Include="Assets\Script\Title.cs" />
-    <None Include="Assets\Resources\errors.txt" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>

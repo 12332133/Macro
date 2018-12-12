@@ -90,6 +90,10 @@ public class ContentsBreakThrough : ContentsBase
 
     private void OnApplicationQuit()
     {
+    }
+
+    public override void Save()
+    {
         this.commandTable.SaveLocalCache();
     }
 

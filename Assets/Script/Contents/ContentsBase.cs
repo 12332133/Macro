@@ -190,4 +190,8 @@ public class ContentsBase : MonoBehaviour
     {
         this.bitmexMain = bitmexMain;
     }
+
+    public virtual void Save()
+    {
+    }
 }

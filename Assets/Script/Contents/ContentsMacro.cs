@@ -78,6 +78,10 @@ public class ContentsMacro : ContentsBase, IContentsMacro
 
     private void OnApplicationQuit()
     {
+    }
+
+    public override void Save()
+    {
         this.commandTable.SaveLocalCache();
         this.macroTable.SaveLocalCache();
     }

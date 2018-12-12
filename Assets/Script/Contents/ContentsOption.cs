@@ -19,4 +19,8 @@ public class ContentsOption : ContentsBase
     {
         base.Initialize(bitmexMain);
     }
+
+    public override void Save()
+    {
+    }
 }
