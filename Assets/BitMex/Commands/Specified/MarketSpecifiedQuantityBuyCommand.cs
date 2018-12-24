@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Bitmex.Net;
+using Bitmex.Net.Model.Param;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,19 +27,20 @@ namespace Assets.BitMex.Commands
 
         /// <summary>
         /// Parameter[0] : 매수/매도 수량
+        /// Parameter[1] : 거래 코인
         /// </summary>
         public override void Execute()
         {
-            if (BitMexMain.DriverService.HandleOrderSpecifiedQty(
-                (decimal)Parameters[0],
-                0,
-                0,
-                0,
-                BitMexMain.DriverService.HandleGetCurrentSymbol()
-                ) == true)
-            {
-                BitMexMain.DriverService.HandleBuy();
-            }
+            var quantity = Convert.ToInt32(Parameters[0]);
+            var symbol = (string)Parameters[1];
+            var price = BitMexMain.Session.Trades[symbol].Price;
+
+            var dto = this.BitMexMain.ApiService.Execute(BitmexApiActionAttributes.Order.PostOrder,
+                OrderPOSTRequestParams.CreateSimpleLimit(
+                    symbol,
+                    quantity,
+                    price,
+                    OrderSide.Buy));
         }
 
         public override string GetCommandText()

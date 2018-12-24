@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Assets.BitMex;
 using System.IO;
 using System;
+using Bitmex.Net;
 
 public class Title : MonoBehaviour
 {
@@ -101,13 +102,14 @@ public class Title : MonoBehaviour
         //};
 
         //test
-        var session = new BitMexSession()
+        var auth = new BitmexAuthorization()
         {
-            ApiKey = "SYHilkT0Lmp4I4eHBV4woHe9",
-            ApiSecret = "xbj8CNU-uHJl2Ff2W5TPWkA4MWgAglIXJRbnxAQGpAgIBya1",
+            BitmexEnvironment = BitmexEnvironment.Test,
+            Key = "fSOS_T3XSMWxYuQK-VvwSR96",
+            Secret = "HvfwBjy_rtjKUI9bgusHkW4ARPXrfgCVqUkmOzxJaVt8H2EY",
         };
 
-        OnSuccessLogin(session);
+        OnSuccessLogin(auth);
     }
 
     public string Login(string id, string pass, string url)
@@ -141,7 +143,7 @@ public class Title : MonoBehaviour
         }
     }
 
-    private void OnSuccessLogin(BitMexSession session)
+    private void OnSuccessLogin(BitmexAuthorization auth)
     {
         if (toggleRemember.isOn)
         {
@@ -150,7 +152,7 @@ public class Title : MonoBehaviour
             PlayerPrefs.Save();
         }
 
-        main.Show(session);
+        main.Show(auth);
         gameObject.SetActive(false);
     }
 }

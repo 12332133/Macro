@@ -1,5 +1,6 @@
 ﻿using Assets.BitMex.Commands;
 using Assets.CombinationKey;
+using Bitmex.Net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,10 @@ namespace Assets.BitMex
 {
     public interface IBitMexMainAdapter
     {
-        BitMexSession Session { get; }
-        BitMexDriverService DriverService { get; }
-        BitMexCommandExecutor CommandExecutor { get; }
+        BitmexSession Session { get; }
         BitMexCoinTable CoinTable { get; }
+        BitmexApiService ApiService { get; }
+        BitMexCommandExecutor CommandExecutor { get; }
 
         ContentsBase.ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get; }
         ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get; }

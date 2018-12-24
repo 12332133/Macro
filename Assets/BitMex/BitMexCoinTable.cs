@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bitmex.NET.Dtos;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -37,6 +38,7 @@ namespace Assets.BitMex
     {
         private readonly string dir = Resource.Dir + "cointable.json";
         private Dictionary<string, BitMexCoin> coins;
+        private Dictionary<string, BitMexCoin> selectedCoins;
         private Dictionary<string, List<BitMexCoin>> templateSortedCoins;
 
         public BitMexCoinTable()
@@ -59,7 +61,7 @@ namespace Assets.BitMex
         {
             if (this.coins.ContainsKey(coinName) == false)
             {
-                throw new BitMexDriverServiceException();
+                return null;
             }
             return this.coins[coinName];
         }
@@ -72,27 +74,23 @@ namespace Assets.BitMex
             }
         }
 
-        public void LoadActiveCoins(string bitMexDomain)
+        public void LoadLocalCache(List<InstrumentDto> instruments)
         {
-            var res = BitMexApiHelper.GetActiveInstruments(bitMexDomain);
-
-            foreach (var item in JArray.Parse(res))
+            foreach (var instrument in instruments)
             {
-                var jobject = JObject.Parse(item.ToString());
-
-                if (jobject["state"].ToString().Equals("Open") == true)
+                if (instrument.State.Equals("Open") == true)
                 {
-                    var rootCoinName = jobject["rootSymbol"].ToString();
-                    var coinName = jobject["symbol"].ToString();
-                    var tick = jobject["tickSize"].ToString();
-                    var marketPrice = jobject["lastPrice"].ToString();
+                    var rootCoinName = instrument.RootSymbol;
+                    var coinName = instrument.Symbol;
+                    var tick = instrument.TickSize;
+                    var marketPrice = instrument.LastPrice;
 
                     var coin = new BitMexCoin()
                     {
                         RootCoinName = rootCoinName,
                         CoinName = coinName,
-                        SpecifiedAditional = decimal.Parse(tick, System.Globalization.NumberStyles.Any) * 25,
-                        MarketPrice = decimal.Parse(marketPrice, System.Globalization.NumberStyles.Any),
+                        SpecifiedAditional = tick.Value * 25,
+                        MarketPrice = marketPrice.Value,
                     };
 
                     this.coins.Add(coinName, coin);
@@ -125,6 +123,21 @@ namespace Assets.BitMex
             }
 
             SortByCoinName();
+        }
+
+        public string[] ScreenActiveCoins(string[] selectedCoins)
+        {
+            var screenCoins = new List<string>();
+            
+            foreach (var coinName in selectedCoins)
+            {
+                if (this.coins.ContainsKey(coinName) == true)
+                {
+                    screenCoins.Add(coinName);
+                }
+            }
+
+            return screenCoins.ToArray();
         }
 
         private void SortByCoinName()

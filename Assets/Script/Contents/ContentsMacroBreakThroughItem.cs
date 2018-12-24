@@ -86,14 +86,14 @@ public class ContentsMacroBreakThroughItem : MonoBehaviour
         this.dropCommand.onValueChanged.AddListener(OnCommandValueChanged);
     }
 
-    public void RefreshCoinDropdown(Dictionary<string, BitMexCoin> coins)
+    public void RefreshCoinDropdown(List<string> coins)
     {
         this.dropName.options.Add(new Dropdown.OptionData(string.Empty));
         foreach (var coin in coins)
         {
-            this.dropName.options.Add(new Dropdown.OptionData(coin.Key));
+            this.dropName.options.Add(new Dropdown.OptionData(coin));
 
-            if (this.RefTrade != null && this.RefTrade.CoinName == coin.Key)
+            if (this.RefTrade != null && this.RefTrade.CoinName == coin)
             {
                 this.dropName.value = this.dropName.options.Count - 1;
                 this.dropName.Select();

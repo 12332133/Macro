@@ -60,16 +60,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\BitMex\BitMexApiHelper.cs" />
     <Compile Include="Assets\BitMex\BitMexCoinTable.cs" />
     <Compile Include="Assets\BitMex\BitMexCommandExecutor.cs" />
     <Compile Include="Assets\BitMex\BitMexCommandTable.cs" />
     <Compile Include="Assets\BitMex\BitMexDriverService.cs" />
     <Compile Include="Assets\BitMex\BitMexDriverServiceException.cs" />
     <Compile Include="Assets\BitMex\BitMexMacroTable.cs" />
-    <Compile Include="Assets\BitMex\BitMexSession.cs" />
     <Compile Include="Assets\BitMex\Commands\BitMexCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\BitMexCommandType.cs" />
+    <Compile Include="Assets\BitMex\Commands\Cancle\CancleAllActivateOrderCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\Cancle\PositionClearCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\Cancle\TopActivateOrderCancleCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Etc\ChangeCoinTapCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Etc\NoneCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Etc\OderCommandCreator.cs" />
@@ -78,9 +79,7 @@
     <Compile Include="Assets\BitMex\Commands\Market\MarketPriceSellCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Market\MarketPriceSpecifiedQuantityBuyCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Market\MarketPriceSpecifiedQuantitySellCommand.cs" />
-    <Compile Include="Assets\BitMex\Commands\Position\CancleAllActivateOrderCommand.cs" />
-    <Compile Include="Assets\BitMex\Commands\Position\PositionClearCommand.cs" />
-    <Compile Include="Assets\BitMex\Commands\Position\TopActivateOrderCancleCommand.cs" />
+    <Compile Include="Assets\BitMex\Commands\OrderCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Specified\MarketSpecifiedBuyCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Specified\MarketSpecifiedQuantityBuyCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\Specified\MarketSpecifiedQuantitySellCommand.cs" />
@@ -324,11 +323,17 @@
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>C:/Program Files/Unity2018/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
+    <Reference Include="Bitmex.Net">
+      <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Assets/Plugins/Bitmex.Net.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Assets/Plugins/Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="WebDriver">
       <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Assets/Plugins/WebDriver.dll</HintPath>
+    </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Assets/Plugins/websocket-sharp.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Analytics">
       <HintPath>C:/Users/Admin/AppData/Local/Unity/cache/packages/packages.unity.com/com.unity.analytics@2.0.16/UnityEngine.Analytics.dll</HintPath>

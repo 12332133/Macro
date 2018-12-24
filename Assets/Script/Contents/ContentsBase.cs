@@ -1,5 +1,6 @@
 ﻿using Assets.BitMex;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -83,7 +84,7 @@ public class ContentsBase : MonoBehaviour
         private Action<T, string> remove;
         private T obj;
 
-        public ModifyCommandCoinTypePopup(Transform root, BitMexCoinTable coinTable)
+        public ModifyCommandCoinTypePopup(Transform root, List<string> coins)
         {
             this.Root = root.gameObject;
             this.btnPopupBack = root.Find("BackPanel").GetComponent<Button>();
@@ -97,9 +98,9 @@ public class ContentsBase : MonoBehaviour
             this.btnEdit.onClick.AddListener(OnClickEdit);
             this.btnDel.onClick.AddListener(OnClickDel);
 
-            foreach (var coin in coinTable.Coins)
+            foreach (var coin in coins)
             {
-                this.dropPopup.options.Add(new Dropdown.OptionData(coin.Value.CoinName));
+                this.dropPopup.options.Add(new Dropdown.OptionData(coin));
             }
         }
 

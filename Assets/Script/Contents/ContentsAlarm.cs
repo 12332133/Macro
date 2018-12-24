@@ -93,9 +93,6 @@ public class ContentsAlarm : ContentsBase
     {
         base.Initialize(bitmexMain);
 
-        //this.popupDropdown = new ModifyCommandCoinTypePopup<object>(this.goPopup.transform.GetChild(1), this.bitmexMain.CoinTable);
-        //this.popupMessage = new ContentsPopupMessage(this.goPopup.transform.GetChild(2));
-
         SetSchedule();
 
         OnRefreshReservationItem();
@@ -135,7 +132,7 @@ public class ContentsAlarm : ContentsBase
         item.OnChangeAlramCount = OnChangeAlramCount;
         item.OnRemoveItem = OnRemoveItem;
 
-        item.RefreshCoinDropdown(this.bitmexMain.CoinTable.Coins);
+        item.RefreshCoinDropdown(this.bitmexMain.Session.ActivateSymbols);
         item.RefreshMarketPrice();
         item.RefreshAlramCountDropdown(5);
         item.RefreshStart();
@@ -234,11 +231,11 @@ public class ContentsAlarm : ContentsBase
     {
         if (item.RefAlram != null)
         {
-            if (this.bitmexMain.Session.IsLogined == false)
-            {
-                this.bitmexMain.PopupMessage.OnEnablePopup("비트맥스에 로그인 해주세요");
-                return;
-            }
+            //if (this.bitmexMain.Session.IsLogined == false)
+            //{
+            //    this.bitmexMain.PopupMessage.OnEnablePopup("비트맥스에 로그인 해주세요");
+            //    return;
+            //}
 
             if (item.RefAlram.IsStart == true)
             {
@@ -247,12 +244,12 @@ public class ContentsAlarm : ContentsBase
             }
             else
             {
-                var coin = this.bitmexMain.CoinTable.GetCoin(item.RefAlram.CoinName);
-                if (item.RefAlram.IsVaildMomentPrice(coin.MarketPrice) == false)
-                {
-                    this.bitmexMain.PopupMessage.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
-                    return;
-                }
+                //var coin = this.bitmexMain.CoinTable.GetCoin(item.RefAlram.CoinName);
+                //if (item.RefAlram.IsVaildMomentPrice(coin.MarketPrice) == false)
+                //{
+                //    this.bitmexMain.PopupMessage.OnEnablePopup("설정 시점의 시장가와 현재 시장가의 차이가 큽니다. 목표 시장가를 다시 설정해 주세요");
+                //    return;
+                //}
 
                 item.RefAlram.IsStart = true;
                 item.RunningState = "정지";
@@ -270,7 +267,7 @@ public class ContentsAlarm : ContentsBase
     /// <param name="item"></param>
     private void OnChangePrice(ContentsMacroAlarmItem item)
     {
-        var coin = this.bitmexMain.CoinTable.GetCoin(item.CoinName);
+        var trade = this.bitmexMain.Session.Trades[item.CoinName];
 
         if (item.RefAlram == null)
         {
@@ -280,7 +277,7 @@ public class ContentsAlarm : ContentsBase
                 item.RefAlram = ResisterAlram(
                     item.CoinName,
                     decimal.Parse(item.Price, System.Globalization.NumberStyles.Any),
-                    coin.MarketPrice,
+                    trade.Price,
                     item.AlramCount,
                     item);
 
@@ -290,8 +287,8 @@ public class ContentsAlarm : ContentsBase
         else
         {
             item.RefAlram.TargetPrice = decimal.Parse(item.Price, System.Globalization.NumberStyles.Any);
-            item.RefAlram.ExecuteType = item.RefAlram.TargetPrice > coin.MarketPrice ? ExecuteType.PriceOver : ExecuteType.PriceUnder;
-            item.RefAlram.MomentPrice = coin.MarketPrice;
+            item.RefAlram.ExecuteType = item.RefAlram.TargetPrice > trade.Price ? ExecuteType.PriceOver : ExecuteType.PriceUnder;
+            item.RefAlram.MomentPrice = trade.Price;
         }
     }
 
@@ -303,7 +300,7 @@ public class ContentsAlarm : ContentsBase
     {
         if (item.RefAlram == null)
         {
-            var coin = this.bitmexMain.CoinTable.GetCoin(item.CoinName);
+            var coin = this.bitmexMain.Session.Trades[item.CoinName];
 
             // 시장가 입력, 커맨드 선택 완료 
             if (item.Price.Equals("시장가 입력") == false)
@@ -311,7 +308,7 @@ public class ContentsAlarm : ContentsBase
                 item.RefAlram = ResisterAlram(
                     item.CoinName,
                     decimal.Parse(item.Price, System.Globalization.NumberStyles.Any),
-                    coin.MarketPrice,
+                    coin.Price,
                     item.AlramCount,
                     item);
 
@@ -332,7 +329,7 @@ public class ContentsAlarm : ContentsBase
     {
         if (item.RefAlram == null)
         {
-            var coin = this.bitmexMain.CoinTable.GetCoin(item.CoinName);
+            var trade = this.bitmexMain.Session.Trades[item.CoinName];
 
             // 시장가 입력, 커맨드 선택 완료 
             if (item.Price.Equals("시장가 입력") == false)
@@ -340,7 +337,7 @@ public class ContentsAlarm : ContentsBase
                 item.RefAlram = ResisterAlram(
                     item.CoinName,
                     decimal.Parse(item.Price, System.Globalization.NumberStyles.Any),
-                    coin.MarketPrice,
+                    trade.Price,
                     item.AlramCount,
                     item);
 
@@ -359,11 +356,11 @@ public class ContentsAlarm : ContentsBase
         {
             foreach (var schedule in schedules)
             {
-                var coin = this.bitmexMain.CoinTable.GetCoin(schedule.CoinName);
+                var trade = this.bitmexMain.Session.Trades[schedule.CoinName];
 
                 if (schedule.IsStart == true && schedule.IsRemove == false)
                 {
-                    if (schedule.IsCompletePriceConditions(coin.MarketPrice) == true)
+                    if (schedule.IsCompletePriceConditions(trade.Price) == true)
                     {
                         Task.Run(() =>
                         {
