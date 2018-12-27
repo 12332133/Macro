@@ -38,7 +38,7 @@ namespace Assets.BitMex.Commands
                 // 교차 선택
                 var leverage = BitMexMain.Session.Leverage;
 
-                if (symbol.Equals(BitMexDriverService.MainSymbol) == true) // 비트코인만 다르게 사용
+                if (symbol.Equals("XBTUSD") == true) // 비트코인만 다르게 사용
                 {
                     quantity = Math.Floor(xbt * leverage * price * ((decimal)percent / 100));
                 }

@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using Assets.BitMex;
-using Assets.BitMex.WebDriver;
 using System.Collections.Generic;
 using System;
 using Assets.BitMex.Commands;
@@ -10,6 +9,8 @@ using Assets.CombinationKey;
 using Bitmex.Net;
 using Newtonsoft.Json.Linq;
 using Bitmex.Net.Model.Param;
+using Bitmex.Net.Model.Socket;
+using Bitmex.NET.Model.Socket;
 
 public class Main : MonoBehaviour, IBitMexMainAdapter
 {
@@ -70,21 +71,31 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     {
         KeyboardHooker.Stop();
 
-        this.executor.Stop();
+        this.executor?.Stop();
 
         foreach (var content in this.contents)
         {
             content.Save();
         }
 
-        this.coins.SaveLocalCache();
+        this.coins?.SaveLocalCache();
     }
 
     private void Awake()
     {
+        this.popupMessage = new ContentsBase.ContentsPopupMessage(this.goPopup.transform.GetChild(2));
+
         SetApiService();
-        SetSession();
-        SetSubscribeService();
+
+        if (SetSession() == false)
+        {
+            return;
+        }
+
+        if (SetSubscribeService() == false)
+        {
+            return;
+        }
         SetHook();
         SetInputKey();
         SetContents();
@@ -110,41 +121,104 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         this.api = new BitmexApiService(option, this.auth);
     }
 
-    private void SetSession()
+    private bool SetSession()
     {
-        // 매크로 실행자
-        this.executor = new BitMexCommandExecutor();
+        try
+        {
+            // 계정 확인
+            if (IsPermission() == true)
+            {
+                // 매크로 실행자
+                this.executor = new BitMexCommandExecutor();
 
-        // 활성된 코인 조회
-        var instruments = this.api.Execute(BitmexApiActionAttributes.Instrument.GetInstrumentActive, new EmptyParams());
+                // 활성된 코인 조회
+                var instruments = this.api.Execute(BitmexApiActionAttributes.Instrument.GetInstrumentActive, new EmptyParams());
 
-        // 코인 테이블 로드
-        this.coins = new BitMexCoinTable();
-        this.coins.LoadLocalCache(instruments);
+                // 코인 테이블
+                this.coins = new BitMexCoinTable();
+                this.coins.LoadLocalCache(instruments);
 
-        // 활성된 코인 중에 선택한 상세 코인 셋업 최대 4개 ? 5개 ?
-        //load selectedcoin = new[] { "XBTUSD", "XRPZ18", "ETHXBT", "TRXZ18" }
-        var selectedCoins = this.coins.ScreenActiveCoins(new[] { "XBTUSD", "XRPZ18", "ETHXBT", "TRXZ18" });
-        this.session = new BitmexSession(selectedCoins);
+                // 활성된 코인 중에 선택한 상세 코인 셋업 최대 4개 ? 5개 ?
+                //load selectedcoin = new[] { "XBTUSD", "XRPZ18", "ETHXBT", "TRXZ18" }
+                var selectedCoins = this.coins.ScreenActiveCoins(new[] { "XBTUSD", "XRPZ18", "ETHXBT", "TRXZ18" });
+
+                // 세션 생성 
+                this.session = new BitmexSession(selectedCoins);
+            }
+            else
+            {
+                // quit application
+                this.popupMessage.OnEnablePopup("비트맥스 API권한을 주문으로 설정 해주세요. 프로그램을 종료 합니다.", true);
+                return false;
+            }
+        }
+        catch (BitmexApiException e)
+        {
+            // quit application
+            this.popupMessage.OnEnablePopup("비트맥스 API인증 실패. APIKey, SCRET을 확인 해주세요. 프로그램을 종료 합니다.", true);
+            return false;
+        }
+
+        return true;
     }
 
-    private void SetSubscribeService()
+    private bool IsPermission()
     {
-        var option = new BitmexSubscribeServiceOption()
+        var apiKeys = this.api.Execute(BitmexApiActionAttributes.APIKey.GetApiKey, new ApiKeyGETRequestParams() { Reverse = true, });
+        foreach (var apiKey in apiKeys)
         {
-            IsReconnect = true,
-        };
-
-        this.subscriber = new BitmexSubscribeService(option, this.auth,
-            (error) =>
+            if (apiKey.Id.Equals(this.auth.Key) == true)
             {
-                this.popupMessage.OnEnablePopup(error);
-            });
-
-        if (this.subscriber.Open() == true)
-        {
-            this.session.Subscribe(this.subscriber);
+                foreach (var permission in apiKey.Permissions)
+                {
+                    if (permission.Equals("order") == true)
+                    {
+                        return true;
+                    }
+                }
+            }
         }
+
+        return false;
+    }
+
+    private bool SetSubscribeService()
+    {
+        try
+        {
+            var option = new BitmexSubscribeServiceOption()
+            {
+                IsReconnect = true,
+            };
+
+            this.subscriber = new BitmexSubscribeService(option, this.auth);
+
+            if (this.subscriber.Open() == true)
+            {
+                this.session.Subscribe(this.subscriber);
+            }
+            else
+            {
+                // quit application
+                this.popupMessage.OnEnablePopup("비트맥스 서버 접속 실패. 프로그램을 종료 합니다.", true);
+            }
+
+            return true;
+        }
+        catch (BitmexWebSocketLimitReachedException)
+        {
+            this.popupMessage.OnEnablePopup("과도한 연결 시도로 인해 잠시 후 로그인 해주세요. 프로그램을 종료 합니다.", true);
+        }
+        catch (BitmexSocketAuthorizationException)
+        {
+            this.popupMessage.OnEnablePopup("비트맥스 API인증 실패. APIKey, SCRET을 확인 해주세요. 프로그램을 종료 합니다.", true);
+        }
+        catch (BitmexSocketSubscriptionException)
+        {
+            this.popupMessage.OnEnablePopup("비트맥스 서버 구독 실패. 프로그램을 종료 합니다.", true);
+        }
+
+        return false;
     }
 
     private void SetInputKey()
@@ -179,12 +253,13 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
         this.popupInput = new ContentsBase.ModifyCommandPercentPopup<IBitMexCommand>(this.goPopup.transform.GetChild(0));
         this.popupDropdown = new ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand>(this.goPopup.transform.GetChild(1), this.session.ActivateSymbols);
-        this.popupMessage = new ContentsBase.ContentsPopupMessage(this.goPopup.transform.GetChild(2));
 
         foreach (var content in this.contents)
         {
             content.Initialize(this);
         }
+
+        StartCoroutine(CheckPrice());
 
         OnToggleTab(true);
     }
@@ -201,127 +276,18 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void OnOpenBitMex()
     {
-        //if (this.service.IsDriverOpen() == false)
-        //{
-        //    var driver = DriverFactory.CreateDriver(
-        //          DriverType.Chrome,
-        //          Application.streamingAssetsPath,
-        //          false);
-
-        //    this.service.OpenService(driver, BitMexDomain);
-
-        //    StartCoroutine(SyncCointPrices());
-        //}
-        //else
-        //{
-        //    try
-        //    {
-        //        var wc = new System.Diagnostics.Stopwatch();
-        //        wc.Start();
-
-        //        var coin = this.CoinTable.GetCoin("XBTUSD");
-        //        if (this.service.HandleChangeCoinTab(coin.RootCoinName, coin.CoinName) == false)
-        //        {
-        //            Debug.Log("not found tab");
-        //        }
-
-        //        wc.Stop();
-        //        Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
-
-        //        //foreach (var coin in this.CoinTable.Coins.Values.ToList())
-        //        //{
-
-        //        //}
-
-        //        //var command = this.service.Repository.CreateCommand(BitMexCommandType.ClearPosition);
-        //        //command.Execute();
-        //    }
-        //    catch (BitMexDriverServiceException exception)
-        //    {
-        //        Debug.Log(exception.ToString());
-        //    }
-        //}
-
-        //if (this.service.IsDriverOpen() == false)
-        //{
-        //    var driver = DriverFactory.CreateDriver(
-        //            DriverType.Chrome,
-        //            Application.streamingAssetsPath,
-        //            false);
-
-        //    this.service.OpenService(driver, BitMexDomain);
-
-        //    StartCoroutine(SyncCointPrices());
-        //    //StartCoroutine(CheckBitmexDriverAccount());
-        //}
     }
 
-    //private IEnumerator SyncCointPrices() 
-    //{
-    //    while (true)
-    //    {
-    //        var account = this.service.GetAutthenticateAccount();
+    private IEnumerator CheckPrice()
+    {
+        while (true)
+        {
+            GetContent<ContentsBreakThrough>(1).UpdateSchedule();
+            GetContent<ContentsAlarm>(2).UpdateSchedule();
 
-    //        if (account.Equals(string.Empty) == false)
-    //        {
-    //            //var wc = new System.Diagnostics.Stopwatch();
-    //            //wc.Start();
-
-    //            this.service.HandleSyncCointPrices();
-
-    //            if ("게스트".Equals(account) == true)
-    //            {
-    //                this.session.IsLogined = true;
-
-    //                GetContent<ContentsBreakThrough>(1).UpdateSchedules();
-    //                GetContent<ContentsAlarm>(2).UpdateSchedules();
-    //            }
-    //            else
-    //            {
-    //                this.session.IsLogined = false;
-    //            }
-
-    //            //wc.Stop();
-    //            //Debug.Log(string.Format("time : {0}", wc.ElapsedMilliseconds.ToString()));
-    //        }
-
-    //        yield return new WaitForSeconds(0.05f);
-    //    }
-    //}
-
-    //private IEnumerator CheckBitmexDriverAccount()
-    //{
-    //    while (true)
-    //    {
-    //        if (this.service.IsAuthenticatedAccount(this.session.Nickname) == true)
-    //        {
-    //            this.session.IsLogined = true;
-    //        }
-    //        else
-    //        {
-    //            this.session.IsLogined = false;
-    //        }
-
-    //        Debug.Log(string.Format("login {0}", this.session.IsLogined));
-    //        yield return new WaitForSeconds(0.5f);
-    //    }
-    //}
-
-    //private IEnumerator CheckSchedule()
-    //{
-    //    while (true)
-    //    {
-    //        try
-    //        {
-    //        }
-    //        catch (Exception e)
-    //        {
-    //            Debug.Log(e);
-    //        }
-
-    //        yield return new WaitForSeconds(0.1f);
-    //    }
-    //}
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
 
     void OnEnableMacro()
     {

@@ -94,7 +94,7 @@ public class ContentsBreakThrough : ContentsBase
 
     public override void Save()
     {
-        this.commandTable.SaveLocalCache();
+        this.commandTable?.SaveLocalCache();
     }
 
     public override void Initialize(IBitMexMainAdapter bitmexMain)
@@ -115,19 +115,15 @@ public class ContentsBreakThrough : ContentsBase
 
     private void SetSchedule()
     {
-        this.schedules = new Dictionary<string, List<ReservationTrade>>()
+        this.schedules = new Dictionary<string, List<ReservationTrade>>();
+
+        foreach (var symbol in this.bitmexMain.Session.ActivateSymbols)
         {
-            { "XBT", new List<ReservationTrade>() },
-            { "ADA", new List<ReservationTrade>() },
-            { "BCH", new List<ReservationTrade>() },
-            { "EOS", new List<ReservationTrade>() },
-            { "ETH", new List<ReservationTrade>() },
-            { "LTC", new List<ReservationTrade>() },
-            { "TRX", new List<ReservationTrade>() },
-            { "XRP", new List<ReservationTrade>() },
-        };
+            this.schedules.Add(symbol, new List<ReservationTrade>());
+        }
 
         // load 
+        LoadLocalCache();
     }
 
     private void SetCommand()
@@ -251,14 +247,12 @@ public class ContentsBreakThrough : ContentsBase
 
     private void AddSchedule(ReservationTrade trade)
     {
-        var coin = this.bitmexMain.CoinTable.GetCoin(trade.CoinName);
-
-        if (this.schedules.ContainsKey(coin.RootCoinName) == false)
+        if (this.schedules.ContainsKey(trade.CoinName) == false)
         {
-            this.schedules.Add(coin.RootCoinName, new List<ReservationTrade>());
+            this.schedules.Add(trade.CoinName, new List<ReservationTrade>());
         }
 
-        this.schedules[coin.RootCoinName].Add(trade);
+        this.schedules[trade.CoinName].Add(trade);
     }
 
     public ReservationTrade ResisterTrade(string coinName, decimal targetPrice, decimal marketPrice, IBitMexCommand command, ContentsMacroBreakThroughItem item)
@@ -497,21 +491,18 @@ public class ContentsBreakThrough : ContentsBase
         OnRefreshDropdown();
     }
 
-    public void UpdateSchedules()
+    public void UpdateSchedule()
     {
-        foreach (var schedules in this.schedules.Values)
+        foreach (var schedules in this.schedules)
         {
-            foreach (var schedule in schedules)
-            {
-                var trade = this.bitmexMain.Session.Trades[schedule.CoinName];
+            var trade = this.bitmexMain.Session.Trades[schedules.Key];
 
+            foreach (var schedule in schedules.Value)
+            {
                 if (schedule.IsStart == true && schedule.IsRemove == false)
                 {
                     if (schedule.IsCompletePriceConditions(trade.Price) == true)
                     {
-                        this.bitmexMain.PopupMessage.OnEnablePopup("execute price schedule");
-
-                        Debug.Log(string.Format("reservate e {0}", trade.Price));
 
                         //var newCommand = schedule.Command.Clone();
                         //newCommand.Parameters.Add(coin.RootCoinName);
@@ -522,6 +513,7 @@ public class ContentsBreakThrough : ContentsBase
                         //    Debug.Log(string.Format("execute price schedule"));
                         //}
 
+                        this.bitmexMain.PopupMessage.OnEnablePopup("execute price schedule");
                         schedule.Item.OnClickDelete();
                     }
                 }

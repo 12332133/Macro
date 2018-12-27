@@ -63,8 +63,6 @@
     <Compile Include="Assets\BitMex\BitMexCoinTable.cs" />
     <Compile Include="Assets\BitMex\BitMexCommandExecutor.cs" />
     <Compile Include="Assets\BitMex\BitMexCommandTable.cs" />
-    <Compile Include="Assets\BitMex\BitMexDriverService.cs" />
-    <Compile Include="Assets\BitMex\BitMexDriverServiceException.cs" />
     <Compile Include="Assets\BitMex\BitMexMacroTable.cs" />
     <Compile Include="Assets\BitMex\Commands\BitMexCommand.cs" />
     <Compile Include="Assets\BitMex\Commands\BitMexCommandType.cs" />
@@ -87,10 +85,6 @@
     <Compile Include="Assets\BitMex\IBitMexMainAdapter.cs" />
     <Compile Include="Assets\BitMex\IBitMexPriceSchedule.cs" />
     <Compile Include="Assets\BitMex\Resource.cs" />
-    <Compile Include="Assets\BitMex\WebDriver\DriverBuilder.cs" />
-    <Compile Include="Assets\BitMex\WebDriver\DriverExetentions.cs" />
-    <Compile Include="Assets\BitMex\WebDriver\DriverFactory.cs" />
-    <Compile Include="Assets\BitMex\WebDriver\DriverProxy.cs" />
     <Compile Include="Assets\CombinationKey\AllowedModifires.cs" />
     <Compile Include="Assets\CombinationKey\HookType.cs" />
     <Compile Include="Assets\CombinationKey\KbDllHookStruct.cs" />
@@ -113,6 +107,7 @@
     <Compile Include="Assets\Script\Contents\MacroInputField.cs" />
     <Compile Include="Assets\Script\Main.cs" />
     <Compile Include="Assets\Script\Title.cs" />
+    <None Include="Assets\StreamingAssets\errors.txt" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>
@@ -328,9 +323,6 @@
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Assets/Plugins/Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="WebDriver">
-      <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Assets/Plugins/WebDriver.dll</HintPath>
     </Reference>
     <Reference Include="websocket-sharp">
       <HintPath>C:/Users/Admin/Desktop/Dev/Macro/Assets/Plugins/websocket-sharp.dll</HintPath>

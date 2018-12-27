@@ -1,0 +1,8 @@
+[2018-12-27 PM 4:52:09] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.PositionClearCommand.Execute () [0x00008] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Cancle\PositionClearCommand.cs:32 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
+[2018-12-27 PM 4:56:14] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.PositionClearCommand.Execute () [0x00008] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Cancle\PositionClearCommand.cs:32 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
+[2018-12-27 PM 4:57:31] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.PositionClearCommand.Execute () [0x00008] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Cancle\PositionClearCommand.cs:32 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
+[2018-12-27 PM 4:58:07] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.PositionClearCommand.Execute () [0x00008] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Cancle\PositionClearCommand.cs:32 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 

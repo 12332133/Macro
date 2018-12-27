@@ -1,0 +1,47 @@
+[
+  {
+    "RawKeys": [
+      160,
+      65
+    ],
+    "CommandTableType": 0,
+    "CommandType": 1,
+    "CommandIndex": 2
+  },
+  {
+    "RawKeys": [
+      160,
+      69
+    ],
+    "CommandTableType": 0,
+    "CommandType": 1,
+    "CommandIndex": 2
+  },
+  {
+    "RawKeys": [
+      160,
+      84
+    ],
+    "CommandTableType": 2,
+    "CommandType": 9,
+    "CommandIndex": 1
+  },
+  {
+    "RawKeys": [
+      160,
+      89
+    ],
+    "CommandTableType": 2,
+    "CommandType": 9,
+    "CommandIndex": 1
+  },
+  {
+    "RawKeys": [
+      160,
+      78
+    ],
+    "CommandTableType": 2,
+    "CommandType": 9,
+    "CommandIndex": 1
+  }
+]

@@ -29,7 +29,7 @@ namespace Assets.BitMex.Commands
         /// </summary>
         public override void Execute()
         {
-            var symbol = (string)Parameters[0];
+            var symbol = (string)Parameters[1];
             var dtos = this.BitMexMain.ApiService.Execute(BitmexApiActionAttributes.Order.DeleteOrderAll,
                 new OrderAllDELETERequestParams() { Symbol = symbol });
         }

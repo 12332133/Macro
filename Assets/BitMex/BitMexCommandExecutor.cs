@@ -1,14 +1,10 @@
 ﻿using Assets.BitMex.Commands;
-using OpenQA.Selenium;
+using Bitmex.Net;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Assets.BitMex
 {
@@ -31,10 +27,17 @@ namespace Assets.BitMex
         {
             while (true)
             {
+                var command = this.commands.Take();
+
                 try
                 {
-                    var command = this.commands.Take();
                     command.Execute();
+                }
+                catch (BitmexApiOverloadException)
+                {
+                }
+                catch (BitmexApiException)
+                {
                 }
                 catch (ThreadAbortException)
                 {

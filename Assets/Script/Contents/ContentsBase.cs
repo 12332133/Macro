@@ -48,7 +48,6 @@ public class ContentsBase : MonoBehaviour
 
         private void OnClickPopupBack()
         {
-            this.Root.SetActive(false);
         }
 
         private void OnClickAdd()
@@ -128,7 +127,6 @@ public class ContentsBase : MonoBehaviour
 
         private void OnClickPopupBack()
         {
-            this.Root.SetActive(false);
         }
 
         private void OnClickAdd()
@@ -156,6 +154,7 @@ public class ContentsBase : MonoBehaviour
         public Button btnPopupBack;
         public Text txtPopup;
         public Button btnPopup;
+        private bool isAppClose;
 
         public ContentsPopupMessage(Transform root)
         {
@@ -168,20 +167,25 @@ public class ContentsBase : MonoBehaviour
             this.btnPopup.onClick.AddListener(OnClickPopupOK);
         }
 
-        public void OnEnablePopup(string original)
+        public void OnEnablePopup(string original, bool isAppClose = false)
         {
             txtPopup.text = original;
+            this.isAppClose = isAppClose;
             this.Root.SetActive(true);
         }
 
         private void OnClickPopupBack()
         {
-            this.Root.SetActive(false);
         }
 
         private void OnClickPopupOK()
         {
             this.Root.SetActive(false);
+
+            if (this.isAppClose == true)
+            {
+                Application.Quit();
+            }
         }
     }
 

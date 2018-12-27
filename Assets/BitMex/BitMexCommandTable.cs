@@ -49,8 +49,6 @@ namespace Assets.BitMex
         {
             this.commands[command.CommandTableType].Add(command);
 
-            //this.commands[command.CommandTableType].Insert(command.RefCommandTableIndex, command);
-
             // 정렬
             Sort(command);
 
@@ -101,14 +99,13 @@ namespace Assets.BitMex
             {
                 var noneCommand = CreateCommand(BitMexCommandType.None).Clone();
                 noneCommand.CommandTableType = command.CommandTableType;
-
                 this.commands[command.CommandTableType].Add(noneCommand);
 
                 switch (command.CommandTableType)
                 {
                     case BitMexCommandTableType.Percent:
                     case BitMexCommandTableType.Quantity:
-                        var sorted = originCommands.Value.OrderByDescending(x => (int)x.Parameters[0]).ToList();
+                        var sorted = originCommands.Value.OrderByDescending(x => Convert.ToInt32(x.Parameters[0])).ToList();
                         this.commands[command.CommandTableType].AddRange(sorted);
                         break;
                     case BitMexCommandTableType.Etc:
@@ -218,6 +215,12 @@ namespace Assets.BitMex
                     }
 
                     var command = CreateCommand(commandType);
+
+                    if (command == null)
+                    {
+                        continue;
+                    }
+
                     command.Parameters.AddRange(parameters);
                     command.RefCommandTableIndex = commandIndex;
                     command.CommandType = commandType;
@@ -225,6 +228,17 @@ namespace Assets.BitMex
 
                     this.commands[commandTableType].Add(command);
                 }
+
+                // 인덱스 재 배치
+                foreach (var commandType in this.commands)
+                {
+                    // 인덱스 재 배치
+                    for (int i = 0; i < commandType.Value.Count; i++)
+                    {
+                        this.commands[commandType.Key][i].RefCommandTableIndex = i;
+                    }
+                }
+
             }
         }
 

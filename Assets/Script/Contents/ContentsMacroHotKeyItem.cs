@@ -121,6 +121,11 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
                     OnModifyCommand<string>, 
                     OnRemoveCommand<string>);
                 break;
+            case BitMexCommandType.CancleAllActivateOrder:
+            case BitMexCommandType.CancleTopActivateOrder:
+            case BitMexCommandType.ClearPosition:
+                OnModifyCommand<int>(command, 0);
+                break;
             default:
                 this.content.PopupInput.OnEnablePopup(
                     command,

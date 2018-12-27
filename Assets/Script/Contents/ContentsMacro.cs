@@ -69,8 +69,8 @@ public class ContentsMacro : ContentsBase, IContentsMacro
 
     public override void Save()
     {
-        this.commandTable.SaveLocalCache();
-        this.macroTable.SaveLocalCache();
+        this.commandTable?.SaveLocalCache();
+        this.macroTable?.SaveLocalCache();
     }
 
     public override void Initialize(IBitMexMainAdapter bitmexMain)
@@ -112,99 +112,93 @@ public class ContentsMacro : ContentsBase, IContentsMacro
             new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
-            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)100); }));
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
-            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)80); }));
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
-            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)50); }));
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceBuyMagnification,
-            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)20); }));
+            new MarketPriceBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
 
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.None,
             new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
-            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)100); }));
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
-            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)80); }));
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
-            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)50); }));
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketPriceSellMagnification,
-            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)20); }));
+            new MarketPriceSellCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
 
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.None,
             new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
-            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)100); }));
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
-            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)80); }));
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
-            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)50); }));
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceBuy,
-            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)20); }));
+            new MarketSpecifiedBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
 
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.None,
             new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
-            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)100); }));
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(100); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
-            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)80); }));
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(80); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
-            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)50); }));
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(50); }));
         this.commandTable.Resister(BitMexCommandTableType.Percent, BitMexCommandType.MarketSpecifiedPriceSell,
-            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)20); }));
+            new MarketSpecifiedSellCommand(this.bitmexMain, (parameters) => { parameters.Add(20); }));
 
         // 수량 
         this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.None,
             new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketPriceSpecifiedQuantityBuy,
-            new MarketPriceSpecifiedQuantityBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)0); }));
+            new MarketPriceSpecifiedQuantityBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(0); }));
 
         this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.None,
             new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketPriceSpecifiedQuantitySell,
-            new MarketPriceSpecifiedQuantitySellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)0); }));
+            new MarketPriceSpecifiedQuantitySellCommand(this.bitmexMain, (parameters) => { parameters.Add(0); }));
 
         this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.None,
             new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketSpecifiedQuantityBuy,
-            new MarketSpecifiedQuantityBuyCommand(this.bitmexMain, (parameters) => { parameters.Add((int)0); }));
+            new MarketSpecifiedQuantityBuyCommand(this.bitmexMain, (parameters) => { parameters.Add(0); }));
 
         this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.None,
             new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Quantity, BitMexCommandType.MarketSpecifiedQuantitySell,
-            new MarketSpecifiedQuantitySellCommand(this.bitmexMain, (parameters) => { parameters.Add((int)0); }));
+            new MarketSpecifiedQuantitySellCommand(this.bitmexMain, (parameters) => { parameters.Add(0); }));
 
         // 기타
         this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.None,
             new NoneCommand(this.bitmexMain));
 
-        this.bitmexMain.Session.ActivateSymbols.ForEach((symbol) =>
-        {
-            this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ChangeCoinTap, 
-                new ChangeCoinTapCommand(this.bitmexMain, (parameters) => { parameters.Add(symbol); }));
-        });
+        //this.bitmexMain.Session.ActivateSymbols.ForEach((symbol) =>
+        //{
+        //    this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ChangeCoinTap,
+        //        new ChangeCoinTapCommand(this.bitmexMain, (parameters) => { parameters.Add(symbol); }));
+        //});
 
-        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.None,
-            new NoneCommand(this.bitmexMain));
+        //this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.None,
+        //    new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.ClearPosition,
             new PositionClearCommand(this.bitmexMain));
 
-        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.None,
-            new NoneCommand(this.bitmexMain));
-
         this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.CancleTopActivateOrder,
             new TopActivateOrderCancleCommand(this.bitmexMain));
-
-        this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.None,
-            new NoneCommand(this.bitmexMain));
 
         this.commandTable.Resister(BitMexCommandTableType.Etc, BitMexCommandType.CancleAllActivateOrder,
             new ActivateOrderCancleCommand(this.bitmexMain));

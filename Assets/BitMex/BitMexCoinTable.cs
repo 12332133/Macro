@@ -32,6 +32,14 @@ namespace Assets.BitMex
         /// 지정가
         /// </summary>
         public decimal SpecifiedAditional { get; set; } 
+        /// <summary>
+        /// 포스트 온리
+        /// </summary>
+        public bool PostOnly { get; set; }
+        /// <summary>
+        /// 리듀스 온리
+        /// </summary>
+        public bool ReduceOnly { get; set; }
     }
 
     public class BitMexCoinTable

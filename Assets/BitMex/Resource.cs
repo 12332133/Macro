@@ -13,7 +13,7 @@ namespace Assets.BitMex
         {
             get
             {
-                return  Application.dataPath + "/Resources/";
+                return  Application.streamingAssetsPath + "/";
             }
         }
     }

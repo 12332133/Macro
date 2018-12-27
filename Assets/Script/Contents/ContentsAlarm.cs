@@ -87,6 +87,11 @@ public class ContentsAlarm : ContentsBase
 
     public override void Save()
     {
+        SaveLocalCache();
+    }
+
+    public void Update()
+    {
     }
 
     public override void Initialize(IBitMexMainAdapter bitmexMain)
@@ -102,17 +107,12 @@ public class ContentsAlarm : ContentsBase
 
     private void SetSchedule()
     {
-        this.schedules = new Dictionary<string, List<ReservationAlram>>()
+        this.schedules = new Dictionary<string, List<ReservationAlram>>();
+
+        foreach (var symbol in this.bitmexMain.Session.ActivateSymbols)
         {
-            { "XBT", new List<ReservationAlram>() },
-            { "ADA", new List<ReservationAlram>() },
-            { "BCH", new List<ReservationAlram>() },
-            { "EOS", new List<ReservationAlram>() },
-            { "ETH", new List<ReservationAlram>() },
-            { "LTC", new List<ReservationAlram>() },
-            { "TRX", new List<ReservationAlram>() },
-            { "XRP", new List<ReservationAlram>() },
-        };
+            this.schedules.Add(symbol, new List<ReservationAlram>());
+        }
 
         LoadLocalCache(); 
     }
@@ -143,14 +143,12 @@ public class ContentsAlarm : ContentsBase
 
     public void AddSchedule(ReservationAlram alram)
     {
-        var coin = this.bitmexMain.CoinTable.GetCoin(alram.CoinName);
-
-        if (this.schedules.ContainsKey(coin.RootCoinName) == false)
+        if (this.schedules.ContainsKey(alram.CoinName) == false)
         {
-            this.schedules.Add(coin.RootCoinName, new List<ReservationAlram>());
+            this.schedules.Add(alram.CoinName, new List<ReservationAlram>());
         }
 
-        this.schedules[coin.RootCoinName].Add(alram);
+        this.schedules[alram.CoinName].Add(alram);
     }
 
     public ReservationAlram ResisterAlram(string coinName, decimal targetPrice, decimal marketPrice, int alramCount, ContentsMacroAlarmItem item)
@@ -303,7 +301,7 @@ public class ContentsAlarm : ContentsBase
             var coin = this.bitmexMain.Session.Trades[item.CoinName];
 
             // 시장가 입력, 커맨드 선택 완료 
-            if (item.Price.Equals("시장가 입력") == false)
+            if (item.Price.Equals(string.Empty) == false)
             {
                 item.RefAlram = ResisterAlram(
                     item.CoinName,
@@ -332,7 +330,7 @@ public class ContentsAlarm : ContentsBase
             var trade = this.bitmexMain.Session.Trades[item.CoinName];
 
             // 시장가 입력, 커맨드 선택 완료 
-            if (item.Price.Equals("시장가 입력") == false)
+            if (item.Price.Equals(string.Empty) == false)
             {
                 item.RefAlram = ResisterAlram(
                     item.CoinName,
@@ -350,14 +348,14 @@ public class ContentsAlarm : ContentsBase
         }
     }
 
-    public void UpdateSchedules()
+    public void UpdateSchedule()
     {
-        foreach (var schedules in this.schedules.Values)
+        foreach (var schedules in this.schedules)
         {
-            foreach (var schedule in schedules)
-            {
-                var trade = this.bitmexMain.Session.Trades[schedule.CoinName];
+            var trade = this.bitmexMain.Session.Trades[schedules.Key];
 
+            foreach (var schedule in schedules.Value)
+            {
                 if (schedule.IsStart == true && schedule.IsRemove == false)
                 {
                     if (schedule.IsCompletePriceConditions(trade.Price) == true)
@@ -366,11 +364,11 @@ public class ContentsAlarm : ContentsBase
                         {
                             for (int i = 0; i < schedule.AlramCount; i++)
                             {
-                                this.bitmexMain.PopupMessage.OnEnablePopup("execute alram schedule");
                                 Thread.Sleep(300);
                             }
                         });
 
+                        this.bitmexMain.PopupMessage.OnEnablePopup(string.Format("execute alram {0}", trade.Price));
                         schedule.Item.OnClickDelete();
                     }
                 }
