@@ -35,6 +35,8 @@ public class ContentsMacroHotKeyItem : MonoBehaviour
         this.macro = macro;
 
         this.inputHotkey.OnKeyChanged = OnKeyChanged;
+        this.inputHotkey.OnInputSelect = () => this.content.BitmexMain.ClearHook();
+        this.inputHotkey.OnInputDeselect = () => this.content.BitmexMain.SetHook();
 
         this.btnDelete.onClick.AddListener(OnClickDelete);
 

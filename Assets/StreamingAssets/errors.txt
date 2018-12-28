@@ -6,3 +6,21 @@
   at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
 [2018-12-27 PM 4:58:07] Message : Specified cast is not valid. StackTrace :   at Assets.BitMex.Commands.PositionClearCommand.Execute () [0x00008] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Cancle\PositionClearCommand.cs:32 
   at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
+[2018-12-28 PM 4:41:23] Message : Account has insufficient Available Balance, 8885805 XBt required, Code:ValidationError StackTrace :   at Bitmex.Net.BitmexApiService.Execute[TParams,TResult] (Bitmex.Net.ApiActionAttributes`2[TParams,TResult] apiAction, TParams params) [0x000d8] in <85109858e9514f49a5ada43f47ebdf2a>:0 
+  at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00079] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:41 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
+[2018-12-28 PM 4:43:20] Message : Account has insufficient Available Balance, 8867377 XBt required, Code:ValidationError StackTrace :   at Bitmex.Net.BitmexApiService.Execute[TParams,TResult] (Bitmex.Net.ApiActionAttributes`2[TParams,TResult] apiAction, TParams params) [0x000d8] in <85109858e9514f49a5ada43f47ebdf2a>:0 
+  at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00079] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:41 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
+[2018-12-28 PM 4:53:02] Message : Account has insufficient Available Balance, 8869601 XBt required, Code:ValidationError StackTrace :   at Bitmex.Net.BitmexApiService.Execute[TParams,TResult] (Bitmex.Net.ApiActionAttributes`2[TParams,TResult] apiAction, TParams params) [0x000d8] in <85109858e9514f49a5ada43f47ebdf2a>:0 
+  at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00079] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:41 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
+[2018-12-28 PM 4:53:10] Message : Account has insufficient Available Balance, 8869601 XBt required, Code:ValidationError StackTrace :   at Bitmex.Net.BitmexApiService.Execute[TParams,TResult] (Bitmex.Net.ApiActionAttributes`2[TParams,TResult] apiAction, TParams params) [0x000d8] in <85109858e9514f49a5ada43f47ebdf2a>:0 
+  at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00079] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:41 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
+[2018-12-28 PM 4:53:12] Message : Account has insufficient Available Balance, 8869601 XBt required, Code:ValidationError StackTrace :   at Bitmex.Net.BitmexApiService.Execute[TParams,TResult] (Bitmex.Net.ApiActionAttributes`2[TParams,TResult] apiAction, TParams params) [0x000d8] in <85109858e9514f49a5ada43f47ebdf2a>:0 
+  at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00079] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:41 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 
+[2018-12-28 PM 4:53:16] Message : Account has insufficient Available Balance, 8869601 XBt required, Code:ValidationError StackTrace :   at Bitmex.Net.BitmexApiService.Execute[TParams,TResult] (Bitmex.Net.ApiActionAttributes`2[TParams,TResult] apiAction, TParams params) [0x000d8] in <85109858e9514f49a5ada43f47ebdf2a>:0 
+  at Assets.BitMex.Commands.MarketPriceBuyCommand.Execute () [0x00079] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\Commands\Market\MarketPriceBuyCommand.cs:41 
+  at Assets.BitMex.BitMexCommandExecutor.DoWork () [0x00011] in C:\Users\Admin\Desktop\Dev\Macro\Assets\BitMex\BitMexCommandExecutor.cs:34 

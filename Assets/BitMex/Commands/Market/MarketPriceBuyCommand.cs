@@ -35,6 +35,8 @@ namespace Assets.BitMex.Commands
             var symbol = (string)Parameters[1];
             var price = BitMexMain.Session.Trades[symbol].Price;
             var quantity = CalculationQuantity(symbol, percent, price);
+            if (quantity <= 0)
+                return;
 
             var dto = this.BitMexMain.ApiService.Execute(BitmexApiActionAttributes.Order.PostOrder,
                 OrderPOSTRequestParams.CreateSimpleMarket(

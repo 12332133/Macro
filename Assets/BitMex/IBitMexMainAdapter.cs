@@ -16,6 +16,9 @@ namespace Assets.BitMex
         BitmexApiService ApiService { get; }
         BitMexCommandExecutor CommandExecutor { get; }
 
+        void SetHook();
+        void ClearHook();
+
         ContentsBase.ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get; }
         ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get; }
         ContentsBase.ContentsPopupMessage PopupMessage { get; }

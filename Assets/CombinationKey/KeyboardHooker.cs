@@ -8,8 +8,8 @@ namespace Assets.CombinationKey
 {
     public static class KeyboardHooker
     {
-        public static event Action<RawKey> OnKeyDown;
-        public static event Action<RawKey> OnKeyUp;
+        public static Action<RawKey> OnKeyDown;
+        public static Action<RawKey> OnKeyUp;
 
         private static IntPtr hookHandle = IntPtr.Zero;
         private static HashSet<RawKey> pressedKeys = new HashSet<RawKey>();

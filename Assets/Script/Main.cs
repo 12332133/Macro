@@ -60,7 +60,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     private bool isCombination = false;
     private bool isEnableMacro = false;
     private List<RawKey> inputRawKeys;
-    private DateTime time = DateTime.Now;
 
     private ContentsBase.ModifyCommandPercentPopup<IBitMexCommand> popupInput;
     private ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand> popupDropdown;
@@ -136,9 +135,19 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         {
             return;
         }
-        SetHook();
+
+        SetValues();
         SetInputKey();
         SetContents();
+        StartHook();
+    }
+
+    private void Update()
+    {
+        this.txtMarketPriceValue.text = this.session.MarketPrice.ToString();
+        this.txtLeverageValue.text = this.session.Leverage.ToString();
+        this.txtPositionValue.text = this.session.PositionQty.ToString();
+        this.txtAvailableValue.text = this.session.AvailableXbt.ToString();
     }
 
     public void Show(BitmexAuthorization auth)
@@ -184,6 +193,7 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
                 // 세션 생성 
                 this.session = new BitmexSession(selectedCoins);
+                this.session.ChangeSymbol = "XBTUSD";
             }
             else
             {
@@ -261,12 +271,28 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
         return false;
     }
 
+    private void SetValues()
+    {
+        foreach (var symbol in this.session.ActivateSymbols)
+        {
+            this.dropdown.options.Add(new Dropdown.OptionData(symbol));
+        }
+
+        this.dropdown.onValueChanged.AddListener(OnSymbolChanged);
+    }
+
+    private void OnSymbolChanged(int index)
+    {
+        Debug.Log(this.dropdown.options[index].text);
+        this.session.ChangeSymbol = this.dropdown.options[index].text;
+    }
+
     private void SetInputKey()
     {
         this.inputRawKeys = new List<RawKey>();
     }
 
-    private void SetHook()
+    private void StartHook()
     {
         if (KeyboardHooker.IsRunning() == false)
         {
@@ -275,9 +301,20 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
                 return;
             }
 
-            KeyboardHooker.OnKeyUp += OnKeyUp;
-            KeyboardHooker.OnKeyDown += OnKeyDown;
+            SetHook();
         }
+    }
+
+    public void SetHook()
+    {
+        KeyboardHooker.OnKeyUp = OnKeyUp;
+        KeyboardHooker.OnKeyDown = OnKeyDown;
+    }
+
+    public void ClearHook()
+    {
+        KeyboardHooker.OnKeyUp = null;
+        KeyboardHooker.OnKeyUp = null;
     }
 
     private void SetContents()
@@ -379,7 +416,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void OnKeyDown(RawKey key)
     {
-        Debug.Log(key);
         if (this.isEnableMacro == false)
         {
             return;
@@ -400,7 +436,6 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
     private void OnKeyUp(RawKey key)
     {
-        Debug.Log(key);
         if (this.isEnableMacro == false)
         {
             return;
@@ -411,15 +446,8 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
             return;
         }
 
-        if ((DateTime.Now - this.time).TotalMilliseconds < 1000)
-        {
-            Debug.Log("over fast macro input");
-            return;
-        }
-
         GetContent<ContentsMacro>(0).ExecuteMacro(this.inputRawKeys);
 
-        this.time = DateTime.Now;
         this.inputRawKeys.Clear();
         this.isCombination = false;
     }

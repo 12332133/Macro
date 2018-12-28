@@ -9,6 +9,8 @@ using UnityEngine.UI;
 
 public class MacroInputField : InputField
 {
+    public Action OnInputSelect;
+    public Action OnInputDeselect;
     public Func<List<RawKey>, bool> OnKeyChanged;
 
     private const string SelectString = "input macro key...";
@@ -43,16 +45,12 @@ public class MacroInputField : InputField
     {
         base.OnSelect(eventData);
 
-        if (KeyboardHooker.IsRunning() == false && KeyboardHooker.Start() == false)
-        {
-            Debug.Log("hooker resister failed");
-            return;
-        }
+        OnInputSelect();
 
         this.text = GetCombinationKeyName(null);
 
-        KeyboardHooker.OnKeyUp += OnKeyUp;
-        KeyboardHooker.OnKeyDown += OnKeyDown;
+        KeyboardHooker.OnKeyUp = OnKeyUp;
+        KeyboardHooker.OnKeyDown = OnKeyDown;
 
         Debug.Log("hooker start");
     }
@@ -61,13 +59,12 @@ public class MacroInputField : InputField
     {
         base.OnDeselect(eventData);
 
-        if (KeyboardHooker.IsRunning() == true)
-        {
-            KeyboardHooker.OnKeyUp -= OnKeyUp;
-            KeyboardHooker.OnKeyDown -= OnKeyDown;
-        }
+        KeyboardHooker.OnKeyUp = null;
+        KeyboardHooker.OnKeyDown = null;
 
         this.text = GetCombinationKeyName(this.combinationRawKeys);
+
+        OnInputDeselect();
 
         Debug.Log("hooker end");
     }

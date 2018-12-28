@@ -12,6 +12,7 @@ public interface IContentsMacro
 {
     BitMexCommandTable CommandTable { get; }
     BitMexMacroTable MacroTable { get; }
+    IBitMexMainAdapter BitmexMain { get; }
     ContentsBase.ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get; }
     ContentsBase.ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get; }
     ContentsBase.ContentsPopupMessage PopupAlret { get; }
@@ -37,6 +38,7 @@ public class ContentsMacro : ContentsBase, IContentsMacro
 
     private BitMexCommandTable commandTable;
     private BitMexMacroTable macroTable;
+    private System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
 
     // interface impl
     public BitMexCommandTable CommandTable { get { return this.commandTable; } }
@@ -44,6 +46,14 @@ public class ContentsMacro : ContentsBase, IContentsMacro
     public ModifyCommandPercentPopup<IBitMexCommand> PopupInput { get { return this.bitmexMain.PopupInput; } }
     public ModifyCommandCoinTypePopup<IBitMexCommand> PopupDropdown { get { return this.bitmexMain.PopupDropdown; } }
     public ContentsPopupMessage PopupAlret { get { return this.bitmexMain.PopupMessage; } }
+
+    public IBitMexMainAdapter BitmexMain
+    {
+        get
+        {
+            return this.bitmexMain;
+        }
+    }
 
     private void Reset()
     {
@@ -322,6 +332,26 @@ public class ContentsMacro : ContentsBase, IContentsMacro
 
     public void ExecuteMacro(List<RawKey> input)
     {
+        //if (this.stopwatch.IsRunning == true)
+        //{
+        //    this.stopwatch.Stop();
+        //    if (this.stopwatch.ElapsedMilliseconds < 1000)
+        //    {
+        //        //Debug.Log(string.Format("fast input macro is returned {0}", this.stopwatch.ElapsedMilliseconds));
+        //        return;
+        //    }
+        //    else
+        //    {
+        //        this.stopwatch.Restart();
+        //    }
+        //}
+        //else
+        //{
+        //    this.stopwatch.Restart();
+        //}
+
+        //Debug.Log(string.Format("input macro"));
+
         foreach (var table in this.macroTable.GetMacroTable())
         {
             foreach (var macro in table.Value)

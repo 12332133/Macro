@@ -1,71 +1,5 @@
 [
   {
-    "RootCoinName": "XRP",
-    "CoinName": "XRPZ18",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.00000025"
-  },
-  {
-    "RootCoinName": "BCH",
-    "CoinName": "BCHZ18",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.0025"
-  },
-  {
-    "RootCoinName": "ADA",
-    "CoinName": "ADAZ18",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.00000025"
-  },
-  {
-    "RootCoinName": "EOS",
-    "CoinName": "EOSZ18",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.0000025"
-  },
-  {
-    "RootCoinName": "TRX",
-    "CoinName": "TRXZ18",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.00000025"
-  },
-  {
-    "RootCoinName": "XRP",
-    "CoinName": "XRPH19",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.00000025"
-  },
-  {
-    "RootCoinName": "BCH",
-    "CoinName": "BCHH19",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.0025"
-  },
-  {
-    "RootCoinName": "ADA",
-    "CoinName": "ADAH19",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.00000025"
-  },
-  {
-    "RootCoinName": "EOS",
-    "CoinName": "EOSH19",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.0000025"
-  },
-  {
-    "RootCoinName": "TRX",
-    "CoinName": "TRXH19",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "0.00000025"
-  },
-  {
-    "RootCoinName": "XBK",
-    "CoinName": "XBTKRW",
-    "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "25000"
-  },
-  {
     "RootCoinName": "XBT",
     "CoinName": "XBTUSD",
     "FixedAvailableXbt": "0",
@@ -102,10 +36,40 @@
     "SpecifiedAditional": "12.5"
   },
   {
-    "RootCoinName": "XBJ",
-    "CoinName": "XBTJPY",
+    "RootCoinName": "ADA",
+    "CoinName": "ADAZ18",
     "FixedAvailableXbt": "0",
-    "SpecifiedAditional": "2500"
+    "SpecifiedAditional": "0.00000025"
+  },
+  {
+    "RootCoinName": "ADA",
+    "CoinName": "ADAH19",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "0.00000025"
+  },
+  {
+    "RootCoinName": "BCH",
+    "CoinName": "BCHZ18",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "0.0025"
+  },
+  {
+    "RootCoinName": "BCH",
+    "CoinName": "BCHH19",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "0.0025"
+  },
+  {
+    "RootCoinName": "EOS",
+    "CoinName": "EOSZ18",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "0.0000025"
+  },
+  {
+    "RootCoinName": "EOS",
+    "CoinName": "EOSH19",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "0.0000025"
   },
   {
     "RootCoinName": "ETH",
@@ -142,5 +106,41 @@
     "CoinName": "LTCH19",
     "FixedAvailableXbt": "0",
     "SpecifiedAditional": "0.00025"
+  },
+  {
+    "RootCoinName": "TRX",
+    "CoinName": "TRXZ18",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "0.00000025"
+  },
+  {
+    "RootCoinName": "TRX",
+    "CoinName": "TRXH19",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "0.00000025"
+  },
+  {
+    "RootCoinName": "XRP",
+    "CoinName": "XRPZ18",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "0.00000025"
+  },
+  {
+    "RootCoinName": "XRP",
+    "CoinName": "XRPH19",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "0.00000025"
+  },
+  {
+    "RootCoinName": "XBK",
+    "CoinName": "XBTKRW",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "25000"
+  },
+  {
+    "RootCoinName": "XBJ",
+    "CoinName": "XBTJPY",
+    "FixedAvailableXbt": "0",
+    "SpecifiedAditional": "2500"
   }
 ]

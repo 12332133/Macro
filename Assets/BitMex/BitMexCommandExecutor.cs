@@ -33,14 +33,28 @@ namespace Assets.BitMex
                 {
                     command.Execute();
                 }
-                catch (BitmexApiOverloadException)
-                {
-                }
-                catch (BitmexApiException)
-                {
-                }
                 catch (ThreadAbortException)
                 {
+                }
+                catch (BitmexApiOverloadException e)
+                {
+                    Task.Run(() => {
+                        File.AppendAllLines(this.dir,
+                            new[] { string.Format("[{0}] Message : {1} StackTrace : {2}",
+                            DateTime.Now.ToString(),
+                            e.Message,
+                            e.StackTrace)});
+                    });
+                }
+                catch (BitmexApiException e)
+                {
+                    Task.Run(() => {
+                        File.AppendAllLines(this.dir,
+                            new[] { string.Format("[{0}] Message : {1} StackTrace : {2}",
+                            DateTime.Now.ToString(),
+                            e.Message,
+                            e.StackTrace)});
+                    });
                 }
                 catch (Exception e)
                 {
