@@ -30,6 +30,26 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
     [SerializeField] private CanvasGroup cgFadePanel;
     [SerializeField] private Text txtFadePanel;
 
+    [SerializeField] private Dropdown dropdown;
+
+    [SerializeField] private Text txtMarketPriceTitle;
+    [SerializeField] private Text txtMarketPriceValue;
+
+    [SerializeField] private Text txtAvailableTitle;
+    [SerializeField] private Text txtAvailableValue;
+
+    [SerializeField] private Text txtPositionTitle;
+    [SerializeField] private Text txtPositionValue;
+
+    [SerializeField] private Text txtLeverageTitle;
+    [SerializeField] private Text txtLeverageValue;
+
+    [SerializeField] private Toggle tglReduce;
+    [SerializeField] private Text txtReduce;
+
+    [SerializeField] private Toggle tglPost;
+    [SerializeField] private Text txtPost;
+
     private BitmexSubscribeService subscriber;
     private BitmexApiService api;
     private BitmexAuthorization auth;
@@ -65,6 +85,26 @@ public class Main : MonoBehaviour, IBitMexMainAdapter
 
         this.cgFadePanel = transform.Find("Canvas/FadePanel").GetComponent<CanvasGroup>();
         this.txtFadePanel = transform.Find("Canvas/FadePanel/Text").GetComponent<Text>();
+
+        this.dropdown = transform.Find("Canvas/GameObject/Dropdown").GetComponent<Dropdown>();
+
+        this.txtMarketPriceTitle = transform.Find("Canvas/GameObject/MarketPrice").GetComponent<Text>();
+        this.txtMarketPriceValue = transform.Find("Canvas/GameObject/MarketPrice/Value").GetComponent<Text>();
+
+        this.txtAvailableTitle = transform.Find("Canvas/GameObject/Available").GetComponent<Text>();
+        this.txtAvailableValue = transform.Find("Canvas/GameObject/Available/Value").GetComponent<Text>();
+
+        this.txtPositionTitle = transform.Find("Canvas/GameObject/Position").GetComponent<Text>();
+        this.txtPositionValue = transform.Find("Canvas/GameObject/Position/Value").GetComponent<Text>();
+
+        this.txtLeverageTitle = transform.Find("Canvas/GameObject/Leverage").GetComponent<Text>();
+        this.txtLeverageValue = transform.Find("Canvas/GameObject/Leverage/Value").GetComponent<Text>();
+
+        this.tglReduce = transform.Find("Canvas/GameObject/Reduce").GetComponent<Toggle>();
+        this.txtReduce = transform.Find("Canvas/GameObject/Reduce/Label").GetComponent<Text>();
+
+        this.tglPost = transform.Find("Canvas/GameObject/Post").GetComponent<Toggle>();
+        this.txtPost = transform.Find("Canvas/GameObject/Post/Label").GetComponent<Text>();
     }
 
     private void OnApplicationQuit()
